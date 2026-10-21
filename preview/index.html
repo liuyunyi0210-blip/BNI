@@ -227,18 +227,27 @@
     .card h3, .opp h3 { margin: 4px 0 0; font-size: 18px; font-weight: 650; }
     .en, .company, .summary, .empty, .meta { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
     .company { color: var(--ink); }
+    .slogan,
+    .slogan-line {
+      margin: 10px 0 0;
+      padding: 8px 12px;
+      border-left: 3px solid var(--swatch, var(--accent));
+      border-radius: 0 10px 10px 0;
+      background: color-mix(in srgb, var(--swatch, var(--accent)) 10%, #fff);
+      color: var(--ink);
+      font-weight: 650;
+      line-height: 1.55;
+    }
     .slogan {
       grid-column: 1 / -1;
-      margin: 8px 0 0;
       font-size: 13px;
-      line-height: 1.45;
-      color: var(--ink);
     }
     .slogan-line {
-      margin: 8px 0 0;
-      font-size: 16px;
-      font-weight: 650;
+      width: fit-content;
+      max-width: 100%;
+      font-size: 20px;
       line-height: 1.45;
+      padding: 12px 16px;
     }
     .empty { padding: 28px 0; }
     .text-btn {
@@ -1332,17 +1341,17 @@
     }
 
     function basicPage(person) {
-      return `      <div class="person-head">
+      return `      <div class="person-head" style="--swatch:${person.color}">
         <button class="text-btn" type="button" data-back>回到名單</button>
-        <div class="who" style="--swatch:${person.color}">
+        <div class="who">
           ${avatarHtml(person)}
           <div>
             <h2>${person.name}</h2>
             ${person.en ? `<p class="en">${person.en}</p>` : ""}
             ${person.company ? `<p class="company">${person.company}</p>` : ""}
-            ${person.slogan ? `<p class="slogan-line">${person.slogan}</p>` : ""}
           </div>
         </div>
+        ${person.slogan ? `<p class="slogan-line">${person.slogan}</p>` : ""}
       </div>
       <div class="layout">
         <section class="panel">
@@ -1375,9 +1384,9 @@
 
     function formPage(person, profile, pack) {
       const sphereHeaders = profile.sphereHeaders || ["行業", "前三名", "我能提供什麼"];
-      return `      <div class="person-head">
+      return `      <div class="person-head" style="--swatch:${person.color}">
         <button class="text-btn" type="button" data-back>回到名單</button>
-        <div class="who" style="--swatch:${person.color}">
+        <div class="who">
           ${avatarHtml(person)}
           <div>
             <p class="cat">席次 · ${person.category}</p>
@@ -1385,9 +1394,9 @@
             <p class="en">${person.en} · ${person.company} · ${profile.roleTitle}</p>
             <p class="meta">行業年資 ${profile.years} · ${profile.areaLabel || "服務地區"} ${profile.area}</p>
             ${profile.areaNote ? `<p class="meta">${profile.areaNote}</p>` : ""}
-            ${person.slogan ? `<p class="slogan-line">${person.slogan}</p>` : ""}
           </div>
         </div>
+        ${person.slogan ? `<p class="slogan-line">${person.slogan}</p>` : ""}
       </div>
       <div class="layout">
         <div class="stack">
