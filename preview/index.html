@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>大芯分會 · 會員與合作機會</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f2ee;
+      --paper: #fffcf8;
+      --ink: #1c1916;
+      --muted: #6b645c;
+      --line: #e4ddd4;
+      --accent: #8c2f2f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "PingFang TC", "Noto Sans TC", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    header, .toolbar, main, footer {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+    header { padding-top: 28px; }
+    .title-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+    h1 { margin: 0; font-size: 28px; font-weight: 650; }
+    nav { display: flex; gap: 8px; }
+    nav button, .filters button, .card, .text-btn, .close, select {
+      font: inherit;
+      cursor: pointer;
+    }
+    nav button {
+      border: 1px solid var(--line);
+      background: transparent;
+      border-radius: 999px;
+      padding: 6px 14px;
+    }
+    nav button[aria-pressed="true"] {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+    .sub { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+    .toolbar {
+      padding-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .toolbar[hidden] { display: none; }
+    input[type="search"], select {
+      height: 40px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 0 12px;
+      font: inherit;
+      color: inherit;
+    }
+    input[type="search"] { flex: 1 1 220px; min-width: 0; }
+    input:focus, button:focus-visible, .card:focus-visible, select:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .filters { display: flex; flex-wrap: wrap; gap: 6px; }
+    .filters button {
+      border: 1px solid var(--line);
+      background: transparent;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+    .filters button[aria-pressed="true"] {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+    main { padding-top: 8px; padding-bottom: 48px; }
+    .group { margin-top: 22px; }
+    .group h2, .block h2 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+    }
+    .card, .panel {
+      text-align: left;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 12px;
+    }
+    .card {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 4px 12px;
+      align-items: start;
+      padding: 14px;
+      border-top: 3px solid var(--swatch, var(--accent));
+    }
+    .avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--swatch, var(--accent));
+      color: #fff;
+      font-weight: 650;
+      font-size: 18px;
+    }
+    img.avatar {
+      display: block;
+      object-fit: cover;
+      object-position: center 18%;
+    }
+    .fit-pill {
+      grid-column: 1 / -1;
+      margin: 6px 0 0;
+      background: #f6f1eb;
+      background: color-mix(in srgb, var(--swatch, var(--accent)) 14%, white);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 13px;
+    }
+    .cat { margin: 0; font-size: 12px; color: var(--swatch, var(--accent)); font-weight: 600; }
+    .who {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+    .who .avatar { width: 88px; height: 88px; font-size: 26px; }
+    .lcd {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .tile { border-radius: 10px; padding: 10px 12px; min-height: 100%; }
+    .tile .k { margin: 0 0 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; }
+    .tile p { margin: 0; font-size: 14px; }
+    .tile.customer { background: #f3eef8; }
+    .tile.customer .k { color: #6a4c93; }
+    .tile.product { background: #eef3f8; }
+    .tile.product .k { color: #2c5f8a; }
+    .tile.fn { background: #eef6f1; }
+    .tile.fn .k { color: #2f7d55; }
+    .fit-band {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #f7f1ea;
+    }
+    .fit-band .k { margin: 0 0 4px; font-size: 12px; font-weight: 700; color: #8c3d4a; }
+    .qa {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .qa div { border-radius: 10px; padding: 10px 12px; }
+    .qa .k { margin: 0 0 4px; font-size: 12px; font-weight: 700; }
+    .qa p { margin: 0; font-size: 14px; }
+    .qa .open { background: #f6f4f0; }
+    .qa .bad { background: #f8eeee; }
+    .qa .myth { background: #f3f1ea; }
+    .scale {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .qa + .scale { margin-top: 12px; }
+    .step { border-radius: 10px; padding: 10px; min-height: 100%; }
+    .step .k { margin: 0 0 6px; font-size: 12px; font-weight: 700; }
+    .step .k:last-child { margin-bottom: 0; }
+    .step p { margin: 0; font-size: 13px; }
+    .step.s0 { background: #e7f2ea; }
+    .step.s1 { background: #eef3f8; }
+    .step.s2 { background: #f7f1ea; }
+    .step.s3 { background: #f8eeee; }
+    .pair {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .mini {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .bridge {
+      width: 72px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--swatch, var(--accent));
+    }
+    .bridge span {
+      display: block;
+      margin-top: 4px;
+      height: 2px;
+      background: var(--swatch, var(--accent));
+    }
+    .card h3, .opp h3 { margin: 4px 0 0; font-size: 18px; font-weight: 650; }
+    .en, .company, .summary, .empty, .meta { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+    .company { color: var(--ink); }
+    .slogan {
+      grid-column: 1 / -1;
+      margin: 8px 0 0;
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--ink);
+    }
+    .slogan-line {
+      margin: 8px 0 0;
+      font-size: 16px;
+      font-weight: 650;
+      line-height: 1.45;
+    }
+    .empty { padding: 28px 0; }
+    .text-btn {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      padding: 0;
+      font-size: 14px;
+    }
+    .person-head { margin-top: 8px; }
+    .person-head h2 {
+      margin: 8px 0 0;
+      font-size: 28px;
+      letter-spacing: 0;
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .stack { display: flex; flex-direction: column; gap: 16px; }
+    .panel { padding: 16px; }
+    .panel h2 { margin-bottom: 8px; }
+    .panel h3 { margin: 16px 0 6px; font-size: 15px; }
+    .panel p { margin: 0 0 8px; }
+    .panel p:last-child { margin-bottom: 0; }
+    .service + .service { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+    ul { margin: 0; padding-left: 1.1em; }
+    li { margin: 4px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; }
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 1px 8px;
+      color: var(--muted);
+    }
+    .opp { padding: 16px; }
+    .opp .basis { margin-top: 8px; }
+    .learn { display: flex; flex-direction: column; gap: 16px; }
+    .learn h2 {
+      margin: 18px 0 8px;
+      font-size: 15px;
+      font-weight: 650;
+      letter-spacing: 0;
+      color: var(--ink);
+    }
+    .learn section { scroll-margin-top: 12px; }
+    .kicker {
+      margin: 0 0 6px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+    }
+    .lead { margin: 0 0 8px; font-size: 20px; line-height: 1.55; font-weight: 650; }
+    .stages {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .stage { border-radius: 10px; padding: 10px 12px; background: #f6f4f0; min-height: 100%; }
+    .stage .k { margin: 0 0 6px; font-size: 12px; font-weight: 700; color: var(--accent); }
+    .stage p { margin: 0; font-size: 13px; }
+    .steps-col { display: flex; flex-direction: column; gap: 8px; }
+    .pair-note { border-radius: 10px; padding: 10px 12px; }
+    .pair-note .k { margin: 0 0 4px; font-size: 12px; font-weight: 700; }
+    .pair-note.bad { background: #f8eeee; }
+    .pair-note.open { background: #f6f4f0; }
+    .two, .three { display: grid; gap: 12px; }
+    .two { grid-template-columns: 1fr 1fr; }
+    .three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .marks { list-style: none; padding: 0; margin: 0; }
+    .marks li {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .marks li:last-child { border-bottom: 0; padding-bottom: 0; }
+    .num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #f6f1eb;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .marks li.hot .num { background: var(--accent); color: #fff; }
+    .callout {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #f7f1ea;
+    }
+    .role { border-top: 3px solid var(--swatch, var(--line)); }
+    .role .ex {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #f6f4f0;
+      font-size: 14px;
+    }
+    .formula {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .formula span, .formula b {
+      border-radius: 8px;
+      padding: 8px 12px;
+      background: #f6f4f0;
+      font-size: 15px;
+      font-weight: 650;
+    }
+    .formula b { background: var(--ink); color: #fff; }
+    .formula i { font-style: normal; color: var(--muted); font-weight: 700; }
+    .ladder {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 8px;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .ladder b {
+      background: var(--ink);
+      color: #fff;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .ladder i { font-style: normal; color: var(--muted); }
+    footer { padding-bottom: 32px; color: var(--muted); font-size: 12px; }
+    @media (max-width: 800px) {
+      .layout, .lcd, .scale, .pair, .stages, .two, .three { grid-template-columns: 1fr; }
+      .bridge span { width: 2px; height: 18px; margin: 4px auto 0; }
+      .lead { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title-row">
+      <h1>大芯分會</h1>
+      <nav>
+        <button type="button" id="tab-list" aria-pressed="true">會員名單</button>
+        <button type="button" id="tab-opp" aria-pressed="false">合作機會</button>
+        <button type="button" id="tab-learn" aria-pressed="false">學習</button>
+      </nav>
+    </div>
+    <p class="sub" id="count"></p>
+  </header>
+  <div class="toolbar" id="toolbar"></div>
+  <main id="main"></main>
+  <footer id="foot"></footer>
+  <script>
+    const groups = [
+      { id: "pro", label: "專業服務" },
+      { id: "sys", label: "系統設備" },
+      { id: "asset", label: "資產與保險" },
+      { id: "space", label: "空間與交流" },
+      { id: "health", label: "健康生活" },
+      { id: "life", label: "影像與餐飲" },
+      { id: "role", label: "分會角色" }
+    ];
+
+    const members = [
+      ["pro", "#2c5f8a", "商標與專利代理", "林歡偉", "Huan-Wei Lin", "台灣先智專利商標事務所", "商標註冊、侵權處理與智財權保護", "lin-huanwei.jpg", "商標專利找歡偉，守護品牌Every day"],
+      ["pro", "#2c5f8a", "中英文簡報顧問", "葉淨維", "Matt Ye", "", "中英簡報、提案設計與簡報培訓", "ye-jingwei.jpg", "簡報卡關找淨維，中英簡報最到位"],
+      ["pro", "#2c5f8a", "訴訟律師", "彭國書", "Paul", "大尹法律事務所", "商事與個人法律", "peng-guoshu.jpg", ""],
+      ["sys", "#3d6b8c", "事務機設備", "葉意嘉", "Yayi Jia", "訶亞資訊有限公司", "事務機、影印機與投影機租賃", "ye-yijia.jpg", "事務機找意嘉，辦公環境高效率"],
+      ["sys", "#3d6b8c", "地圖資訊系統", "洪紹惟", "", "思想科技有限公司", "地理資訊、圖資與導航", "hong-shaowei.jpg", "地圖問題找紹惟，專業領航最到位"],
+      ["sys", "#3d6b8c", "企業資訊系統", "劉昀易", "Will Liu", "發財爺科技", "企業資訊系統、AI 工具與流程自動化", "liu-yunyi.jpg", "企業資訊找昀易，管理資訊好容易"],
+      ["asset", "#6a4c93", "房屋理財顧問", "李美玲", "李紫嵐 · Jacie Lee", "東方創新不動產有限公司", "房屋買賣與資產配置", "li-meiling.jpg", "買房找紫嵐，保證有好房"],
+      ["asset", "#6a4c93", "人力仲介", "吳育傑", "Eric", "宸暐企業有限公司", "企業徵才與營造人力", "wu-yujie.jpg", "外勞中介找育傑，用心服務不打結"],
+      ["asset", "#6a4c93", "人身保險", "賴百珊", "Sandy", "磊山保險經紀人股份有限公司", "人身保險與壽險規劃", "lai-baishan.jpg", "人身保險找百珊，退休傳承都心安"],
+      ["asset", "#6a4c93", "居家室內設計", "劉柏儀", "Boyd Liu", "沐設計有限公司", "居家空間設計與整修", "liu-boyi.jpg", "室內設計找柏儀，設身處地服務您"],
+      ["asset", "#6a4c93", "產物保險", "黃雯馨", "Lidia Huang", "南山人壽保險股份有限公司", "產物保險", "huang-wenxin.jpg", "把風險交給雯馨，把安心留給自己"],
+      ["asset", "#6a4c93", "銀行貸款（個人貸款）", "彭國益", "Henry Peng", "台新國際商業銀行", "個人信貸、房貸與企業融資", "peng-guoyi.jpg", "貸款找國益，快速又便利"],
+      ["space", "#8c3d4a", "包租代管", "曹淇峰", "TSAUR, CHYI FENG", "峰潮企業有限公司", "包租代管與房屋租賃", "cao-qifeng.jpg", "包租代管找峰巢，房東房客沒煩惱"],
+      ["space", "#8c3d4a", "台日交流顧問", "劉帥志", "Aska Ryu", "飛鳥流企劃有限公司", "台日商務交流", "liu-shuaizhi.jpg", "日本問題就找阿斯卡，國際事業順利不卡卡"],
+      ["space", "#8c3d4a", "廣告設計", "劉上豪", "Hugo", "賀米亞設計工作室", "品牌視覺、活動與文宣設計", "liu-shanghao.jpg", "廣告設計找上豪，因為你值得更好"],
+      ["space", "#8c3d4a", "商業空間設計", "吳璜", "Eddy", "亦象室內裝修設計有限公司", "商業空間、老屋翻新與豪宅", "wu-huang.jpg", "商空設計找亦象，品質安心有保障"],
+      ["health", "#c46a2f", "體態管理保健品", "鄭喬安", "Stacy Cheng", "粒線體大健康團隊", "體態管理與保健品", "zheng-qiaoan.jpg", "體態管理找喬安，健康甩肉不心煩"],
+      ["health", "#c46a2f", "麻油苦茶油", "陳馨麗", "Vicky Chen", "李九英麻油老舖", "麻油與苦茶油", "chen-xinli.jpg", "不是不吃油，是每天吃對油。選馨麗讓你吃的更安心"],
+      ["health", "#c46a2f", "心血管健康管理", "許宸維", "", "康見國際股份有限公司", "心血管健康管理", "xu-chenwei.jpg", "改善三高找宸維，幸福健康平安回"],
+      ["health", "#c46a2f", "等滲透營養補充", "李旺穎", "Lee Wang-Ying", "順辰實業有限公司", "等滲透營養補充", "li-wangying.jpg", "保健效率要提高，等滲吸收最可靠"],
+      ["health", "#c46a2f", "生命禮儀", "陳婕玲", "Chen Chien Ling", "龍巖股份有限公司", "生命禮儀與生前契約", "chen-jieling.jpg", "生命規劃有婕玲，省心安心有尊嚴"],
+      ["life", "#2f7d55", "人像攝影", "王律中", "Brian Wang", "易其佳實業有限公司", "人像、全家福與商業活動紀錄", "wang-lvzhong.jpg", "拍照找波哥，保證笑呵呵"],
+      ["life", "#2f7d55", "花藝設計", "鄭宇杰", "", "晨希花坊", "中西式與歐式花藝", "zheng-yujie.jpg", "送禮選晨希最貼心"],
+      ["life", "#2f7d55", "手工餅乾", "陳懿雯", "", "桔佶坊", "手工餅乾", "chen-yiwen.jpg", "手工餅乾找懿雯，幸福滋味甜在心"],
+      ["life", "#2f7d55", "商業攝影", "羅啟仁", "Charlie", "查理的工作室", "商品與形象攝影", "luo-qiren.jpg", "攝影找查理，不只讓商品更好看，還能讓你賀成交"],
+      ["life", "#2f7d55", "火鍋餐飲業", "劉庭宇", "Snake", "赤牛哥汕頭火鍋", "汕頭火鍋", "liu-tingyu.jpg", "吃火鍋，歡迎光臨赤牛哥"],
+      ["role", "#5c534c", "董事顧問", "張瑪琍", "", "", "分會董事顧問", "zhang-mali.jpg", ""],
+      ["role", "#5c534c", "分會大使、主持樂團", "胡佳瑩", "Ivy", "", "分會大使，主持樂團", "hu-jiaying.jpg", "麥帕蒂打造您的專屬PARTY"]
+    ].map((row, index) => ({
+      id: index + 1,
+      group: row[0],
+      color: row[1],
+      category: row[2],
+      name: row[3],
+      en: row[4],
+      company: row[5],
+      summary: row[6],
+      photo: row[7],
+      slogan: row[8]
+    }));
+
+    const boyd = {
+      roleTitle: "負責人",
+      years: "10 年",
+      area: "台北市",
+      goals: [
+        ["短期", "六個月內跟全部夥伴一對一"],
+        ["中期", "一年內建立能互相合作、也能賺到錢的關係"],
+        ["長期", "兩年以上。表上沒有寫具體內容，不拿來配對"]
+      ],
+      services: [
+        {
+          name: "室內設計",
+          body: "平面規劃、3D 模擬，新屋與中古屋的空間設計。",
+          ideal: "有 500 萬以上預算、長期有裝修需求的業主。",
+          unique: "溫和、沒有壓力，依預算客製，也願意處理漏水這類別人較不做的問題。",
+          value: "門檻可以較低。有設計與施工的團隊。",
+          talk: [
+            "家中屋況有問題：我認識一位設計師，不會嫌事情太小，漏水也願意處理。",
+            "有裝修需求：可以只做一個房間或櫃體，並先用 3D 溝通。"
+          ],
+          myth: "常見誤解是找設計師一定更花錢。介紹時可以說，費用跟施工品質有關，不是有沒有設計師。"
+        },
+        {
+          name: "看屋與簡易驗屋",
+          body: "陪同看屋，做簡易驗屋。",
+          ideal: "新成屋購屋族，以及需要先了解屋況的屋主。",
+          unique: "看屋當下就能從設計與施工的角度給建議。",
+          value: "房仲的業主多一個人一起看屋。",
+          talk: ["對房仲：我認識一位室內設計師，可以陪業主一起看屋。"],
+          myth: ""
+        }
+      ],
+      standards: [
+        ["夢幻引薦", "有明確想法，也有充足預算，想好好規劃的業主"],
+        ["優質引薦", "有規劃意願，了解設計與施工有成本的業主"],
+        ["一般引薦", "對室內設計有需求、想先了解的業主"],
+        ["不適合", "只在多家比最低價；不清楚需求、只想比價；不相信設計，覺得找設計師一定比統包貴"]
+      ],
+      prefer: "客製、溝通彈性。",
+      avoidStyle: "規則很硬，或主見強到不聽業主。",
+      sphere: [
+        ["建商", "是", "客變、室內裝修", "希望被引薦"],
+        ["房仲", "是", "看屋建議、簡易驗屋", "希望被引薦"],
+        ["實體銷售", "是", "未填，這列不配對", "希望被引薦"],
+        ["餐廳飲食", "否", "小型裝修", "已列入人脈圈"],
+        ["常辦活動的業者", "否", "快閃店施工", "已列入人脈圈"],
+        ["包租代管", "否", "這列未填", "寫在希望被引薦的合作端"],
+        ["驗屋中心", "否", "未填，不配對", "只顯示"],
+        ["倉儲", "否", "未填，不配對", "只顯示"],
+        ["工程統包", "否", "未填，不配對", "只顯示"],
+        ["室內設計或策展同行", "否", "未填，不配對", "只顯示"]
+      ],
+      clients: [
+        ["個人住宅", "台北市", "500 萬以上", "住宅規劃"],
+        ["商業空間", "台北市士林區", "未填", "百貨專櫃"],
+        ["個人住宅", "台北市大同區", "300–500 萬", "住宅規劃"],
+        ["個人住宅", "新北市三重區", "100–300 萬", "住宅規劃"],
+        ["商業空間", "新北市永和區", "未填", "餐飲"],
+        ["商業空間", "未填地區", "未填", "服飾販售"],
+        ["個人住宅", "台北市", "100 萬以下", "住宅規劃"],
+        ["商業空間", "新北市淡水區", "未填", "咖啡廳"],
+        ["老屋翻新", "台北市大安區", "100–300 萬", "住宅翻新"],
+        ["個人住宅", "台北市大安區", "100–300 萬", "住宅規劃"]
+      ],
+      clientTypes: ["公司老闆", "新成屋購屋族", "家裡中古屋需要翻修"],
+      partners: ["木工", "水電", "泥作", "拆除", "銀行保經"],
+      wins: [
+        "與服飾公司合作，做過中山捷運站與 SOGO 的旗艦店，以及後續展店。",
+        "處理過 50 年老屋的防水，並重新規劃。",
+        "用很低的預算完成屋頂修繕。"
+      ],
+      interests: "電影、在地小吃、日式與義式料理、動漫、單口喜劇。興趣只供聊天，不拿來配對。"
+    };
+
+    const will = {
+      roleTitle: "負責人",
+      years: "3 年",
+      areaLabel: "公司在",
+      area: "台北市中正區",
+      areaNote: "另一份表的地址寫新北市新店區七張，與居住地相同，居住地不顯示。團隊是全職 2 人、兼職 2 人。前一份工作是資訊業專案經理。",
+      goals: [
+        ["產品化", "透過 BNI 改變單打獨鬥，從客製化專案轉向產品、產業化。例子是「行銷助手」，平均一個月至少 30 單。"],
+        ["另一項", "組建企業服務 Power Team，提供新創一條龍的服務。這項只寫在企業資訊系統那份。"]
+      ],
+      sphere: [
+        ["政府補助案 SBIR／SIIR", "是", "大量客戶", "前三名。分會沒有這個席次"],
+        ["人力仲介、派遣公司", "是", "大量客戶，管理不易", "前三名。對得上吳育傑的席次"],
+        ["會計師、記帳士", "是", "穩定客戶", "前三名，也寫在希望被引薦的合作端。分會沒有這個席次"],
+        ["二代接班轉型", "否", "直接接觸決策圈", "沒有對應席次"],
+        ["商業中心、營業登記、包租代管", "否", "服務客戶多且穩定", "包租代管這一段對得上曹淇峰，不是整列相同"],
+        ["AI 落地師", "否", "服務客戶多", "沒有對應席次"],
+        ["廣告行銷公司", "否", "服務客戶多", "劉上豪的席次是廣告設計，不是廣告行銷公司，這列不配對"],
+        ["企業放款", "否", "有擴張需求、願意做系統", "接近彭國益的銀行貸款，席次不是企業放款"],
+        ["ERP 等企業資訊系統協會", "否", "服務客戶多", "沒有對應席次"],
+        ["專利、商標事務所", "否", "服務客戶多", "對得上林歡偉的席次，不是前三名"]
+      ],
+      sphereHeaders: ["行業", "前三名", "為什麼想認識"],
+      clientBlocks: [
+        {
+          title: "企業資訊系統的客戶",
+          note: "沒有客戶姓名。理想客戶是約 3 到 100 人的中小型公司。",
+          columns: ["產業", "表上寫的內容"],
+          rows: [
+            ["製造業", "紡織工廠、印刷工廠。這列沒寫做了什麼"],
+            ["工程業", "太陽能板安裝。這列沒寫做了什麼"],
+            ["電腦零件", "進銷存系統"],
+            ["買賣業", "車行進銷存系統"],
+            ["資訊業", "廣告公司的訂單管理與獎金計算"],
+            ["服務業", "親子游泳的課程管理"],
+            ["服務業", "顧問公司的財務系統"],
+            ["保險業", "保經的拜訪管理系統"],
+            ["買賣業", "蝦皮、酷澎的庫存與對帳"],
+            ["出版業", "雜誌訂單管理"]
+          ]
+        },
+        {
+          title: "AI 資訊系統的客戶",
+          note: "來自第二份表。沒有客戶姓名。理想客戶是約 3 到 30 人的中小型公司。",
+          columns: ["產業", "表上寫的內容"],
+          rows: [
+            ["蔬果批發", "用 AI 做客訴回覆"],
+            ["保健品直銷", "用 AI 自動排程，發文到社群"],
+            ["保險業務", "用 LINE AI 客服做問答與服務推廣"],
+            ["旅行社業務", "用 LINE AI 管理行事曆"],
+            ["保險經紀人", "用 LINE AI 管理行事曆與共同行事曆"],
+            ["上市公司行政", "用 AI 辨識文件，進行報帳。沒有寫公司名"],
+            ["紡織工廠", "用系統管理工單，用 AI 打單、問進度"],
+            ["汽車零件工廠", "用系統管理工單，用 AI 打單、問進度"],
+            ["廣告公司", "用系統管理工單，用 AI 打單、問進度"],
+            ["食品工廠", "用系統管理工單，用 AI 打單、問進度"]
+          ]
+        }
+      ],
+      partners: ["事務機租賃或買斷", "保健食品宣傳助手"],
+      partnersNote: "事務機對得上葉意嘉的席次，已經是合作端，不另外配對。保健食品宣傳助手不是保健品本身，不配對。希望再被引薦的合作端是會計記帳士、電腦硬體；希望再被引薦的客戶是中大型公司。",
+      wins: [
+        "三年約 40 家成功導入，產業與功能不同。",
+        "從需求訪談、規劃、開發到驗收，一條龍。",
+        "最簡單是用手機回報工作；最完整含進銷存、財務、人資、製造。"
+      ],
+      skills: "系統設計規劃、AI 教學與開發、ISO 27001。",
+      interests: "心理學與商業的書和影片、把身邊的人脈接起來、用 AI 做工具。也喜歡唱歌、展覽、解謎、泰拳。興趣只供聊天，不拿來配對。",
+      networks: [
+        "大學同學：廣告、人資、數據分析、金融、土木技師。",
+        "合唱團：藥廠、生技、法律文件翻譯、工程師。",
+        "宗教圈：資安、建築事務所、防災、會計師、醫師。",
+        "工作往來：零售電商、藍芽材料業務、企業會計顧問。",
+        "講課：中南部工廠。"
+      ]
+    };
+
+    const matches = [
+      {
+        id: "bao",
+        from: "劉柏儀",
+        type: "行業互補",
+        categoryIncludes: "包租代管",
+        basis: "劉柏儀希望被引薦的合作端寫了包租代管。曹淇峰的席次就是包租代管。人脈圈那一列沒寫能提供什麼，這筆依據的是希望被引薦的合作端。",
+        talk: "我認識一位設計師，有完整的團隊，可以處理房屋相關的設計與施工。",
+        avoid: "不要介紹只想比最低價的人，也不要介紹覺得找設計師一定比統包更貴的人。"
+      },
+      {
+        id: "house",
+        from: "劉柏儀",
+        type: "行業接近",
+        categoryIncludes: "房屋",
+        basis: "劉柏儀的人脈圈前三名有房仲，並寫了能提供看屋建議與簡易驗屋。李美玲的席次是房屋理財顧問，公司是不動產，不是房仲這三個字。",
+        talk: "我認識一位室內設計師，可以陪業主一起看屋。",
+        avoid: "不要介紹只想比最低價的人，也不要介紹覺得找設計師一定比統包更貴的人。"
+      },
+      {
+        id: "will-hr",
+        from: "劉昀易",
+        toName: "吳育傑",
+        type: "行業互補",
+        basis: "劉昀易人脈圈前三名寫了人力仲介、派遣公司，理由是大量客戶、管理不易。吳育傑的席次就是人力仲介。",
+        talk: "客戶如果人多、管理不易，我認識一位做企業資訊系統的，可以用系統簡化日常作業。訂單、帳款提醒、業績計算都可以量身做。",
+        avoid: "不要介紹想做點餐系統或 POS 的人。他寫市場上已經有便宜好用的產品。"
+      },
+      {
+        id: "will-ip",
+        from: "劉昀易",
+        toName: "林歡偉",
+        type: "行業互補",
+        basis: "人脈圈寫了專利、商標事務所，理由是服務客戶多。不是前三名。林歡偉的席次是商標與專利代理。",
+        talk: "你的客戶會不會常問資訊系統要用哪一家？我認識一位供應商，可以先給建議，也可以看怎麼合作。",
+        avoid: "不要介紹想做點餐系統或 POS 的人。他寫市場上已經有便宜好用的產品。"
+      },
+      {
+        id: "will-rent",
+        from: "劉昀易",
+        toName: "曹淇峰",
+        type: "行業接近",
+        basis: "人脈圈有一列把商業中心、營業登記、包租代管寫在一起，理由是服務客戶多且穩定。曹淇峰的席次是包租代管，只對上其中一段。",
+        talk: "如果包租代管的客戶單據很多、系統不夠用，我認識一位做企業資訊系統的，可以先做導入前的評估。",
+        avoid: "不要介紹想做點餐系統或 POS 的人。他寫市場上已經有便宜好用的產品。"
+      },
+      {
+        id: "will-loan",
+        from: "劉昀易",
+        toName: "彭國益",
+        type: "行業接近",
+        basis: "人脈圈寫了企業放款，理由是有擴張需求、願意做系統。彭國益的席次是銀行貸款（個人貸款），服務含企業融資，不是企業放款這四個字。",
+        talk: "客戶如果因為擴張要談資金，也可以問現在的系統夠不夠用。我認識一位做企業資訊系統的，可以一起看要不要升級。",
+        avoid: "不要介紹想做點餐系統或 POS 的人。他寫市場上已經有便宜好用的產品。"
+      }
+    ];
+
+    const tabList = document.querySelector("#tab-list");
+    const tabOpp = document.querySelector("#tab-opp");
+    const tabLearn = document.querySelector("#tab-learn");
+    const toolbar = document.querySelector("#toolbar");
+    const main = document.querySelector("#main");
+    const count = document.querySelector("#count");
+    const foot = document.querySelector("#foot");
+
+    let view = "list";
+    let group = "all";
+    let keyword = "";
+    let personId = null;
+    let viewerId = members.find((person) => person.name === "劉柏儀").id;
+
+    const packs = {
+      "林歡偉": { source: "draft", items: [{
+        name: "商標註冊與侵權處理",
+        customer: "已經有品牌名稱、正在申請商標，或發現別人用了自己名字的公司負責人。",
+        product: "商標申請、權利維護，以及仿冒、侵權時的處理。事務所承接，不是只給一份申請表。",
+        fn: "品牌名稱有權利位置；遇到被占用或仿冒時，有人接著處理。",
+        fit: "要註冊商標的品牌、電商與實體店；已經遇到仿冒的公司。",
+        fitShort: "要註冊商標，或已經遇到仿冒的品牌",
+        open: "我認識一位商標代理人，品牌要登記或被人占用時，可以先請他看。",
+        notFit: "還沒有要保護的名稱，只是想問註冊費的人。",
+        myth: "商標不是交件就結束。註冊之後仍要看權利有沒有被別人用到。"
+      }]},
+      "葉淨維": { source: "draft", items: [{
+        name: "中英文簡報與提案培訓",
+        customer: "要對客戶、評審或主管提案，中文或英文都說不順的專業人士與企業主。",
+        product: "簡報結構、提案設計，以及團體或個別的上台培訓。",
+        fn: "聽的人知道你要他做什麼決定，提案不再只是念投影片。",
+        fit: "要提案、競標、商業競賽，或需要英文簡報的人。",
+        fitShort: "要提案、競標或用英文上台的人",
+        open: "我認識一位簡報顧問，提案前可以請他把聽眾要做的決定先講清楚。",
+        notFit: "只想找人代做一頁美編、自己不上台的人。",
+        myth: "簡報好看不等於提案會過。重點是對方聽完知道要決定什麼。"
+      }]},
+      "彭國書": { source: "draft", items: [{
+        name: "商事與個人法律",
+        customer: "公司或個人已經有契約、股權、債務上的爭議，需要律師看的人。",
+        product: "法律意見與訴訟代理，由律師事務所承接。",
+        fn: "爭議有人依程序處理，當事人不用自己對着對方硬談。",
+        fit: "有具體爭議、需要律師進場的企業主或個人。",
+        fitShort: "已有契約、股權或債務爭議的人",
+        open: "我認識一位律師，事情已經變成爭議時，可以先請他看適不適合由律師處理。",
+        notFit: "只想問一句會不會贏、還沒有事實經過的人。",
+        myth: "找律師不是表示一定要告。先看這件事該不該進法律程序。"
+      }]},
+      "葉意嘉": { source: "draft", items: [{
+        name: "事務機與投影設備租賃",
+        customer: "辦公室要印文件、會議室要投影，不想自己買斷設備的公司。",
+        product: "事務機、影印機、投影機的租賃與後續使用。",
+        fn: "文件印得出來，會議投影穩定，設備有人管。",
+        fit: "新辦公室、印量固定、需要投影的公司與教室。",
+        fitShort: "辦公室要印表或會議要投影的公司",
+        open: "我認識一位做事務機的，辦公室印表或投影不穩時可以問他租賃。",
+        notFit: "只印幾張、沒有固定印量的人。",
+        myth: "租賃不是比較貴的購買。它把機器、耗材與當機一起交給別人管。"
+      }]},
+      "洪紹惟": { source: "draft", items: [{
+        name: "地圖與地理資訊",
+        customer: "業務、物流或據點需要知道位置、路線、區域的公司。",
+        product: "圖資、地圖系統與導航相關的資訊服務。",
+        fn: "位置與路線變成可以查、可以給業務用的資料。",
+        fit: "有外勤、多據點、需要路線或區域圖的公司。",
+        fitShort: "有外勤、多據點或需要路線的公司",
+        open: "我認識一位做地圖資訊的，據點和路線還靠人工記的時候可以找他。",
+        notFit: "只是要查一次地址、沒有持續使用的人。",
+        myth: "地圖系統不是把 Google 網址存起來。它是把位置變成公司自己能用的資料。"
+      }]},
+      "李美玲": { source: "draft", items: [{
+        name: "房屋買賣與資產配置",
+        customer: "要換屋、自住或把房子當資產看的屋主與家庭。",
+        product: "不動產條件整理與買賣協助。",
+        fn: "買賣前看清楚這間房子在資產裡的位置，而不是只看喜不喜歡。",
+        fit: "準備換屋、第一次買，或手上有房子要重新配置的人。",
+        fitShort: "要換屋、自住或重新配置房子的人",
+        open: "我認識一位房屋顧問，換屋或把房子當資產看時，可以先請她整理條件。",
+        notFit: "只想問今天市價、沒有買賣打算的人。",
+        myth: "房屋不是只看坪數和價錢。自住、換屋、投資要的條件不一樣。"
+      }]},
+      "吳育傑": { source: "draft", items: [{
+        name: "企業徵才與營造人力",
+        customer: "缺人、尤其現場與營造相關職缺補不上的公司。",
+        product: "依職缺找人、把人力送進需要的崗位。",
+        fn: "職缺有人進場，工程或營運不用一直停着等。",
+        fit: "營造、現場職缺多、自己招募來不及的公司。",
+        fitShort: "營造或現場職缺補不上的公司",
+        open: "我認識一位做人力的，現場職缺補不上時可以先把工作內容給他。",
+        notFit: "還沒寫出工作內容、只說要找一個厲害的人。",
+        myth: "人力仲介不是履歷轉寄站。職缺條件清楚，才找得到進得了現場的人。"
+      }]},
+      "賴百珊": { source: "draft", items: [{
+        name: "人身保險與壽險規劃",
+        customer: "要安排自己或家庭收入中斷風險的企業主與家庭。",
+        product: "人身保險與壽險的保障規劃。",
+        fn: "風險發生時，家庭或公司有一筆事先安排的資源。",
+        fit: "有家庭責任、收入集中在一個人身上的企業主。",
+        fitShort: "收入集中在一人、要安排家庭風險的人",
+        open: "我認識一位壽險規劃師，收入若集中在一個人身上，可以先請她看保障缺口。",
+        notFit: "只想比較哪張保單最便宜、沒有想保護誰的人。",
+        myth: "保險不是買越多越好。先看要保護的人與收入缺口。"
+      }]},
+      "黃雯馨": { source: "draft", items: [{
+        name: "產物保險",
+        customer: "有店面、設備、貨物或車輛，需要把意外損失轉出去的公司與個人。",
+        product: "產物保險的規劃與投保。介紹冊上的公司是南山人壽，席次寫的是產物保險。",
+        fn: "火災、損壞或責任發生時，損失有契約可以對應。",
+        fit: "有營業場所、設備或貨物的店家與公司。",
+        fitShort: "有店面、設備或貨物要保的店家",
+        open: "我認識一位做產險的，店面或設備還沒有對應的保單時可以先問她。",
+        notFit: "沒有要保的標的，只想聽有沒有便宜方案的人。",
+        myth: "產險保的是東西與責任，不是人身壽險那一類。"
+      }]},
+      "彭國益": { source: "draft", items: [{
+        name: "個人信貸、房貸與企業融資",
+        customer: "買房、週轉或公司要用錢，需要銀行評估的人。",
+        product: "台新銀行的個人信貸、房屋貸款與企業融資。",
+        fn: "資金需求被整理成銀行看的條件，知道過不過得了、怎麼接。",
+        fit: "準備買房、既有房貸要看，或公司有明確用途要融資的人。",
+        fitShort: "要買房、週轉或公司融資的人",
+        open: "我認識台新的貸款專員，買房或公司要用錢時，可以先請他把條件看一遍。",
+        notFit: "沒有還款來源、只想問能借多少的人。",
+        myth: "貸款不是額度越大越好。用途、還款與自身條件要一起看。"
+      }]},
+      "曹淇峰": { source: "draft", items: [{
+        name: "包租與代管",
+        customer: "有房子要出租，不想自己找租客、處理修繕與租金的房東。",
+        product: "包租或代管，把出租過程交給管理方。",
+        fn: "房子有人出租、租務有人處理，房東不用每件事自己出面。",
+        fit: "手邊有一戶以上、人在外地或沒時間管租的房東。",
+        fitShort: "有房子要出租、不想自己管的房東",
+        open: "我認識一位做包租代管的，房子空着又不想自己管租客時可以找他。",
+        notFit: "房子還沒有、只是想先聽報酬率的人。",
+        myth: "包租代管不是保證永遠滿租。它是把找租客和日常租務交出去。"
+      }]},
+      "劉帥志": { source: "draft", items: [{
+        name: "台日商務交流",
+        customer: "要跟日本客戶、供應商或夥伴往來，語言或商業習慣接不起來的公司。",
+        product: "台日兩邊的商務溝通與交流安排。",
+        fn: "兩邊聽得懂對方要什麼，合作不會停在翻譯。",
+        fit: "已有日本對象，或準備進入日本市場的公司。",
+        fitShort: "要跟日本客戶或供應商往來的公司",
+        open: "我認識一位做台日交流的，跟日本夥伴談不下去時可以請他一起看。",
+        notFit: "只想學幾句日文、沒有商務對象的人。",
+        myth: "台日交流不是語言課。重點是兩邊的生意能接上。"
+      }]},
+      "劉上豪": { source: "draft", items: [{
+        name: "品牌視覺、活動與文宣",
+        customer: "要辦活動、要一組別人認得出來的視覺的品牌與店家。",
+        product: "品牌視覺、活動設計與文宣，由設計工作室製作。",
+        fn: "同一場活動或同一個品牌，看起來是同一家，而不是每張圖各做各的。",
+        fit: "即將辦活動、新品或門市需要一整組視覺的品牌。",
+        fitShort: "要辦活動或需要一整組視覺的品牌",
+        open: "我認識一位廣告設計，活動或品牌還沒有統一視覺時可以請他先看用途。",
+        notFit: "明天下午就要檔、內容與用途都還沒定的人。",
+        myth: "設計不是把字排好看。要先知道這張東西是給誰、要他做什麼。"
+      }]},
+      "吳璜": { source: "draft", items: [{
+        name: "商業空間、老屋與豪宅",
+        customer: "要開店、翻老屋，或住宅規格較高的業主。",
+        product: "商業空間與住宅的裝修設計，包含老屋翻新與豪宅。",
+        fn: "空間可以營業或入住，動線與工程有一份可執行的規劃。",
+        fit: "即將開店的店主、老屋屋主、有完整裝修預算的住宅業主。",
+        fitShort: "要開店、翻老屋或做完整住宅的業主",
+        open: "我認識一位做商業空間的，開店或老屋還不知道怎麼動工時可以先找他。",
+        notFit: "只想要一張效果圖、沒有打算施工的人。",
+        myth: "商業空間和住宅的條件不同。店要能營業，不是只把家裡的做法搬過去。"
+      }]},
+      "鄭喬安": { source: "draft", items: [{
+        name: "體態管理與保健品",
+        customer: "想管理體態，也願意配合飲食與保健品的人。",
+        product: "體態管理方式，加上對應的保健品。",
+        fn: "體態有可執行的做法，不是只靠少吃硬撐。",
+        fit: "已經想調整體態、願意持續配合的人。",
+        fitShort: "想管理體態、願意持續配合的人",
+        open: "我認識一位做體態管理的，若你願意持續調整，可以先聽她怎麼配。",
+        notFit: "想一週看到效果、不打算改變飲食的人。",
+        myth: "保健品不是代替吃飯。它要跟體態管理的做法一起用。"
+      }]},
+      "陳馨麗": { source: "draft", items: [{
+        name: "麻油與苦茶油",
+        customer: "家裡料理、月子或送禮需要麻油、苦茶油的家庭，以及會用油的店。",
+        product: "麻油、苦茶油等油品。",
+        fn: "料理和傳統用途有穩定的油，不用每次臨時找。",
+        fit: "常做中式料理的家庭、月子需求、餐廳與禮品需求。",
+        fitShort: "料理、月子或送禮需要麻油苦茶油的人",
+        open: "我認識李九英麻油，家裡或店裡需要麻油、苦茶油時可以找她。",
+        notFit: "只比較一瓶的價錢、沒有使用場景的人。",
+        myth: "麻油不是只有坐月子才用。日常料理和送禮也是用途。"
+      }]},
+      "許宸維": { source: "draft", items: [{
+        name: "心血管健康管理",
+        customer: "自己或家人已經在注意血壓、心血管狀況的人。",
+        product: "心血管相關的健康管理。",
+        fn: "日常怎麼管理有人一起看，不是等到不舒服才處理。",
+        fit: "已被提醒要注意心血管、願意做日常管理的人。",
+        fitShort: "要做心血管日常管理的人與家庭",
+        open: "我認識一位做心血管健康管理的，家人已被提醒要注意時可以先諮詢他。",
+        notFit: "把保健當成治療、用來取代就醫的人。",
+        myth: "健康管理不是醫療行為。診斷與用藥仍要給醫師。"
+      }]},
+      "李旺穎": { source: "draft", items: [{
+        name: "等滲透營養補充",
+        customer: "需要營養補充，又在意腸胃負擔與吸收方式的人。",
+        product: "等滲透配方的營養補充品。",
+        fn: "補充時比較不會因為濃度造成負擔，吸收路徑說得清楚。",
+        fit: "長輩、食量不穩、需要固定補充營養的人。",
+        fitShort: "食量不穩、需要固定營養補充的人",
+        open: "我認識一位做等滲透營養的，家裡有人食量不穩、需要補充時可以先了解配方。",
+        notFit: "想用營養品取代正餐與就醫的人。",
+        myth: "等滲透是濃度的做法，不是吃了就一定有效。要看這個人缺的是什麼。"
+      }]},
+      "陳婕玲": { source: "draft", items: [{
+        name: "生命禮儀與生前契約",
+        customer: "想預先安排，或家庭正要處理禮儀的人。",
+        product: "生命禮儀服務與生前契約，由龍巖承接。",
+        fn: "事情發生時，家人不用在當下決定全部細節。",
+        fit: "想先把禮儀安排好的家庭，以及正在承辦的家屬。",
+        fitShort: "想預先安排禮儀，或正在承辦的家庭",
+        open: "我認識龍巖的禮儀顧問，若家人想事先安排，可以請她說明契約裡有什麼。",
+        notFit: "只想比較價格、不願談家庭意願的人。",
+        myth: "生前契約不是越早買越划算這一句話。要看家庭要留下哪些安排。"
+      }]},
+      "王律中": { source: "draft", items: [{
+        name: "人像、全家福與活動紀錄",
+        customer: "要拍人、拍家庭，或一場活動需要留下影像的人。",
+        product: "人像、全家福、親子與商業活動的拍攝。",
+        fn: "現場過去之後，還有一組可以留給人和品牌的照片。",
+        fit: "家庭重要日子、企業活動、需要人物照片的品牌。",
+        fitShort: "要拍家庭、人像或活動紀錄的人",
+        open: "我認識一位人像攝影師，家庭或活動需要留下人的照片時可以找他。",
+        notFit: "要的是商品棚拍、沒有人物的案子。那是另一種攝影。",
+        myth: "活動紀錄不是到場按快門。事先要知道這組照片以後用在哪。"
+      }]},
+      "鄭宇杰": { source: "draft", items: [{
+        name: "中西式與歐式花藝",
+        customer: "活動、空間或送禮需要花的主人與品牌。",
+        product: "混合花藝，包含中式、西式與歐式設計。",
+        fn: "場合有對的花，跟場地和用途是一起的。",
+        fit: "婚禮、企業活動、店面與送禮。",
+        fitShort: "活動、店面或送禮需要花藝的人",
+        open: "我認識一位花藝設計，活動或空間需要花時，可以先跟他說場合。",
+        notFit: "當天才說要一束、沒有場合也沒有預算的人。",
+        myth: "花藝不是買一束最便宜的花。場合不同，花的角色不同。"
+      }]},
+      "陳懿雯": { source: "draft", items: [{
+        name: "手工餅乾",
+        customer: "送禮、茶會、活動或店內需要餅乾的人。",
+        product: "手工餅乾，可作為禮物或搭配招待。",
+        fn: "有可以送、可以配茶、跟場合相稱的餅乾。",
+        fit: "企業送禮、茶會、活動伴手禮，以及會陳列餅乾的店。",
+        fitShort: "送禮、茶會或活動需要餅乾的人",
+        open: "我認識桔佶坊，送禮或茶會需要手工餅乾時可以找她。",
+        notFit: "要大量工業規格、只比每片單價的採購。",
+        myth: "手工餅乾的價值在於場合與口味，不是跟量販餅乾比單價。"
+      }]},
+      "羅啟仁": { source: "draft", items: [{
+        name: "商品與形象攝影",
+        customer: "商品要上架、人或品牌需要一組正式照片的公司。",
+        product: "商品攝影與形象照。",
+        fn: "商品和人在畫面上站得住，可以直接用在銷售與介紹。",
+        fit: "電商、品牌目錄、需要形象照的專業人士。",
+        fitShort: "商品要上架，或需要形象照的品牌",
+        open: "我認識一位商業攝影師，商品或形象照還不能用時可以請他看用途。",
+        notFit: "要拍活動花絮、沒有商品或形象需求的人。",
+        myth: "商業攝影不是把手機照片修亮。它要對準以後投放的位置。"
+      }]},
+      "劉庭宇": { source: "draft", items: [{
+        name: "汕頭火鍋",
+        customer: "聚餐、商務用餐、想吃溫體牛與汕頭火鍋的人。",
+        product: "赤牛哥汕頭火鍋，有湯頭與肉品的用餐。",
+        fn: "有一個可以聚、口味明確的地方。",
+        fit: "家庭聚餐、客戶用餐、分會與企業的小桌聚餐。",
+        fitShort: "聚餐或商務用餐、想吃汕頭火鍋的人",
+        open: "我認識赤牛哥，聚餐想吃汕頭火鍋時可以訂他的店。",
+        notFit: "要的是外燴到公司、或不能吃牛肉的整桌。",
+        myth: "火鍋店的引薦是帶人去吃，不是把餐飲說成一套管理顧問。"
+      }]},
+      "胡佳瑩": { source: "draft", items: [{
+        name: "主持與現場樂團",
+        customer: "活動需要有人帶場，或現場要有音樂的主人。",
+        product: "主持，以及樂團演出。",
+        fn: "活動有流程、現場有聲音，客人知道現在進行到哪。",
+        fit: "分會活動、企業聚會、需要主持與現場音樂的場合。",
+        fitShort: "需要主持或現場音樂的活動",
+        open: "我認識分會大使胡佳瑩，活動需要主持或樂團時可以先跟她談場合。",
+        notFit: "要的是錄音專輯，或場地、時段都還沒有的詢價。",
+        myth: "主持和樂團可以是同一場活動的兩件事，要先講清楚這次要哪一段。"
+      }]}
+    };
+
+    const boydPack = { source: "form", items: [
+      {
+        name: "室內設計",
+        customer: "已有房子、有明確想法的業主。他五表上的理想客戶是預算約 500 萬以上、或長期還會再裝修的人；現有客戶類型是公司老闆、新成屋購屋族、中古屋要翻修的家庭。",
+        product: "平面規劃、3D、設計到施工。可以只做一個房間或櫃體，也處理漏水、防水、屋頂這類別人較不做的小工程。溝通偏客製，依業主預算做。",
+        fn: "屋況問題有人處理；動工前先用 3D 對過需求；預算內看得到要做什麼、不做什麼。",
+        fit: "有想法也有預算的住宅業主；新成屋要客變、中古屋要翻修的屋主。合作上適合建商、房仲、包租代管把業主介紹過來。",
+        fitShort: "有預算要規劃住宅的業主，以及建商、房仲、包租代管",
+        open: "屋況有問題：我認識一位設計師，不會嫌事情太小，漏水也願意處理。有裝修需求：可以只做一個房間或櫃體，並先用 3D 溝通。對房仲：可以陪業主看屋。對包租代管：有團隊處理房屋的設計與施工。",
+        notFit: "只在多家比最低價；需求不清楚、只想比價；不相信設計，覺得找設計師一定比統包貴。",
+        myth: "常見誤解是找設計師一定更花錢。可以回應：費用跟施工品質有關，不是有沒有設計師。"
+      },
+      {
+        name: "看屋與簡易驗屋",
+        customer: "正在看屋、還不確定屋況的購屋族，以及房仲手上的業主。",
+        product: "陪同看屋，做簡易驗屋，從設計與之後要施工的角度講這間屋。",
+        fn: "看屋當下知道哪些問題以後要處理，減少買了才發現。",
+        fit: "新成屋購屋族，以及願意讓設計師一起看屋的房仲業主。",
+        fitShort: "正在看屋的人，以及房仲的業主",
+        open: "我認識一位室內設計師，可以陪業主一起看屋，現場講哪些以後要處理。",
+        notFit: "沒有看屋計畫，只想順便問裝修行情的人。",
+        myth: "簡易驗屋不是正式鑑定報告。它是從設計與施工看這間屋值不值得繼續談。"
+      }
+    ]};
+
+    const willPack = {
+      source: "form",
+      note: "兩份一對一表，修訂日都是 2026 年 7 月 23 日。席次仍是企業資訊系統。第一個服務依企業資訊系統那份。第二個依 AI 那份的客戶與引薦欄；那份的訪談頁仍是企業系統的答案，沒有另寫開口與誤解。",
+      items: [
+        {
+          name: "企業資訊系統",
+          customer: "中小型公司，大約 3 到 100 人。公司正在擴張、還靠紙本，或覺得現有系統又貴又難用。夢幻引薦是電腦零組件公司，優質是中大型工廠，一般是有線上服務的服務業與中小買賣業。希望再被引薦到的客戶是中大型公司。",
+          product: "企業資訊系統，以及導入前的評估。從需求訪談、規劃、開發到驗收。簡單可以是手機回報工作，完整可以含進銷存、財務、人資、製造。他也用 vibe coding 做工具。",
+          fn: "訂單、報價、對帳、庫存有系統可管；帳款到期會提醒，業績可以計算。日常作業少靠人記。",
+          fit: "覺得現有系統不夠好用、願意換或升級的中小型公司，以及中大型工廠、電腦零組件這類買賣業。合作上適合記帳士、人力仲介、商標專利把單據很多的客戶介紹過來。",
+          fitShort: "系統不夠好用、想升級的中小型公司",
+          open: "業務很忙：你是否客戶太多、業務太繁忙？我認識一個資訊系統專家，可以靠升級系統簡化日常作業。訂單、帳款提醒、業績計算都可以量身做。人脈：你的客戶常問資訊系統要用哪一家嗎？我認識一個供應商，可以先給建議，也可以看怎麼合作。",
+          notFit: "想導入點餐系統或 POS。他寫市場上已經有便宜又好用的產品。",
+          myth: "常見誤解是資訊系統一定很貴。可以回應：別的系統報價約 100 萬的功能，他可以在 40 萬以內做。",
+          standards: [
+            ["夢幻引薦", "電腦零組件公司"],
+            ["優質引薦", "中大型工廠"],
+            ["一般引薦", "提供線上服務的服務業、中小買賣業"],
+            ["不適合", "需要 POS 點餐系統"]
+          ]
+        },
+        {
+          name: "AI 資訊系統",
+          customer: "中小型公司，大約 3 到 30 人。人在 LINE 上，想用 AI 管訂單、行事曆或客服。夢幻引薦是把 AI 賦能當成公司方向的人；優質是要用 AI 訂單機器人做客戶服務的人；一般是要買 LINE 行事曆機器人，或 AI 排程發文機器人的人。",
+          product: "依這份客戶表，做過 AI 客訴回覆、社群排程發文、LINE 上的客服問答與服務推廣、LINE 行事曆，以及用 AI 辨識文件來報帳。工廠與廣告公司則是工單系統，加上 AI 打單、問進度。",
+          fn: "AI 幫忙回覆問答、促進訂單、整理行事曆。工單可以打進去，也可以問進度。",
+          fit: "還不熟 AI，但想拿來做客服、發文或行事曆的中小公司。",
+          fitShort: "想用 AI 做客服、發文或行事曆的中小公司",
+          open: "這份表的訪談頁沒有另寫開口稿，內容仍是企業資訊系統。依客戶欄的情境，可以說：如果對方在 LINE 上想用 AI 回覆問題、排程發文或管行事曆，我認識劉昀易，可以先看適不適合。",
+          notFit: "對 AI 已經很熟悉的人，以及覺得有 AI 就都做得到的人。",
+          myth: "這份表的誤解欄沒有另寫，仍是企業系統那句「一定很貴」，所以不套到 AI。AI 要避開的是上面兩種人。",
+          standards: [
+            ["夢幻引薦", "想把 AI 賦能當成公司未來方向的人"],
+            ["優質引薦", "想用 AI 訂單機器人做客戶服務的人"],
+            ["一般引薦", "購買 LINE 行事曆機器人，或 AI 排程發文機器人的人"],
+            ["不適合", "對 AI 已經很熟悉，或覺得有 AI 就都做得到的人"]
+          ]
+        }
+      ]
+    };
+
+    function personById(id) {
+      return members.find((person) => person.id === Number(id));
+    }
+
+    function opportunitiesFor(viewer) {
+      return matches.map((match) => {
+        const left = members.find((person) => person.name === match.from);
+        const right = members.find((person) => {
+          if (match.toName) return person.name === match.toName;
+          return person.category.includes(match.categoryIncludes) && person.name !== match.from;
+        });
+        if (!left || !right) return null;
+        if (viewer.id !== left.id && viewer.id !== right.id) return null;
+        return { ...match, left, right };
+      }).filter(Boolean);
+    }
+
+    function renderTabs() {
+      tabList.setAttribute("aria-pressed", view === "list" || view === "person" ? "true" : "false");
+      tabOpp.setAttribute("aria-pressed", view === "opportunities" ? "true" : "false");
+      tabLearn.setAttribute("aria-pressed", view === "learn" ? "true" : "false");
+    }
+
+    function render() {
+      renderTabs();
+      if (view === "list") renderList();
+      else if (view === "person") renderPerson();
+      else if (view === "learn") renderLearn();
+      else renderOpportunities();
+    }
+
+    function renderLearn() {
+      toolbar.hidden = false;
+      toolbar.innerHTML = `
+        <div class="filters" id="learn-nav">
+          <button type="button" data-jump="learn-core">核心</button>
+          <button type="button" data-jump="learn-brief">30 秒簡報</button>
+          <button type="button" data-jump="learn-121">121</button>
+          <button type="button" data-jump="learn-ref">引薦</button>
+          <button type="button" data-jump="learn-roles">三種角色</button>
+          <button type="button" data-jump="learn-close">總結</button>
+        </div>`;
+      count.textContent = "把會員培養成知道怎麼幫你找商機的業務總監";
+      foot.textContent = "整理自 30 秒簡報、121 工作坊與引薦工作坊。";
+      main.innerHTML = `
+        <div class="learn">
+          <section class="panel" id="learn-core">
+            <p class="kicker">核心體會</p>
+            <p class="lead">BNI 其實不只是「交換引薦」，而是在建立一套可以長期複製的 B2B 業務系統。</p>
+            <p>相較一直開發 To C 客戶，如果能累積一群真正懂你、信任你、知道怎麼幫你找客戶的 To B 夥伴，商機更有機會做到大量、長期、穩定、可預測。</p>
+            <p>如果把 BNI 當成一家公司來看，我們其實是在「培訓自己的業務總監」。</p>
+            <h2>會員至少要慢慢被培養到</h2>
+            <div class="stages">
+              <article class="stage"><p class="k">1 適合的引薦</p><p>知道什麼是適合我的引薦。</p></article>
+              <article class="stage"><p class="k">2 基本 QA</p><p>能做基本 QA，協助建立客戶信任。</p></article>
+              <article class="stage"><p class="k">3 知道不適合</p><p>知道什麼客戶不適合，不要亂引薦。</p></article>
+              <article class="stage"><p class="k">4 長期合作</p><p>一起找到長期合作模式。</p></article>
+            </div>
+            <div class="qa" style="margin-top:12px">
+              <div class="bad"><p class="k">培訓不足時</p><p>很容易只剩下不精準的引薦、零星訂單，甚至很多商機明明在身邊卻看不到。</p></div>
+              <div class="open"><p class="k">真正要累積的</p><p>BNI 不能只是來社交。真正重要的是累積信任，並且提高彼此的業務理解。</p></div>
+            </div>
+          </section>
+
+          <section class="panel" id="learn-brief">
+            <p class="kicker">30 秒簡報</p>
+            <p class="lead">不是要在 30 秒內把公司介紹完。</p>
+            <p>目的是快速讓大家知道下面三件事，讓與會成員產生「我想跟這個人 121」的念頭。越精準越好。</p>
+            <div class="lcd">
+              <article class="tile customer"><p class="k">優勢</p><p>我的優勢是什麼？</p></article>
+              <article class="tile product"><p class="k">對象</p><p>我現在要找誰？</p></article>
+              <article class="tile fn"><p class="k">資源</p><p>我有哪些資源？</p></article>
+            </div>
+          </section>
+
+          <section class="panel" id="learn-121">
+            <p class="kicker">121 工作坊</p>
+            <p class="lead">真正的 121 應該快狠準，不要當天再過一次公司流水帳。</p>
+            <div class="two">
+              <div class="pair-note bad">
+                <p class="k">不要這樣</p>
+                <p>五表留到 121 當天才拿出來，照著重新介紹一次公司。過流水帳很消耗時間跟精力。</p>
+              </div>
+              <div class="pair-note open">
+                <p class="k">要這樣</p>
+                <p>五表最好事前就準備、事前交換。當天直接講重點，最後才討論引薦或合作。</p>
+              </div>
+            </div>
+            <h2>劈頭就講這四件事</h2>
+            <div class="stages">
+              <article class="stage"><p class="k">1</p><p>獨特主張</p></article>
+              <article class="stage"><p class="k">2</p><p>重點客戶</p></article>
+              <article class="stage"><p class="k">3</p><p>人脈資源</p></article>
+              <article class="stage"><p class="k">4</p><p>想要的目標</p></article>
+            </div>
+            <p style="margin-top:12px">到了比較累的時候，反過來補充自己的有趣事蹟，讓形象加分，也可以稍作緩和。最後再討論引薦或合作的可能性。</p>
+            <div class="callout">
+              <strong>不同產品線、不同市場，就準備不同版本的五表。</strong>
+              針對不同行業別的會員，用對應的版本，比一份通用介紹更準。
+            </div>
+            <h2>第五表：我到底有沒有真的認識這個會員</h2>
+            <ol class="marks">
+              <li><span class="num">1</span><span>我是否真的了解他本人、公司、商品服務？</span></li>
+              <li><span class="num">2</span><span>我是否知道他的獨特主張，以及現在主打哪個市場？</span></li>
+              <li><span class="num">3</span><span>我是否了解他的人脈資源，可以從裡面找到合作機會？</span></li>
+              <li class="hot"><span class="num">4</span><span>我是否真的信任他的服務品質與責任心？把客戶介紹出去，等於把自己的信用一起交出去。報價速度、後續服務，都會影響別人敢不敢引薦你。</span></li>
+            </ol>
+            <h2>多做幾次 121 之後，要再往前</h2>
+            <ol class="marks">
+              <li><span class="num">5</span><span>我能不能幫他做基本 QA、分享成功案例，甚至初步排除不適合的客戶？</span></li>
+              <li><span class="num">6</span><span>我知不知道他的「業務人脈圈」需要哪些人？我的客戶、朋友、親友或跨分會夥伴中，有沒有可以串聯的？</span></li>
+            </ol>
+            <p class="meta" style="margin-top:10px">做很多次 121 還只是在交換公司介紹，就有點可惜。</p>
+          </section>
+
+          <section class="panel" id="learn-ref">
+            <p class="kicker">引薦工作坊</p>
+            <p class="lead">引薦等級跟引薦品質，是兩件不同的事情。</p>
+            <div class="two">
+              <div>
+                <h2 style="margin-top:0">引薦等級</h2>
+                <p>這個客戶本身好不好。從不好，往上才是一般、理想、夢幻。</p>
+                <div class="steps-col">
+                  <article class="step s3"><p class="k">不好</p><p>需求不符、區域不符、很難服務、預算不合理、一直殺價。</p></article>
+                  <article class="step s2"><p class="k">一般</p></article>
+                  <article class="step s1"><p class="k">理想</p></article>
+                  <article class="step s0"><p class="k">夢幻</p></article>
+                </div>
+                <p>越往上，金額越大、信任越高、合作延伸越多，甚至提升自己的品牌形象（服務知名通路或名人）。</p>
+              </div>
+              <div>
+                <h2 style="margin-top:0">引薦品質</h2>
+                <p>介紹人幫忙做到什麼程度。客戶很好，不代表介紹的方式就到位。</p>
+                <ul class="marks">
+                  <li><span class="num">✓</span><span>提供雙方聯絡方式</span></li>
+                  <li><span class="num">✓</span><span>先釐清客戶需求</span></li>
+                  <li><span class="num">✓</span><span>分享成功案例</span></li>
+                  <li><span class="num">✓</span><span>做基本 QA</span></li>
+                  <li><span class="num">✓</span><span>幫忙建立信任</span></li>
+                  <li><span class="num">✓</span><span>確認客戶有意願</span></li>
+                  <li><span class="num">✓</span><span>確認需求時效</span></li>
+                </ul>
+              </div>
+            </div>
+            <div class="callout">
+              <strong>想被高品質引薦，就要先把素材準備好。</strong>
+              案例、QA、理想客戶輪廓、話術，都要自己先備好，別人才有辦法幫你介紹到位。
+            </div>
+          </section>
+
+          <div class="three" id="learn-roles">
+            <article class="panel role" style="--swatch:#8c3d4a">
+              <p class="kicker">提倡者</p>
+              <p class="lead" style="font-size:18px">需求已經很明確，想到適合的人就直接引薦。</p>
+              <p class="ex">「你有認識做 ERP 的嗎？」就知道可以先找我。</p>
+              <p>具體要什麼、多少錢、做多久，多半是拉群組之後的事。對業務拓展來說等於只有拉群組，自己還是要從前端服務。</p>
+            </article>
+            <article class="panel role" style="--swatch:#2c5f8a">
+              <p class="kicker">促進者</p>
+              <p class="lead" style="font-size:18px">客戶不一定知道自己要什麼，先幫他整理問題。</p>
+              <p class="ex">有人一直落枕，背後可能可以連結物理治療、枕頭、睡眠、營養等不同產業。</p>
+              <p>這基於一定的理解。聊完之後才拉群，就可以直接約時間提供服務，服務的連貫會增加很多。</p>
+            </article>
+            <article class="panel role" style="--swatch:#1c1916">
+              <p class="kicker">創造者</p>
+              <p class="lead" style="font-size:18px">不是等剛好有人需要，而是主動設計長期合作。</p>
+              <p class="ex">產業鏈合作、大量名單交換、共同行銷、策略聯盟、固定轉介機制、關鍵人脈交換。</p>
+              <p>這是最高階。合作一旦建立，商機就可以算出來，而且可以長期、穩定、可預測。</p>
+            </article>
+          </div>
+
+          <section class="panel" id="learn-math">
+            <p class="kicker">算得出來的商機</p>
+            <p class="lead">建立合作之後，商機是可以算出來的。</p>
+            <div class="formula" aria-label="引薦乘以成交率乘以平均客單價等於商機">
+              <span>引薦</span><i>×</i><span>成交率</span><i>×</i><span>平均客單價</span><i>=</i><b>商機</b>
+            </div>
+            <div class="callout">
+              <strong>分會裡算過一次潛在商機。</strong>
+              大部分算起來，過半數會員都有可能為另一個會員長期貢獻 20 萬以上的商機。數字出乎意料。問題是：大家有真的把會員培育成「業務總監」嗎？
+            </div>
+          </section>
+
+          <section class="panel" id="learn-close">
+            <p class="kicker">總結</p>
+            <p class="lead">BNI 真正的價值，不是「我認識多少人」。</p>
+            <p>而是有多少人真的懂我的業務、信任我、知道怎麼幫我找商機，甚至可以跟我一起創造商機。</p>
+            <h2>最值得經營的路徑</h2>
+            <div class="ladder">
+              <b>認識</b><i>→</i>
+              <b>信任</b><i>→</i>
+              <b>理解</b><i>→</i>
+              <b>引薦</b><i>→</i>
+              <b>協助成交</b><i>→</i>
+              <b>穩定合作</b><i>→</i>
+              <b>可複製的商業模式</b>
+            </div>
+          </section>
+        </div>`;
+      document.querySelector("#learn-nav").addEventListener("click", (event) => {
+        const button = event.target.closest("button");
+        if (!button) return;
+        document.getElementById(button.dataset.jump)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+
+    function renderList() {
+      toolbar.hidden = false;
+      toolbar.innerHTML = `
+        <input id="q" type="search" placeholder="搜尋姓名、公司、行業或標語" aria-label="搜尋會員" value="${keyword}">
+        <div class="filters" id="filters">
+          ${[{ id: "all", label: "全部" }, ...groups].map((item) =>
+            `<button type="button" data-group="${item.id}" aria-pressed="${item.id === group}">${item.label}</button>`
+          ).join("")}
+        </div>`;
+      const people = members.filter((person) => {
+        if (group !== "all" && person.group !== group) return false;
+        if (!keyword) return true;
+        return [person.name, person.en, person.company, person.category, person.summary, person.slogan]
+          .join(" ").toLowerCase().includes(keyword.toLowerCase());
+      });
+      const seats = members.filter((person) => person.group !== "role").length;
+      count.textContent = `顯示 ${people.length} 人 · 介紹冊上有 ${seats} 個行業席次`;
+      foot.textContent = "名單來自 2026/03/09 會員介紹，照片來自 2026/09/09 會員型錄。劉柏儀與劉昀易的適合對象依他們的一對一表，其他人是生成草稿。";
+      const html = groups.map((item) => {
+        const rows = people.filter((person) => person.group === item.id);
+        if (!rows.length) return "";
+        return `<section class="group"><h2>${item.label}</h2><div class="grid">${rows.map(card).join("")}</div></section>`;
+      }).join("");
+      main.innerHTML = html || `<p class="empty">沒有符合的會員。</p>`;
+      const input = document.querySelector("#q");
+      input.addEventListener("input", () => { keyword = input.value.trim(); render(); document.querySelector("#q").focus(); });
+      document.querySelector("#filters").addEventListener("click", (event) => {
+        const button = event.target.closest("button");
+        if (!button) return;
+        group = button.dataset.group;
+        render();
+      });
+    }
+
+    const profiles = { "劉柏儀": boyd, "劉昀易": will };
+    const formPacks = { "劉柏儀": boydPack, "劉昀易": willPack };
+
+    function packOf(person) {
+      return formPacks[person.name] || packs[person.name] || null;
+    }
+
+    function lcdHtml(pack) {
+      const note = pack.note || (pack.source === "form"
+        ? "依一對一五表整理。三格從左到右是客戶、產品、功能。"
+        : "生成草稿，不是本人填的五表。三格從左到右是客戶、產品、功能。");
+      return `<p class="meta">${note}</p>` + pack.items.map((service) => `<div class="service">
+        <p><strong>${service.name}</strong></p>
+        <div class="lcd">
+          <article class="tile customer"><p class="k">客戶屬性</p><p>${service.customer}</p></article>
+          <article class="tile product"><p class="k">產品屬性</p><p>${service.product}</p></article>
+          <article class="tile fn"><p class="k">功能屬性</p><p>${service.fn}</p></article>
+        </div>
+        <div class="fit-band"><p class="k">預期適合的對象</p><p>${service.fit}</p></div>
+        <div class="qa">
+          <div class="open"><p class="k">可以這樣開口</p><p>${service.open}</p></div>
+          <div class="bad"><p class="k">不適合的引薦</p><p>${service.notFit}</p></div>
+          <div class="myth"><p class="k">誤解與應對</p><p>${service.myth}</p></div>
+        </div>
+        ${service.standards ? `<div class="scale">${service.standards.map((item, index) => `<article class="step s${index}"><p class="k">${item[0]}</p><p>${item[1]}</p></article>`).join("")}</div>` : ""}
+      </div>`).join("");
+    }
+
+    function avatarHtml(person) {
+      if (!person.photo) return `<span class="avatar" aria-hidden="true">${person.name.slice(0, 1)}</span>`;
+      return `<img class="avatar" src="photos/${person.photo}" alt="">`;
+    }
+
+    function card(person) {
+      const pack = packOf(person);
+      const fit = pack ? pack.items[0].fitShort : "";
+      const slogan = person.slogan ? `<p class="slogan">${person.slogan}</p>` : "";
+      const extra = fit
+        ? `<p class="fit-pill">適合 ${fit}</p>`
+        : (person.slogan ? "" : `<p class="summary" style="grid-column:1/-1">${person.summary}</p>`);
+      return `<button class="card" type="button" data-id="${person.id}" style="--swatch:${person.color}">
+        ${avatarHtml(person)}
+        <div>
+          <p class="cat">${person.category}</p>
+          <h3>${person.name}</h3>
+          ${person.en ? `<p class="en">${person.en}</p>` : ""}
+          ${person.company ? `<p class="company">${person.company}</p>` : ""}
+        </div>
+        ${slogan}
+        ${extra}
+      </button>`;
+    }
+
+    function renderPerson() {
+      const person = personById(personId);
+      const profile = profiles[person.name];
+      toolbar.hidden = true;
+      count.textContent = person.category;
+      foot.textContent = profile
+        ? "服務說明依一對一表整理。客戶不顯示姓名、路名與精確金額。家庭、秘密與深切願望沒有放上來。"
+        : "服務項目是生成草稿。引薦標準、人脈圈與實際客戶，仍等本人的五表。";
+      main.innerHTML = profile ? formPage(person, profile, packOf(person)) : basicPage(person);
+    }
+
+    function basicPage(person) {
+      return `      <div class="person-head">
+        <button class="text-btn" type="button" data-back>回到名單</button>
+        <div class="who" style="--swatch:${person.color}">
+          ${avatarHtml(person)}
+          <div>
+            <h2>${person.name}</h2>
+            ${person.en ? `<p class="en">${person.en}</p>` : ""}
+            ${person.company ? `<p class="company">${person.company}</p>` : ""}
+            ${person.slogan ? `<p class="slogan-line">${person.slogan}</p>` : ""}
+          </div>
+        </div>
+      </div>
+      <div class="layout">
+        <section class="panel">
+          <h2>服務項目與適合對象</h2>
+          ${packOf(person) ? lcdHtml(packOf(person)) : "<p>這是分會角色，沒有另做可引薦的服務項目。</p>"}
+        </section>
+        <section class="panel">
+          <h2>還沒登錄的五表</h2>
+          <p>上面是依介紹冊生成的說明。引薦標準、人脈圈與實際客戶，要等本人的五表放進來，才拿去配對。</p>
+        </section>
+      </div>`;
+    }
+
+    function clientSection(profile) {
+      if (profile.clientBlocks) {
+        return profile.clientBlocks.map((block) => `<h3>${block.title}</h3>
+          <p class="meta">${block.note}</p>
+          <table>
+            <thead><tr>${block.columns.map((cell) => `<th>${cell}</th>`).join("")}</tr></thead>
+            <tbody>${block.rows.map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`).join("")}</tbody>
+          </table>`).join("");
+      }
+      return `<p class="meta">分會看得到類型。姓名、路名與精確金額沒有放進來。</p>
+        <table>
+          <thead><tr><th>案型</th><th>地區</th><th>金額區間</th><th>做了什麼</th></tr></thead>
+          <tbody>${profile.clients.map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`).join("")}</tbody>
+        </table>
+        <p style="margin-top:10px">${profile.clientTypes.map((item) => `<span class="tag">${item}</span>`).join(" ")}</p>`;
+    }
+
+    function formPage(person, profile, pack) {
+      const sphereHeaders = profile.sphereHeaders || ["行業", "前三名", "我能提供什麼"];
+      return `      <div class="person-head">
+        <button class="text-btn" type="button" data-back>回到名單</button>
+        <div class="who" style="--swatch:${person.color}">
+          ${avatarHtml(person)}
+          <div>
+            <p class="cat">席次 · ${person.category}</p>
+            <h2>${person.name}</h2>
+            <p class="en">${person.en} · ${person.company} · ${profile.roleTitle}</p>
+            <p class="meta">行業年資 ${profile.years} · ${profile.areaLabel || "服務地區"} ${profile.area}</p>
+            ${profile.areaNote ? `<p class="meta">${profile.areaNote}</p>` : ""}
+            ${person.slogan ? `<p class="slogan-line">${person.slogan}</p>` : ""}
+          </div>
+        </div>
+      </div>
+      <div class="layout">
+        <div class="stack">
+          <section class="panel">
+            <h2>服務項目與適合對象</h2>
+            ${lcdHtml(pack)}
+          </section>
+          ${profile.standards ? `<section class="panel">
+            <h2>引薦標準</h2>
+            <div class="scale">${profile.standards.map((item, index) => `<article class="step s${index}"><p class="k">${item[0]}</p><p>${item[1]}</p></article>`).join("")}</div>
+            ${profile.prefer ? `<p>偏好：${profile.prefer}</p>` : ""}
+            ${profile.avoidStyle ? `<p>不愛：${profile.avoidStyle}</p>` : ""}
+          </section>` : ""}
+          <section class="panel">
+            <h2>現有客戶</h2>
+            ${clientSection(profile)}
+          </section>
+        </div>
+        <div class="stack">
+          <section class="panel">
+            <h2>事業目標</h2>
+            <ul>${profile.goals.map((item) => `<li><strong>${item[0]}。</strong>${item[1]}</li>`).join("")}</ul>
+          </section>
+          <section class="panel">
+            <h2>業務人脈圈</h2>
+            <table>
+              <thead><tr>${sphereHeaders.map((cell) => `<th>${cell}</th>`).join("")}</tr></thead>
+              <tbody>${profile.sphere.map((row) => `<tr><td>${row[1] === "是" ? "<strong>" + row[0] + "</strong>" : row[0]}</td><td>${row[1] === "是" ? "前三名" : "—"}</td><td>${row[2]}<div class="meta">${row[3]}</div></td></tr>`).join("")}</tbody>
+            </table>
+          </section>
+          <section class="panel">
+            <h2>已經在合作的行業</h2>
+            <p>${profile.partners.map((item) => `<span class="tag">${item}</span>`).join(" ")}</p>
+            <p class="meta">${profile.partnersNote || "這些是現有合作端，用來避免重複介紹同一種廠商。"}</p>
+          </section>
+          <section class="panel">
+            <h2>成就</h2>
+            <ul>${profile.wins.map((item) => `<li>${item}</li>`).join("")}</ul>
+            ${profile.skills ? `<p class="meta">技能：${profile.skills}</p>` : ""}
+            <p class="meta">${profile.interests}</p>
+          </section>
+          ${profile.networks ? `<section class="panel">
+            <h2>人際網路</h2>
+            <ul>${profile.networks.map((item) => `<li>${item}</li>`).join("")}</ul>
+            <p class="meta">這些是他認識的行業，不拿來配對。</p>
+          </section>` : ""}
+        </div>
+      </div>`;
+    }
+
+    function renderOpportunities() {
+      toolbar.hidden = false;
+      const viewer = personById(viewerId);
+      toolbar.innerHTML = `<label>以誰的角度看
+        <select id="viewer" aria-label="以誰的角度看合作機會">
+          ${members.filter((person) => person.group !== "role").map((person) =>
+            `<option value="${person.id}" ${person.id === viewerId ? "selected" : ""}>${person.name} · ${person.category}</option>`
+          ).join("")}
+        </select>
+      </label>`;
+      const rows = opportunitiesFor(viewer);
+      count.textContent = `${viewer.name} 看得到 ${rows.length} 筆合作機會`;
+      foot.textContent = "機會只在雙方之間顯示。目前用劉柏儀與劉昀易的一對一表對上其他會員的席次，沒有把整份客戶名單送去分析。";
+      main.innerHTML = rows.length
+        ? `<div class="stack">${rows.map(opportunityCard).join("")}</div>`
+        : `<p class="empty">${viewer.name} 目前沒有對得上的機會。已登錄一對一表的是劉柏儀與劉昀易，其他會員還不能配對。</p>`;
+      document.querySelector("#viewer").addEventListener("change", (event) => {
+        viewerId = Number(event.target.value);
+        render();
+      });
+    }
+
+    function mini(person) {
+      return `<div class="mini" style="--swatch:${person.color}">
+        ${avatarHtml(person)}
+        <div>
+          <strong>${person.name}</strong>
+          <p class="meta">${person.category}</p>
+        </div>
+      </div>`;
+    }
+
+    function opportunityCard(item) {
+      return `<article class="panel opp" style="--swatch:${item.right.color}">
+        <div class="pair">
+          ${mini(item.left)}
+          <div class="bridge">${item.type}<span></span></div>
+          ${mini(item.right)}
+        </div>
+        <div class="qa">
+          <div class="open"><p class="k">依據</p><p>${item.basis}</p></div>
+          <div class="open"><p class="k">可以這樣開口</p><p>${item.talk}</p></div>
+          <div class="bad"><p class="k">請不要這樣介紹</p><p>${item.avoid}</p></div>
+        </div>
+        <p style="margin-top:10px"><button class="text-btn" type="button" data-id="${item.left.id}">看${item.left.name}</button>
+        · <button class="text-btn" type="button" data-id="${item.right.id}">看${item.right.name}</button></p>
+      </article>`;
+    }
+
+    tabList.addEventListener("click", () => { view = "list"; render(); });
+    tabOpp.addEventListener("click", () => { view = "opportunities"; render(); });
+    tabLearn.addEventListener("click", () => { view = "learn"; render(); });
+    main.addEventListener("click", (event) => {
+      const back = event.target.closest("[data-back]");
+      if (back) { view = "list"; render(); return; }
+      const button = event.target.closest("[data-id]");
+      if (!button || view === "opportunities" && event.target.closest("select")) return;
+      if (button.dataset.id) {
+        personId = Number(button.dataset.id);
+        view = "person";
+        render();
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
