@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f3f1ec">
+  <title>大芯分會 · 現場媒合</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f3f1ec;
+      --paper: #fff;
+      --ink: #1a1814;
+      --muted: #6f675f;
+      --line: #e7e1d8;
+      --accent: #7a2e2e;
+      --shadow: 0 1px 2px rgba(26, 24, 20, 0.04), 0 10px 28px rgba(26, 24, 20, 0.05);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "PingFang TC", "Noto Sans TC", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    header, main, footer {
+      max-width: 980px;
+      margin: 0 auto;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+    header { padding-top: 28px; }
+    .title-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .mark {
+      margin: 0;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      color: var(--accent);
+    }
+    h1 { margin: 2px 0 0; font-size: 32px; font-weight: 650; letter-spacing: 0.02em; }
+    nav {
+      display: flex;
+      gap: 2px;
+      padding: 4px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+    }
+    nav a {
+      border-radius: 999px;
+      padding: 7px 14px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    nav a[aria-current="page"] { background: var(--ink); color: #fff; }
+    .sub { margin: 10px 0 0; color: var(--muted); font-size: 14px; }
+    main { padding-top: 18px; padding-bottom: 28px; }
+    footer {
+      padding-top: 8px;
+      padding-bottom: 28px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    button, input, textarea, select { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--paper);
+      padding: 10px 12px;
+      font-weight: 400;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    input:focus, textarea:focus, select:focus, button:focus-visible, a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .choices { display: grid; gap: 12px; }
+    .choice {
+      display: block;
+      width: 100%;
+      text-align: left;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .choice strong, .panel h2, .ticket h2, .group-card h3 {
+      font-weight: 650;
+      letter-spacing: 0.02em;
+    }
+    .choice strong { display: block; margin: 4px 0; font-size: 22px; }
+    .choice .desc { display: block; color: var(--muted); font-size: 14px; }
+    .kicker {
+      display: block;
+      margin: 0 0 4px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+    .panel, .group-card, .ticket, .person, .callout {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+    .panel, .ticket { padding: 16px; }
+    .panel + .panel, .stack > * + * { margin-top: 12px; }
+    .panel h2, .ticket h2 { margin: 0 0 8px; font-size: 18px; }
+    .panel p, .ticket p { margin: 0 0 8px; }
+    .panel p:last-child, .ticket p:last-child { margin-bottom: 0; }
+    .field { display: flex; flex-direction: column; gap: 6px; margin: 0 0 12px; font-size: 13px; font-weight: 700; color: var(--muted); }
+    .actions, .row-actions, .round-switch { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .primary, .secondary, .round-switch button, .text-btn {
+      border-radius: 999px;
+      padding: 12px 16px;
+      min-height: 44px;
+    }
+    .primary { background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .secondary, .round-switch button {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+    .round-switch button[aria-pressed="true"], .primary[aria-pressed="true"] {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+    .text-btn, .danger {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      padding: 8px 0;
+      min-height: 44px;
+    }
+    .danger[aria-pressed="true"] { font-weight: 700; }
+    .meta, .hint { color: var(--muted); font-size: 13px; }
+    .callout { padding: 12px 14px; background: #f7f1ea; box-shadow: none; }
+    .steps { margin: 0; padding-left: 1.2em; }
+    .steps li { margin: 4px 0; }
+    .host-top { display: grid; gap: 12px; }
+    .roster { display: flex; flex-direction: column; gap: 8px; }
+    .person { padding: 12px; }
+    .person-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+    .person h3 { margin: 0; font-size: 18px; }
+    .tag {
+      display: inline-block;
+      margin-left: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 1px 8px;
+      vertical-align: 1px;
+    }
+    .check {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .check:last-child { border-bottom: 0; }
+    .check input { width: auto; margin-top: 4px; }
+    .check .meta { display: block; font-weight: 400; }
+    .chains { border: 0; padding: 0; min-width: 0; }
+    .chains legend { padding: 0; margin-bottom: 6px; }
+    .chip-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { position: relative; cursor: pointer; }
+    .chip input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .chip span {
+      display: inline-block;
+      min-height: 36px;
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .chip input:checked + span { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .chip input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .check.is-in { color: var(--muted); }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .group-card {
+      padding: 14px;
+      border-top: 3px solid var(--swatch, var(--accent));
+    }
+    .group-card h3 { margin: 0 0 8px; font-size: 28px; color: var(--swatch, var(--accent)); }
+    .group-card ul, .mates { list-style: none; margin: 0; padding: 0; }
+    .group-card li, .mates li { padding: 6px 0; border-bottom: 1px solid var(--line); }
+    .group-card li:last-child, .mates li:last-child { border-bottom: 0; }
+    .group-card li span, .mates li span { display: block; color: var(--muted); font-size: 13px; }
+    .ticket { max-width: 520px; }
+    .me-name { margin: 0; font-size: 16px; color: var(--muted); }
+    .group-no {
+      margin: 4px 0;
+      font-size: 64px;
+      line-height: 1.05;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+      color: var(--swatch, var(--accent));
+    }
+    .walk { font-size: 18px; font-weight: 650; }
+    .why {
+      margin: 12px 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #f7f1ea;
+      text-align: left;
+    }
+    .qr {
+      width: min(320px, 100%);
+      margin: 12px auto;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    .qr svg { display: block; width: 100%; height: auto; }
+    .url {
+      word-break: break-all;
+      font-size: 12px;
+      color: var(--muted);
+      max-height: 4.8em;
+      overflow: auto;
+    }
+    .phone-card { text-align: center; }
+    .phone-card .why, .phone-card .mates, .phone-card h2 { text-align: left; }
+    .split { display: grid; gap: 12px; }
+    @media (min-width: 800px) {
+      .choices, .split { grid-template-columns: 1fr 1fr; }
+      .host-top { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    }
+    @media (max-width: 700px) {
+      header, main, footer { padding-left: 16px; padding-right: 16px; }
+      h1 { font-size: 28px; }
+      .group-no { font-size: 56px; }
+    }
+    body.projecting header, body.focus-result header { display: none; }
+    body.projecting main, body.projecting footer { max-width: 1200px; }
+    body.projecting .group-card h3 { font-size: clamp(32px, 4vw, 52px); }
+    body.projecting .group-card li strong { font-size: clamp(20px, 2.5vw, 34px); }
+    body.projecting .round-switch {
+      position: sticky;
+      bottom: 0;
+      padding: 12px 0 8px;
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title-row">
+      <div>
+        <p class="mark">BNI</p>
+        <h1>現場媒合</h1>
+      </div>
+      <nav>
+        <a href="index.html">會員名單</a>
+        <a href="match.html" aria-current="page">現場媒合</a>
+      </nav>
+    </div>
+    <p class="sub" id="sub">會員先登錄資源，主持再分組，組別開在自己的手機上。</p>
+  </header>
+  <main id="app"></main>
+  <footer id="foot"></footer>
+  <script src="qrcode.js"></script>
+  <script id="engine">
+    function groupCap(target) {
+      return Math.max(2, Math.min(6, target | 0 || 2));
+    }
+
+    function groupSizes(n, target) {
+      const cap = groupCap(target);
+      if (n <= 0) return [];
+      if (n === 1) return [1];
+      if (n <= cap) return [n];
+      let groups = Math.ceil(n / cap);
+      while (groups > 1 && Math.floor(n / groups) < 2) groups -= 1;
+      const base = Math.floor(n / groups);
+      const extra = n % groups;
+      const sizes = [];
+      for (let i = 0; i < groups; i++) sizes.push(base + (i < extra ? 1 : 0));
+      return sizes;
+    }
+
+    function clean(text) {
+      return String(text == null ? "" : text).replace(/\s+/g, " ").trim();
+    }
+
+    function cleanCell(text) {
+      return clean(text).replace(/\|/g, " ");
+    }
+
+    function clip(text, max) {
+      return Array.from(clean(text)).slice(0, max).join("");
+    }
+
+    function encodeText(text) {
+      const bytes = new TextEncoder().encode(text);
+      let binary = "";
+      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+      return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+    }
+
+    function decodeText(payload) {
+      const pad = payload.length % 4 === 0 ? "" : "=".repeat(4 - (payload.length % 4));
+      const binary = atob(String(payload || "").replace(/-/g, "+").replace(/_/g, "/") + pad);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return new TextDecoder().decode(bytes);
+    }
+
+    var CHAINS = [
+      "企業產業鏈", "行銷產業鏈", "網路行銷產業鏈", "企業內訓產業鏈", "外銷產品產業鏈",
+      "資產規劃產業鏈", "美麗人生產業鏈", "文創產業鏈", "商品設計產業鏈", "快樂生活產業鏈",
+      "幸福產業鏈", "好運氣產業鏈", "婚禮產業鏈", "兒童教育產業鏈", "銀髮族產業鏈",
+      "健康產業鏈", "健康食品產業鏈", "醫療用品產業鏈", "生鮮食品產業鏈", "汽車產業鏈",
+      "工程產業鏈", "營建工程產業鏈", "公共工程產業鏈", "居家服務產業鏈",
+      "餐飲美食產業鏈", "節慶送禮產業鏈", "環保清潔產業鏈", "室內裝修產業鏈", "不動產產業鏈",
+      "開店創業產業鏈", "展覽活動產業鏈"
+    ];
+
+    function chainList(value) {
+      const raw = Array.isArray(value) ? value : String(value == null ? "" : value).split(/[、,，]/);
+      const picked = new Set(raw.map(function (item) {
+        const text = clean(item);
+        return text && !/產業鏈$/.test(text) && CHAINS.indexOf(text + "產業鏈") >= 0 ? text + "產業鏈" : text;
+      }));
+      return CHAINS.filter(function (name) { return picked.has(name); });
+    }
+
+    function knownChain(value) {
+      return chainList(value).join("、");
+    }
+
+    function encodeChains(value) {
+      return chainList(value).map(function (name) { return CHAINS.indexOf(name).toString(36); }).join("");
+    }
+
+    function decodeChains(code) {
+      const text = clean(code);
+      if (!/^[0-9a-z]+$/.test(text)) return knownChain(text);
+      return knownChain(Array.from(text).map(function (ch) { return CHAINS[parseInt(ch, 36)] || ""; }));
+    }
+
+    var CHAPTERS = ["大展", "大豪", "大商之道", "大芯"];
+
+    function knownChapter(value) {
+      const text = clean(value).replace(/分會$/, "");
+      if (/^\d$/.test(text)) return CHAPTERS[Number(text)] || "";
+      return CHAPTERS.indexOf(text) >= 0 ? text : "";
+    }
+
+    function encodeChapter(value) {
+      const index = CHAPTERS.indexOf(knownChapter(value));
+      return index >= 0 ? String(index) : "";
+    }
+
+    function sharedChains(a, b) {
+      const other = new Set(chainList(b.chain));
+      return chainList(a.chain).filter(function (name) { return other.has(name); });
+    }
+
+    function encodeProfile(person) {
+      return encodeText([
+        "1",
+        clean(person.name),
+        clean(person.company),
+        clean(person.industry),
+        clip(person.have, 120),
+        clip(person.want, 120),
+        encodeChains(person.chain),
+        encodeChapter(person.chapter)
+      ].join("\n"));
+    }
+
+    function decodeProfile(payload) {
+      const lines = decodeText(payload).split("\n");
+      if (lines[0] !== "1" || !clean(lines[1])) throw new Error("無法讀取資料碼");
+      return {
+        name: lines[1] || "",
+        company: lines[2] || "",
+        industry: lines[3] || "",
+        have: lines[4] || "",
+        want: lines[5] || "",
+        chain: decodeChains(lines[6]),
+        chapter: knownChapter(lines[7])
+      };
+    }
+
+    function encodePersonal(card, withCompany) {
+      const lines = ["1", cleanCell(card.name)];
+      for (const round of card.rounds) {
+        lines.push(String(round.group) + "|" + cleanCell(clip(round.why, 32)));
+        for (const mate of round.mates) {
+          const company = withCompany ? cleanCell(clip(mate.company, 8)) : "";
+          lines.push([cleanCell(mate.name), cleanCell(clip(mate.industry, 10)), company, withCompany ? encodeChains(mate.chain) : "", encodeChapter(mate.chapter)].join("|"));
+        }
+        lines.push("");
+      }
+      return encodeText(lines.join("\n"));
+    }
+
+    function decodePersonal(payload) {
+      const lines = decodeText(payload).split("\n");
+      if (lines[0] !== "1" || !clean(lines[1])) throw new Error("無法讀取組別");
+      const rounds = [];
+      let i = 2;
+      while (i < lines.length) {
+        if (!lines[i]) { i += 1; continue; }
+        const head = lines[i].split("|");
+        const group = Number(head[0]);
+        if (!Number.isInteger(group) || group < 1) throw new Error("無法讀取組別");
+        const why = head.slice(1).join("|");
+        i += 1;
+        const mates = [];
+        while (i < lines.length && lines[i]) {
+          const bits = lines[i].split("|");
+          mates.push({ name: bits[0] || "", industry: bits[1] || "", company: bits[2] || "", chain: decodeChains(bits[3]), chapter: knownChapter(bits[4]) });
+          i += 1;
+        }
+        rounds.push({ group: group, why: why, mates: mates });
+      }
+      if (!rounds.length) throw new Error("無法讀取組別");
+      return { name: lines[1], rounds: rounds };
+    }
+
+    var GENERIC = new Set("服務 公司 企業 客戶 資源 合作 介紹 專業 有限 股份 我們 可以 以及 一個 需求 朋友 處理 認識 能夠 希望 提供 幫忙 引薦 想要 需要 一下 這個 那個 方面 相關 業務 產品 方案".split(" "));
+
+    function offerPhrases(text) {
+      const phrases = [];
+      const seen = new Set();
+      const chunks = [];
+      clean(text).split(/[、,，;；。.!！？?／/|｜]+/).forEach(function (piece) {
+        const chars = Array.from(piece.trim());
+        if (chars.length < 2) return;
+        if (chars.length <= 12) chunks.push(chars);
+        else {
+          for (let i = 0; i < chars.length && chunks.length < 8; i += 8) chunks.push(chars.slice(i, i + 12));
+        }
+      });
+      for (const chars of chunks) {
+        const maxLen = Math.min(8, chars.length);
+        for (let len = maxLen; len >= 2; len--) {
+          for (let i = 0; i + len <= chars.length; i++) {
+            const phrase = chars.slice(i, i + len).join("");
+            if (GENERIC.has(phrase) || seen.has(phrase)) continue;
+            seen.add(phrase);
+            phrases.push(phrase);
+          }
+        }
+      }
+      return phrases;
+    }
+
+    function gramSet(text) {
+      const chars = Array.from(clean(text)).slice(0, 120);
+      const set = new Set();
+      const maxLen = Math.min(8, chars.length);
+      for (let len = 2; len <= maxLen; len++) {
+        for (let i = 0; i + len <= chars.length; i++) {
+          const phrase = chars.slice(i, i + len).join("");
+          if (!GENERIC.has(phrase)) set.add(phrase);
+        }
+      }
+      return set;
+    }
+
+    function bestOffer(phrases, wantSet) {
+      const hits = [];
+      for (const phrase of phrases) {
+        if (wantSet.has(phrase)) hits.push(phrase);
+      }
+      hits.sort(function (a, b) { return Array.from(b).length - Array.from(a).length; });
+      const kept = [];
+      for (const phrase of hits) {
+        if (kept.some(function (existing) { return existing.includes(phrase) || phrase.includes(existing); })) continue;
+        kept.push(phrase);
+        if (kept.length === 2) break;
+      }
+      return kept;
+    }
+
+    function complementHits(haveText, wantText) {
+      return bestOffer(offerPhrases(haveText), gramSet(wantText));
+    }
+
+    function pairKey(a, b) {
+      return a < b ? a + "|" + b : b + "|" + a;
+    }
+
+    function hitsBetween(owner, other) {
+      if (owner.phrases && other.wantSet) return bestOffer(owner.phrases, other.wantSet);
+      return complementHits(owner.have, other.want);
+    }
+
+    function pairDetail(a, b, met) {
+      const aHits = hitsBetween(a, b);
+      const bHits = hitsBetween(b, a);
+      const notes = [];
+      for (const phrase of aHits) notes.push({ owner: a.name, other: b.name, phrase: phrase });
+      for (const phrase of bHits) notes.push({ owner: b.name, other: a.name, phrase: phrase });
+      let score = Math.min(18, (aHits.length + bHits.length) * 9);
+      if (a.industry && b.industry) score += a.industry === b.industry ? -4 : 2;
+      const shared = sharedChains(a, b);
+      score += Math.min(2, shared.length) * 4;
+      if (a.chapter && a.chapter === b.chapter) score -= 10;
+      const times = met.get(pairKey(a.id, b.id)) || 0;
+      score -= times * 40;
+      return { score: score, notes: notes, times: times, shared: shared };
+    }
+
+    function mulberry32(seed) {
+      let a = seed >>> 0;
+      return function () {
+        a |= 0;
+        a = a + 0x6D2B79F5 | 0;
+        let t = Math.imul(a ^ a >>> 15, 1 | a);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    function shuffle(list, rng) {
+      const arr = list.slice();
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        const tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+      }
+      return arr;
+    }
+
+    function meetingTotal(person, met) {
+      let total = 0;
+      for (const [key, times] of met) {
+        const ids = key.split("|");
+        if (ids[0] === person.id || ids[1] === person.id) total += times;
+      }
+      return total;
+    }
+
+    function marginal(person, group, met) {
+      let score = 0;
+      for (const member of group) score += pairDetail(person, member, met).score;
+      return score;
+    }
+
+    function buildGreedy(people, met, groupSize, rng) {
+      const sizes = groupSizes(people.length, groupSize);
+      const remaining = shuffle(people, rng);
+      const groups = [];
+      for (const size of sizes) {
+        if (!remaining.length) break;
+        let seedAt = 0;
+        let least = Infinity;
+        for (let i = 0; i < remaining.length; i++) {
+          const weight = meetingTotal(remaining[i], met) + rng() * 0.01;
+          if (weight < least) {
+            least = weight;
+            seedAt = i;
+          }
+        }
+        const group = [remaining.splice(seedAt, 1)[0]];
+        while (group.length < size && remaining.length) {
+          let bestI = 0;
+          let bestS = -Infinity;
+          for (let i = 0; i < remaining.length; i++) {
+            const score = marginal(remaining[i], group, met) + rng() * 0.01;
+            if (score > bestS) {
+              bestS = score;
+              bestI = i;
+            }
+          }
+          group.push(remaining.splice(bestI, 1)[0]);
+        }
+        groups.push(group);
+      }
+      for (const person of remaining) groups[groups.length - 1].push(person);
+      return groups;
+    }
+
+    function seedWithPairs(people, met, groupSize, rng) {
+      const sizes = groupSizes(people.length, groupSize);
+      const groups = sizes.map(function (size) { return { size: size, members: [] }; });
+      const pairs = [];
+      for (let i = 0; i < people.length; i++) {
+        for (let j = i + 1; j < people.length; j++) {
+          pairs.push([i, j, pairDetail(people[i], people[j], met).score, rng()]);
+        }
+      }
+      pairs.sort(function (a, b) { return b[2] - a[2] || a[3] - b[3]; });
+      const used = new Set();
+      for (const pair of pairs) {
+        const i = pair[0];
+        const j = pair[1];
+        if (used.has(i) || used.has(j)) continue;
+        const group = groups.find(function (item) { return item.members.length + 2 <= item.size; });
+        if (!group) continue;
+        group.members.push(people[i], people[j]);
+        used.add(i);
+        used.add(j);
+      }
+      const rest = [];
+      for (let i = 0; i < people.length; i++) if (!used.has(i)) rest.push(people[i]);
+      for (const person of shuffle(rest, rng)) {
+        let best = null;
+        let bestS = -Infinity;
+        for (const group of groups) {
+          if (group.members.length >= group.size) continue;
+          const score = marginal(person, group.members, met) + rng() * 0.01;
+          if (score > bestS) {
+            bestS = score;
+            best = group;
+          }
+        }
+        if (best) best.members.push(person);
+        else groups[0].members.push(person);
+      }
+      return groups.map(function (group) { return group.members; });
+    }
+
+    function scoreGroups(groups, met) {
+      let score = 0;
+      for (const group of groups) {
+        let links = 0;
+        for (let i = 0; i < group.length; i++) {
+          for (let j = i + 1; j < group.length; j++) {
+            const detail = pairDetail(group[i], group[j], met);
+            score += detail.score;
+            if (detail.notes.length) links += 1;
+          }
+        }
+        if (links > 0) score += 5;
+      }
+      return score;
+    }
+
+    function improve(groups, met, steps, rng) {
+      let current = groups.map(function (group) { return group.slice(); });
+      let score = scoreGroups(current, met);
+      for (let k = 0; k < steps; k++) {
+        if (current.length < 2) break;
+        const a = Math.floor(rng() * current.length);
+        const b = Math.floor(rng() * current.length);
+        if (a === b || !current[a].length || !current[b].length) continue;
+        const i = Math.floor(rng() * current[a].length);
+        const j = Math.floor(rng() * current[b].length);
+        const next = current.map(function (group) { return group.slice(); });
+        const tmp = next[a][i];
+        next[a][i] = next[b][j];
+        next[b][j] = tmp;
+        const nextScore = scoreGroups(next, met);
+        if (nextScore > score) {
+          current = next;
+          score = nextScore;
+        }
+      }
+      return { groups: current, score: score };
+    }
+
+    function assertPartition(people, groups) {
+      const ids = [];
+      for (const group of groups) {
+        for (const person of group) ids.push(person.id);
+      }
+      if (ids.length !== people.length || new Set(ids).size !== people.length) {
+        throw new Error("分組結果不完整");
+      }
+    }
+
+    function groupBrief(members) {
+      const lines = [];
+      let linked = false;
+      for (let i = 0; i < members.length; i++) {
+        for (let j = i + 1; j < members.length; j++) {
+          const detail = pairDetail(members[i], members[j], new Map());
+          if (detail.notes.length) linked = true;
+          for (const note of detail.notes) {
+            lines.push(note.owner + "有的「" + note.phrase + "」，對上" + note.other + "想要的");
+          }
+        }
+      }
+      if (lines.length) return { text: lines.slice(0, 2).join("；"), linked: true };
+      const chainCount = new Map();
+      for (const member of members) {
+        for (const name of chainList(member.chain)) chainCount.set(name, (chainCount.get(name) || 0) + 1);
+      }
+      const common = CHAINS.filter(function (name) { return (chainCount.get(name) || 0) >= 2; });
+      if (common.length) return { text: "同在" + common.slice(0, 2).join("、") + "，可以談產業鏈合作", linked: false };
+      const industries = [];
+      for (const member of members) {
+        if (member.industry && industries.indexOf(member.industry) < 0) industries.push(member.industry);
+      }
+      if (industries.length >= 2) return { text: "這組行業錯開：" + industries.slice(0, 3).join("、"), linked: false };
+      return { text: "這組先認識彼此", linked: linked };
+    }
+
+    function personalWhy(person, mates) {
+      const lines = [];
+      for (const mate of mates) {
+        const wanted = complementHits(mate.have, person.want);
+        const offered = complementHits(person.have, mate.want);
+        if (wanted.length) lines.push(mate.name + "有「" + wanted[0] + "」，對上你想要的");
+        else if (offered.length) lines.push("你有「" + offered[0] + "」，對上" + mate.name + "想要的");
+      }
+      if (lines.length) return clip(lines.slice(0, 2).join("；"), 32);
+      for (const mate of mates) {
+        const shared = sharedChains(person, mate);
+        if (shared.length) return clip("你和" + mate.name + "同在" + shared[0], 32);
+      }
+      const industries = [];
+      for (const mate of mates) {
+        if (mate.industry && mate.industry !== person.industry && industries.indexOf(mate.industry) < 0) {
+          industries.push(mate.industry);
+        }
+      }
+      if (industries.length) return clip("這輪錯開行業，認識" + industries.slice(0, 2).join("、"), 32);
+      return "這輪認識新的會員";
+    }
+
+    function planMeeting(people, groupSize, rounds, seed) {
+      if (!people || people.length < 2) throw new Error("至少要兩個人");
+      const cleaned = people.map(function (person) {
+        return {
+          id: person.id,
+          name: clean(person.name),
+          company: clean(person.company),
+          industry: clean(person.industry),
+          chain: knownChain(person.chain),
+          chapter: knownChapter(person.chapter),
+          have: clip(person.have, 120),
+          want: clip(person.want, 120)
+        };
+      });
+      const seen = new Set();
+      for (const person of cleaned) {
+        if (!person.id || !person.name) throw new Error("名單裡有缺少姓名的人");
+        if (seen.has(person.id)) throw new Error("名單裡有重複的人");
+        seen.add(person.id);
+        person.phrases = offerPhrases(person.have);
+        person.wantSet = gramSet(person.want);
+      }
+      const requested = Math.max(1, Math.min(4, rounds | 0 || 1));
+      const sizePlan = groupSizes(cleaned.length, groupSize);
+      const singleGroup = sizePlan.length < 2;
+      const roundCount = singleGroup ? 1 : requested;
+      const rng = mulberry32(seed >>> 0);
+      const met = new Map();
+      const byRound = [];
+      for (let r = 0; r < roundCount; r++) {
+        let best = null;
+        let bestScore = -Infinity;
+        for (let t = 0; t < 12; t++) {
+          const built = t % 2 === 0
+            ? buildGreedy(cleaned, met, groupSize, rng)
+            : seedWithPairs(cleaned, met, groupSize, rng);
+          const improved = improve(built, met, 280, rng);
+          if (improved.score > bestScore) {
+            bestScore = improved.score;
+            best = improved.groups;
+          }
+        }
+        assertPartition(cleaned, best);
+        byRound.push(best);
+        for (const group of best) {
+          for (let i = 0; i < group.length; i++) {
+            for (let j = i + 1; j < group.length; j++) {
+              const key = pairKey(group[i].id, group[j].id);
+              met.set(key, (met.get(key) || 0) + 1);
+            }
+          }
+        }
+      }
+      const cards = {};
+      for (const person of cleaned) cards[person.id] = { name: person.name, rounds: [] };
+      const highlights = [];
+      const linked = [];
+      for (const groups of byRound) {
+        const texts = [];
+        let linkCount = 0;
+        groups.forEach(function (group, index) {
+          const brief = groupBrief(group);
+          texts.push(brief.text);
+          if (brief.linked) linkCount += 1;
+          const number = index + 1;
+          for (const person of group) {
+            const mates = group.filter(function (other) { return other.id !== person.id; });
+            cards[person.id].rounds.push({
+              group: number,
+              why: personalWhy(person, mates),
+              mates: mates.map(function (other) {
+                return { name: other.name, industry: other.industry, company: other.company, chain: other.chain, chapter: other.chapter };
+              })
+            });
+          }
+        });
+        highlights.push(texts);
+        linked.push(linkCount);
+      }
+      const byId = new Map(cleaned.map(function (person) { return [person.id, person]; }));
+      const repeats = [];
+      for (const [key, times] of met) {
+        if (times < 2) continue;
+        const parts = key.split("|");
+        repeats.push(byId.get(parts[0]).name + "與" + byId.get(parts[1]).name);
+      }
+      const cap = groupCap(groupSize);
+      return {
+        roundGroups: byRound.map(function (groups) {
+          return groups.map(function (group) { return group.map(function (person) { return person.id; }); });
+        }),
+        highlights: highlights,
+        linked: linked,
+        cards: cards,
+        repeats: repeats,
+        repeatPairs: repeats.length,
+        sizes: sizePlan,
+        singleGroup: singleGroup,
+        oversized: sizePlan.some(function (size) { return size > cap; }),
+        roundCount: roundCount
+      };
+    }
+
+    var Match = {
+      groupSizes: groupSizes,
+      planMeeting: planMeeting,
+      encodeProfile: encodeProfile,
+      decodeProfile: decodeProfile,
+      encodePersonal: encodePersonal,
+      decodePersonal: decodePersonal,
+      complementHits: complementHits
+    };
+  </script>
+  <script>
+    const STORE = {
+      roster: "bni-match-roster-v1",
+      plan: "bni-match-plan-v1",
+      me: "bni-match-me-v1",
+      card: "bni-match-card-v1"
+    };
+    const COLORS = ["#7a2e2e", "#2c5f8a", "#2f7d55", "#6a4c93", "#c46a2f", "#8c3d4a", "#3d6b8c", "#5c534c"];
+    const CHAPTER = [
+      ["林歡偉", "台灣先智專利商標事務所", "商標與專利代理", "商標註冊、侵權處理與智財權保護"],
+      ["葉淨維", "", "中英文簡報顧問", "中英簡報、提案設計與簡報培訓"],
+      ["彭國書", "大尹法律事務所", "訴訟律師", "商事與個人法律"],
+      ["葉意嘉", "訶亞資訊有限公司", "事務機設備", "事務機、影印機與投影機租賃"],
+      ["洪紹惟", "思想科技有限公司", "地圖資訊系統", "地理資訊、圖資與導航"],
+      ["劉昀易", "發財爺科技", "企業資訊系統", "企業資訊系統、AI 工具與流程自動化"],
+      ["李美玲", "東方創新不動產有限公司", "房屋理財顧問", "房屋買賣與資產配置"],
+      ["吳育傑", "宸暐企業有限公司", "人力仲介", "企業徵才與營造人力"],
+      ["賴百珊", "磊山保險經紀人股份有限公司", "人身保險", "人身保險與壽險規劃"],
+      ["劉柏儀", "沐設計有限公司", "居家室內設計", "居家空間設計與整修"],
+      ["黃雯馨", "南山人壽保險股份有限公司", "產物保險", "產物保險"],
+      ["彭國益", "台新國際商業銀行", "銀行貸款（個人貸款）", "個人信貸、房貸與企業融資"],
+      ["曹淇峰", "峰潮企業有限公司", "包租代管", "包租代管與房屋租賃"],
+      ["劉帥志", "飛鳥流企劃有限公司", "台日交流顧問", "台日商務交流"],
+      ["劉上豪", "賀米亞設計工作室", "廣告設計", "品牌視覺、活動與文宣設計"],
+      ["吳璜", "亦象室內裝修設計有限公司", "商業空間設計", "商業空間、老屋翻新與豪宅"],
+      ["鄭喬安", "粒線體大健康團隊", "體態管理保健品", "體態管理與保健品"],
+      ["陳馨麗", "李九英麻油老舖", "麻油苦茶油", "麻油與苦茶油"],
+      ["許宸維", "康見國際股份有限公司", "心血管健康管理", "心血管健康管理"],
+      ["李旺穎", "順辰實業有限公司", "等滲透營養補充", "等滲透營養補充"],
+      ["陳婕玲", "龍巖股份有限公司", "生命禮儀", "生命禮儀與生前契約"],
+      ["王律中", "易其佳實業有限公司", "人像攝影", "人像、全家福與商業活動紀錄"],
+      ["鄭宇杰", "晨希花坊", "花藝設計", "中西式與歐式花藝"],
+      ["陳懿雯", "桔佶坊", "手工餅乾", "手工餅乾"],
+      ["羅啟仁", "查理的工作室", "商業攝影", "商品與形象攝影"],
+      ["劉庭宇", "赤牛哥汕頭火鍋", "火鍋餐飲", "汕頭火鍋"],
+      ["張瑪琍", "", "董事顧問", "分會董事顧問"],
+      ["胡佳瑩", "", "分會大使、主持樂團", "分會大使，主持樂團"]
+    ];
+
+    let hostPanel = "setup";
+    let showRound = 0;
+    let phoneIndex = 0;
+    let showChapter = false;
+    let showManual = false;
+    let showPaste = false;
+    let editId = "";
+    let pendingRemove = "";
+    let pendingClear = false;
+    let pendingMatch = false;
+    let previewId = "";
+    let draftSettings = null;
+    let statusMessage = "";
+    const urlById = {};
+
+    function esc(text) {
+      return String(text == null ? "" : text).replace(/[&<>"']/g, function (ch) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+      });
+    }
+
+    function loadJson(key, fallback) {
+      try {
+        const value = JSON.parse(localStorage.getItem(key) || "null");
+        return value == null ? fallback : value;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function loadRoster() {
+      const roster = loadJson(STORE.roster, []);
+      if (!Array.isArray(roster)) return [];
+      return roster.map(function (person) { return Object.assign({}, person, { chain: knownChain(person.chain), chapter: knownChapter(person.chapter) }); });
+    }
+
+    function saveRoster(roster) {
+      localStorage.setItem(STORE.roster, JSON.stringify(roster));
+    }
+
+    function loadPlan() {
+      const plan = loadJson(STORE.plan, null);
+      return plan && plan.roundGroups ? plan : null;
+    }
+
+    function savePlan(plan) {
+      localStorage.setItem(STORE.plan, JSON.stringify(plan));
+    }
+
+    function loadMe() {
+      const me = loadJson(STORE.me, null);
+      return me && me.name ? Object.assign({}, me, { chain: knownChain(me.chain), chapter: knownChapter(me.chapter) }) : null;
+    }
+
+    function fingerprint(roster) {
+      return roster.map(function (person) {
+        return [person.id, person.name, person.company, person.industry, person.chain, person.chapter, person.have, person.want].join("\u0001");
+      }).sort().join("\u0002");
+    }
+
+    function newId(roster) {
+      const used = new Set(roster.map(function (person) { return person.id; }));
+      let id = "";
+      do { id = "p" + Math.random().toString(36).slice(2, 8); } while (used.has(id));
+      return id;
+    }
+
+    function upsert(profile) {
+      const roster = loadRoster();
+      const index = roster.findIndex(function (person) { return person.name === profile.name; });
+      const row = {
+        id: index >= 0 ? roster[index].id : newId(roster),
+        name: profile.name,
+        company: profile.company || "",
+        industry: profile.industry || "",
+        chain: knownChain(profile.chain),
+        chapter: knownChapter(profile.chapter),
+        have: profile.have || "",
+        want: profile.want || ""
+      };
+      if (index >= 0) roster[index] = row;
+      else roster.unshift(row);
+      saveRoster(roster);
+      return { row: row, updated: index >= 0 };
+    }
+
+    function absHash(hash) {
+      return location.origin + location.pathname + location.search + hash;
+    }
+
+    function qrSvg(text) {
+      if (typeof qrcode !== "function") return "";
+      const qr = qrcode(0, text.length > 700 ? "L" : "M");
+      qr.addData(text);
+      qr.make();
+      return qr.createSvgTag({ cellSize: 4, margin: 8, scalable: true });
+    }
+
+    function resultUrl(card) {
+      let payload = Match.encodePersonal(card, true);
+      let url = absHash("#p=" + payload);
+      if (url.length > 1100) {
+        payload = Match.encodePersonal(card, false);
+        url = absHash("#p=" + payload);
+      }
+      return url;
+    }
+
+    function payloadFromInput(raw) {
+      const text = String(raw || "").trim();
+      const found = text.match(/#j=([A-Za-z0-9\-_]+)/);
+      if (found) return found[1];
+      if (/^[A-Za-z0-9\-_]+$/.test(text)) return text;
+      throw new Error("這段內容不是會員資料碼");
+    }
+
+    function go(hash) {
+      if ((location.hash || "") === (hash || "")) render();
+      else location.hash = hash || "";
+    }
+
+    function paint(html, foot, sub) {
+      document.querySelector("#app").innerHTML = html;
+      document.querySelector("#foot").textContent = foot || "";
+      if (sub) document.querySelector("#sub").textContent = sub;
+    }
+
+    function field(name, label, value, opts) {
+      const options = opts || {};
+      const tag = options.area
+        ? `<textarea name="${name}" maxlength="${options.max || 120}" placeholder="${esc(options.placeholder || "")}">${esc(value || "")}</textarea>`
+        : `<input name="${name}" maxlength="${options.max || 40}" value="${esc(value || "")}" placeholder="${esc(options.placeholder || "")}" ${options.required ? "required" : ""}>`;
+      return `<label class="field">${esc(label)}${tag}</label>`;
+    }
+
+    function chainField(value) {
+      const current = new Set(chainList(value));
+      const chips = CHAINS.map(function (name) {
+        return `<label class="chip"><input type="checkbox" name="chain" value="${esc(name)}"${current.has(name) ? " checked" : ""}><span>${esc(name.replace(/產業鏈$/, ""))}</span></label>`;
+      }).join("");
+      return `<fieldset class="field chains"><legend>產業鏈（可多選）</legend><div class="chip-grid">${chips}</div></fieldset>`;
+    }
+
+    function pickedChains(data) {
+      return knownChain(data.getAll("chain"));
+    }
+
+    function roleLine(person) {
+      return [chapterLabel(person.chapter), person.industry, person.chain, person.company].filter(Boolean).join(" · ");
+    }
+
+    function chapterLabel(value) {
+      const chapter = knownChapter(value);
+      return chapter ? chapter + "分會" : "";
+    }
+
+    function chapterField(value) {
+      const current = knownChapter(value);
+      const options = [`<option value="">請選擇</option>`].concat(CHAPTERS.map(function (name) {
+        return `<option value="${esc(name)}"${name === current ? " selected" : ""}>${esc(name)}分會</option>`;
+      }));
+      return `<label class="field">分會<select name="chapter" required>${options.join("")}</select></label>`;
+    }
+
+    function statusHtml() {
+      if (!statusMessage) return "";
+      const html = `<p class="callout" role="status">${esc(statusMessage)}</p>`;
+      statusMessage = "";
+      return html;
+    }
+
+    function renderHome() {
+      document.body.classList.remove("projecting", "focus-result");
+      const me = loadMe();
+      const card = loadJson(STORE.card, null);
+      const mine = me
+        ? `<section class="panel"><p class="kicker">這支手機</p><h2>${esc(me.name)}</h2><p class="meta">${esc(roleLine(me) || "尚未填完資料")}</p><div class="actions"><button class="primary" type="button" data-action="go" data-hash="#member">出示資料碼</button>${card && card.name ? `<button class="secondary" type="button" data-action="open-card">查看組別</button>` : ""}</div></section>`
+        : "";
+      paint(`${statusHtml()}<div class="choices"><button class="choice" type="button" data-action="go" data-hash="#member"><span class="kicker">會員</span><strong>登錄我的資料</strong><span class="desc">填姓名、公司、行業、產業鏈，以及你有的資源、想要的資源。完成後把資料碼給主持掃。</span></button><button class="choice" type="button" data-action="go" data-hash="#host"><span class="kicker">主持</span><strong>官方媒合</strong><span class="desc">設定每組人數和輪數。分完組，把組別投回每個人的手機。</span></button></div>${mine ? `<div class="stack">${mine}</div>` : ""}`, "資料留在這支手機裡。掃碼的時候，才會傳到對方那支手機。這個網頁沒有另外的伺服器。", "會員先登錄資源，主持再分組，組別開在自己的手機上。");
+    }
+
+    function renderMember() {
+      document.body.classList.remove("projecting", "focus-result");
+      const me = loadMe() || { name: "", company: "", industry: "", chain: "", chapter: "", have: "", want: "" };
+      const saved = Boolean(loadMe());
+      let qr = "";
+      if (saved) {
+        const url = absHash("#j=" + Match.encodeProfile(me));
+        urlById.me = url;
+        let svg = "";
+        try { svg = qrSvg(url); } catch (error) { svg = ""; }
+        qr = `<section class="panel phone-card"><p class="kicker">給主持掃</p><h2>${esc(me.name)}</h2><p class="meta">${esc(roleLine(me))}</p>${svg ? `<div class="qr">${svg}</div>` : ""}<p>請主持用相機掃描。掃完你就在這場名單裡。</p><p class="url">${esc(url)}</p><button class="secondary" type="button" data-action="copy" data-id="me">複製連結</button></section>`;
+      }
+      const form = `<section class="panel"><h2>${saved ? "修改資料" : "登錄資料"}</h2><form data-action="save-member">${field("name", "姓名", me.name, { required: true, max: 20, placeholder: "林歡偉" })}${chapterField(me.chapter)}${field("company", "公司", me.company, { max: 40, placeholder: "公司名稱" })}${field("industry", "行業別", me.industry, { max: 20, placeholder: "例如：居家室內設計" })}${chainField(me.chain)}${field("have", "我有的資源", me.have, { area: true, placeholder: "例如：居家空間設計、能介紹要裝修的屋主" })}${field("want", "想要的資源", me.want, { area: true, placeholder: "例如：想認識能介紹企業貸款、或有商業空間案子的人" })}<p class="hint">兩欄資源都填，分組才會把「想要的」對上別人「有的」。每欄最多 120 字。</p><button class="primary" type="submit">${saved ? "更新資料碼" : "完成，產生資料碼"}</button></form></section>`;
+      paint(`${statusHtml()}<p><button class="text-btn" type="button" data-action="go" data-hash="">回到上一頁</button></p>${saved ? qr + form : form}`, "請把資料碼給主持，不要用自己的相機掃自己的碼。", "填完後把這張碼給主持掃。");
+    }
+
+    function renderIngest(payload) {
+      document.body.classList.remove("projecting", "focus-result");
+      let profile;
+      try { profile = Match.decodeProfile(decodeURIComponent(payload)); }
+      catch (error) {
+        try { profile = Match.decodeProfile(payload); }
+        catch (again) { profile = null; }
+      }
+      if (!profile) {
+        paint(`<section class="panel"><h2>這張資料碼讀不起來</h2><p>請會員重新出示資料碼。</p><button class="primary" type="button" data-action="go" data-hash="#host">回到主持</button></section>`, "", "資料碼無法讀取。");
+        return;
+      }
+      const result = upsert(profile);
+      paint(`<section class="panel"><p class="kicker">${result.updated ? "已更新" : "已收下"}</p><h2>${esc(result.row.name)}</h2><p>${esc(roleLine(result.row))}</p><p>${result.updated ? "這個人的資料已改成剛掃到的內容。" : "已放進這支手機的主持名單。"}</p><button class="primary" type="button" data-action="go" data-hash="#host">回到主持</button></section>`, "請回到主持頁確認名單。", "這筆資料已經在主持名單裡。");
+    }
+
+    function visiblePeople(plan, roster) {
+      if (!plan || !plan.roundGroups[0]) return [];
+      const byId = new Map(roster.map(function (person) { return [person.id, person]; }));
+      return plan.roundGroups[0].flat().map(function (id) { return byId.get(id); }).filter(Boolean);
+    }
+
+    function take(data, key, max) {
+      return Array.from(String(data.get(key) || "").trim()).slice(0, max).join("");
+    }
+
+    function clock(ms) {
+      try {
+        return new Date(ms).toLocaleString("zh-Hant", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+      } catch (error) {
+        return "";
+      }
+    }
+
+    function renderHost() {
+      const roster = loadRoster();
+      const plan = loadPlan();
+      const stale = Boolean(plan && plan.fingerprint !== fingerprint(roster));
+      if (!plan && hostPanel !== "setup") hostPanel = "setup";
+      document.body.classList.toggle("projecting", hostPanel === "project");
+      document.body.classList.toggle("focus-result", hostPanel === "preview");
+      if (hostPanel === "preview") {
+        const person = roster.find(function (item) { return item.id === previewId; });
+        const card = person && plan ? plan.cards[person.id] : null;
+        if (!card) hostPanel = "phone";
+        else {
+          let shown = card;
+          try { shown = Match.decodePersonal(resultUrl(card).split("#p=")[1]); }
+          catch (error) { shown = card; }
+          paint(personalHtml(shown, true), "這是會員掃開後會看到的畫面。", "預覽會員手機。");
+          return;
+        }
+      }
+      if (hostPanel === "project" && plan) {
+        paint(projectHtml(plan, roster, stale), "組號就是桌號。宣布下一輪時，按下面的輪次。", "投影這一輪的組別。");
+        return;
+      }
+      const settings = draftSettings || {
+        groupSize: plan && plan.groupSize ? plan.groupSize : 4,
+        rounds: plan && plan.roundsRequested ? plan.roundsRequested : 3
+      };
+      paint(`${statusHtml()}<div class="host-top">${rosterHtml(roster)}${settingsHtml(roster, settings, plan, stale)}</div>${plan ? resultHtml(plan, roster, stale) : ""}`, "掃碼只在現場的手機之間傳。結果碼給會員用相機打開，手機會留下他每一輪的組別。", `主持名單 ${roster.length} 人。`);
+    }
+
+    function rosterHtml(roster) {
+      const people = roster.map(function (person) {
+        const editing = editId === person.id;
+        const body = editing
+          ? `<form data-action="save-edit">${field("name", "姓名", person.name, { required: true, max: 20 })}${chapterField(person.chapter)}${field("company", "公司", person.company, { max: 40 })}${field("industry", "行業別", person.industry, { max: 20 })}${chainField(person.chain)}${field("have", "我有的資源", person.have, { area: true })}${field("want", "想要的資源", person.want, { area: true })}<div class="actions"><button class="primary" type="submit">儲存</button><button class="secondary" type="button" data-action="cancel-edit">取消</button></div></form>`
+          : `<p class="meta">${esc(roleLine(person) || "未填公司與行業")}</p><p class="hint">有的：${esc(person.have || "未填")}</p><p class="hint">想要：${esc(person.want || "未填")}</p><div class="row-actions"><button class="text-btn" type="button" data-action="edit" data-id="${esc(person.id)}">編輯</button><button class="danger" type="button" data-action="remove" data-id="${esc(person.id)}" ${pendingRemove === person.id ? 'aria-pressed="true"' : ""}>${pendingRemove === person.id ? "確定移除" : "移除"}</button></div>`;
+        return `<article class="person"><div class="person-top"><h3>${esc(person.name)}${person.chapter ? "" : '<span class="tag">未選分會</span>'}${person.chain ? "" : '<span class="tag">未選產業鏈</span>'}${person.want ? "" : '<span class="tag">未填想要</span>'}</h3></div>${body}</article>`;
+      }).join("");
+      const chapter = showChapter ? `<div class="stack"><label class="field">搜尋分會名單<input id="chapter-filter" placeholder="姓名、公司或行業"></label><form data-action="add-chapter">${CHAPTER.map(function (row, index) {
+        const here = roster.some(function (person) { return person.name === row[0]; });
+        return `<label class="check${here ? " is-in" : ""}" data-chapter="${esc(row.join(" "))}"><input type="checkbox" name="m" value="${index}" ${here ? "disabled" : ""}><span><strong>${esc(row[0])}</strong>${here ? " 已在名單" : ""}<span class="meta">${esc(row[2])}${row[1] ? " · " + esc(row[1]) : ""}</span></span></label>`;
+      }).join("")}<div class="actions"><button class="secondary" type="button" data-action="check-chapter">全選尚未加入的人</button><button class="primary" type="submit">加入勾選的人</button></div></form></div>` : "";
+      const manual = showManual ? `<form data-action="add-manual">${field("name", "姓名", "", { required: true, max: 20 })}${chapterField("")}${field("company", "公司", "", { max: 40 })}${field("industry", "行業別", "", { max: 20 })}${chainField("")}${field("have", "我有的資源", "", { area: true })}${field("want", "想要的資源", "", { area: true })}<button class="primary" type="submit">加入名單</button></form>` : "";
+      const paste = showPaste ? `<form data-action="paste-code"><label class="field">資料碼或連結<input name="code" placeholder="貼上會員畫面上的連結"></label><button class="primary" type="submit">收下</button></form>` : "";
+      return `<section class="panel"><p class="kicker">出席名單</p><h2>${roster.length} 人</h2><div class="actions"><button class="secondary" type="button" data-action="toggle" data-flag="showPaste" aria-pressed="${showPaste}">貼上資料碼</button><button class="secondary" type="button" data-action="toggle" data-flag="showManual" aria-pressed="${showManual}">手動加一位</button><button class="secondary" type="button" data-action="toggle" data-flag="showChapter" aria-pressed="${showChapter}">從分會名單勾選</button></div>${paste}${manual}${chapter}<div class="roster">${people || `<p class="hint">還沒有人。請會員打開「登錄我的資料」，再把資料碼給你掃。</p>`}</div>${roster.length ? `<button class="danger" type="button" data-action="clear" ${pendingClear ? 'aria-pressed="true"' : ""}>${pendingClear ? "確定清空名單" : "清空名單"}</button>` : ""}</section>`;
+    }
+
+    function settingsHtml(roster, settings, plan, stale) {
+      const need = roster.filter(function (person) { return !person.want; }).length;
+      const matchLabel = pendingMatch ? "確定重排，已掃過的碼要重掃" : (plan ? "重新媒合" : "開始媒合");
+      return `<section class="panel"><p class="kicker">官方媒合</p><h2>人數與輪數</h2><ol class="steps"><li>會員用自己的手機登錄，把資料碼給你掃。</li><li>主持頁請用 Safari 或 Chrome 打開。用同一支手機的相機掃，掃完回到這一頁。</li><li>設定每組人數和輪數，開始媒合。</li><li>先投影給全場。想把組別留在手機裡的人，再掃自己的結果碼。</li></ol><form data-action="match"><label class="field">每組人數<input id="group-size" name="groupSize" type="number" min="2" max="6" value="${settings.groupSize}"></label><label class="field">輪數<input id="round-count" name="rounds" type="number" min="1" max="4" value="${settings.rounds}"></label><p class="hint">分組會讓「想要的」對上別人「有的」，同產業鏈的人會優先排在一起，同一組盡量混合不同分會、不同行業，下一輪盡量換人。輪數最多 4，結果碼才掃得開。</p>${need ? `<p class="hint">還有 ${need} 人沒填想要的資源，這些人會依行業錯開來排。</p>` : ""}<button class="primary" type="submit" ${roster.length < 2 ? "disabled" : ""}>${matchLabel}</button></form>${stale ? `<p class="callout">名單或資源已改過。請重新媒合，再讓會員重掃結果碼。</p>` : ""}</section>`;
+    }
+
+    function resultHtml(plan, roster, stale) {
+      if (showRound < 0 || showRound >= plan.roundGroups.length) showRound = 0;
+      const byId = new Map(roster.map(function (person) { return [person.id, person]; }));
+      const summary = summaryText(plan);
+      if (hostPanel === "phone") {
+        const people = visiblePeople(plan, roster);
+        if (!people.length) return `<section class="panel" id="result-anchor"><h2>沒有可以投放的人</h2></section>`;
+        if (phoneIndex >= people.length) phoneIndex = 0;
+        const person = people[phoneIndex];
+        const card = plan.cards[person.id];
+        if (!card) return `<section class="panel" id="result-anchor"><h2>這個人的組別遺失</h2><p>請重新媒合。</p></section>`;
+        const url = resultUrl(card);
+        urlById[person.id] = url;
+        let svg = "";
+        let qrError = "";
+        try { svg = qrSvg(url); } catch (error) { qrError = "這張碼太長，請改小每組人數或輪數後重新媒合。"; }
+        return `<section class="panel phone-card" id="result-anchor"><p class="kicker">投到會員手機</p><h2>${esc(person.name)}</h2><label class="field">換一位<select id="phone-person">${people.map(function (item, index) { return `<option value="${index}" ${index === phoneIndex ? "selected" : ""}>${esc(item.name)}</option>`; }).join("")}</select></label>${svg ? `<div class="qr">${svg}</div>` : `<p class="callout">${esc(qrError)}</p>`}<p>請 ${esc(person.name)} 用相機掃描自己的名字。打開後看得到每一輪的組別。</p>${url.length > 1500 ? `<p class="hint">這張碼比較密，請把螢幕調亮再掃。</p>` : ""}<p class="url">${esc(url)}</p><div class="actions"><button class="secondary" type="button" data-action="person-step" data-step="-1">上一位</button><button class="secondary" type="button" data-action="person-step" data-step="1">下一位</button><button class="secondary" type="button" data-action="copy" data-id="${esc(person.id)}">複製連結</button><button class="text-btn" type="button" data-action="preview" data-id="${esc(person.id)}">預覽他的畫面</button></div><div class="actions"><button class="text-btn" type="button" data-action="panel" data-panel="board">回到分組表</button></div></section>`;
+      }
+      const round = plan.roundGroups[Math.min(showRound, plan.roundGroups.length - 1)] || [];
+      const cards = round.map(function (ids, index) {
+        const members = ids.map(function (id) { return byId.get(id); }).filter(Boolean);
+        const color = COLORS[index % COLORS.length];
+        const hint = (plan.highlights[showRound] || [])[index] || "";
+        return `<article class="group-card" style="--swatch:${color}"><h3>第 ${index + 1} 組</h3><ul>${members.map(function (person) { return `<li><strong>${esc(person.name)}</strong><span>${esc(roleLine(person))}</span></li>`; }).join("")}</ul><p class="hint">${esc(hint)}</p></article>`;
+      }).join("");
+      return `<section class="panel" id="result-anchor"><p class="kicker">分組結果${plan.at ? " · " + esc(clock(plan.at)) : ""}</p><h2>第 ${showRound + 1} 輪</h2><p>${esc(summary)}</p><div class="actions"><button class="secondary" type="button" data-action="panel" data-panel="project">投影這一輪</button><button class="primary" type="button" data-action="panel" data-panel="phone" ${stale ? "disabled" : ""}>給會員掃結果碼</button></div>${stale ? `<p class="hint">名單已改過，結果碼先關掉。重新媒合後再投放。</p>` : ""}<div class="round-switch">${plan.roundGroups.map(function (_, index) { return `<button type="button" data-action="set-round" data-round="${index}" aria-pressed="${index === showRound}">第 ${index + 1} 輪</button>`; }).join("")}</div></section><div class="board">${cards}</div>`;
+    }
+
+    function summaryText(plan) {
+      const sizeText = plan.sizes.every(function (size) { return size === plan.sizes[0]; })
+        ? `每組 ${plan.sizes[0]} 人`
+        : `各組人數 ${plan.sizes.join("、")}`;
+      const linked = plan.linked.map(function (count, index) { return `第 ${index + 1} 輪 ${count} 組對得上資源`; }).join("，");
+      const repeat = plan.repeatPairs
+        ? `不同輪再次同組 ${plan.repeatPairs} 對${plan.repeats.length ? "：" + plan.repeats.slice(0, 4).join("、") : ""}`
+        : "每一輪都換到新的人";
+      const extra = [];
+      if (plan.singleGroup) extra.push("人數只夠一組，所以只排 1 輪");
+      if (plan.oversized) extra.push("有一組比設定多 1 人，這樣才不會有人落單");
+      return [sizeText, linked, repeat].concat(extra).filter(Boolean).join("。") + "。";
+    }
+
+    function projectHtml(plan, roster) {
+      if (showRound < 0 || showRound >= plan.roundGroups.length) showRound = 0;
+      const byId = new Map(roster.map(function (person) { return [person.id, person]; }));
+      const round = plan.roundGroups[showRound] || [];
+      const cards = round.map(function (ids, index) {
+        const members = ids.map(function (id) { return byId.get(id); }).filter(Boolean);
+        return `<article class="group-card" style="--swatch:${COLORS[index % COLORS.length]}"><h3>第 ${index + 1} 組</h3><ul>${members.map(function (person) { return `<li><strong>${esc(person.name)}</strong><span>${esc([knownChapter(person.chapter), person.industry].filter(Boolean).join(" · "))}</span></li>`; }).join("")}</ul></article>`;
+      }).join("");
+      return `<p class="kicker">第 ${showRound + 1} 輪，共 ${plan.roundGroups.length} 輪。組號就是桌號。</p><div class="board">${cards}</div><div class="round-switch"><button type="button" data-action="round-step" data-step="-1">上一輪</button>${plan.roundGroups.map(function (_, index) { return `<button type="button" data-action="set-round" data-round="${index}" aria-pressed="${index === showRound}">第 ${index + 1} 輪</button>`; }).join("")}<button type="button" data-action="round-step" data-step="1">下一輪</button><button type="button" data-action="panel" data-panel="board">離開投影</button></div>`;
+    }
+
+    function renderPersonal(payload, preview) {
+      let card;
+      try { card = Match.decodePersonal(decodeURIComponent(payload)); }
+      catch (error) {
+        try { card = Match.decodePersonal(payload); }
+        catch (again) { card = null; }
+      }
+      if (!card) {
+        document.body.classList.add("focus-result");
+        paint(`<section class="panel"><h2>這張組別讀不起來</h2><p>請主持再出示一次你的結果碼。</p><button class="primary" type="button" data-action="go" data-hash="">回到首頁</button></section>`, "", "組別無法讀取。");
+        return;
+      }
+      if (!preview) localStorage.setItem(STORE.card, JSON.stringify(card));
+      document.body.classList.add("focus-result");
+      document.body.classList.remove("projecting");
+      paint(personalHtml(card, false), "組別存在這支手機。主持宣布下一輪時，點對應的輪次。", `${card.name} 的組別`);
+    }
+
+    function personalHtml(card, preview) {
+      if (showRound < 0 || showRound >= card.rounds.length) showRound = 0;
+      const index = Math.min(showRound, card.rounds.length - 1);
+      const round = card.rounds[index];
+      const color = COLORS[(round.group - 1) % COLORS.length];
+      const mates = round.mates.map(function (mate) {
+        return `<li><strong>${esc(mate.name)}</strong><span>${esc([chapterLabel(mate.chapter), mate.industry, mate.chain, mate.company].filter(Boolean).join(" · "))}</span></li>`;
+      }).join("");
+      const me = loadMe();
+      const warn = !preview && me && me.name !== card.name ? `<p class="callout">這張卡是 ${esc(card.name)}。若不是你，請掃自己的名字。</p>` : "";
+      return `<section class="ticket" style="--swatch:${color}">${warn}<p class="me-name">${esc(card.name)}</p><p class="kicker">第 ${index + 1} 輪，共 ${card.rounds.length} 輪</p><p class="group-no">第 ${round.group} 組</p><p class="walk">走到第 ${round.group} 桌</p><div class="why">${esc(round.why || "這一輪先認識同組的人")}</div><h2>同組</h2><ul class="mates">${mates || "<li>這一輪沒有其他組員</li>"}</ul><div class="round-switch">${card.rounds.map(function (item, roundIndex) { return `<button type="button" data-action="set-round" data-round="${roundIndex}" aria-pressed="${roundIndex === index}">第 ${roundIndex + 1} 輪</button>`; }).join("")}</div>${preview ? `<button class="text-btn" type="button" data-action="panel" data-panel="phone">返回主持</button>` : `<div class="actions"><button class="text-btn" type="button" data-action="go" data-hash="">回到首頁</button><button class="text-btn" type="button" data-action="clear-card">這不是我的組別</button></div>`}</section>`;
+    }
+
+    function clamp(value, min, max, fallback) {
+      if (!Number.isFinite(value)) return fallback;
+      return Math.min(max, Math.max(min, Math.round(value)));
+    }
+
+    function readSettings() {
+      const groupInput = document.querySelector("#group-size");
+      const roundInput = document.querySelector("#round-count");
+      return {
+        groupSize: clamp(Number(groupInput && groupInput.value), 2, 6, 4),
+        rounds: clamp(Number(roundInput && roundInput.value), 1, 4, 3)
+      };
+    }
+
+    function runMatch() {
+      const roster = loadRoster();
+      if (roster.length < 2) {
+        statusMessage = "至少要兩個人才能分組";
+        render();
+        return;
+      }
+      const settings = readSettings();
+      try {
+        const result = Match.planMeeting(roster, settings.groupSize, settings.rounds, Date.now() >>> 0);
+        result.fingerprint = fingerprint(roster);
+        result.groupSize = settings.groupSize;
+        result.roundsRequested = settings.rounds;
+        result.at = Date.now();
+        savePlan(result);
+        hostPanel = "board";
+        showRound = 0;
+        phoneIndex = 0;
+        statusMessage = result.singleGroup ? "人數只夠一組，已排成 1 輪。" : "分組完成。可以投影，或把結果碼給會員掃。";
+      } catch (error) {
+        statusMessage = error.message || "無法分組";
+      }
+      render();
+      const anchor = document.querySelector("#result-anchor");
+      if (anchor) anchor.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function render() {
+      const hash = location.hash || "";
+      if (hash.startsWith("#j=")) return renderIngest(hash.slice(3));
+      if (hash.startsWith("#p=")) return renderPersonal(hash.slice(3), false);
+      if (hash.startsWith("#member")) return renderMember();
+      if (hash.startsWith("#host")) return renderHost();
+      renderHome();
+    }
+
+    document.querySelector("#app").addEventListener("click", function (event) {
+      const btn = event.target.closest("[data-action]");
+      if (!btn || btn.disabled) return;
+      const action = btn.dataset.action;
+      if (action === "go") {
+        go(btn.dataset.hash || "");
+        return;
+      }
+      if (action === "copy") {
+        const url = urlById[btn.dataset.id] || "";
+        if (!navigator.clipboard || !navigator.clipboard.writeText) {
+          statusMessage = "無法複製，請長按下面的連結";
+          render();
+          return;
+        }
+        navigator.clipboard.writeText(url).then(function () {
+          statusMessage = "連結已複製";
+          render();
+        }, function () {
+          statusMessage = "無法複製，請長按下面的連結";
+          render();
+        });
+        return;
+      }
+      if (action === "open-card") {
+        const card = loadJson(STORE.card, null);
+        if (!card || !card.rounds || !card.rounds.length) return;
+        showRound = 0;
+        go("#p=" + Match.encodePersonal(card, Boolean(card.rounds.some(function (round) {
+          return round.mates.some(function (mate) { return mate.company; });
+        }))));
+        return;
+      }
+      if (action === "clear-card") {
+        localStorage.removeItem(STORE.card);
+        showRound = 0;
+        go("");
+        return;
+      }
+      if (action === "toggle") {
+        if (btn.dataset.flag === "showChapter") showChapter = !showChapter;
+        if (btn.dataset.flag === "showManual") showManual = !showManual;
+        if (btn.dataset.flag === "showPaste") showPaste = !showPaste;
+        render();
+        return;
+      }
+      if (action === "check-chapter") {
+        document.querySelectorAll(".check input:not(:disabled)").forEach(function (input) { input.checked = true; });
+        return;
+      }
+      if (action === "edit") {
+        editId = btn.dataset.id;
+        pendingRemove = "";
+        render();
+        return;
+      }
+      if (action === "cancel-edit") {
+        editId = "";
+        render();
+        return;
+      }
+      if (action === "remove") {
+        if (pendingRemove !== btn.dataset.id) {
+          pendingRemove = btn.dataset.id;
+          render();
+          return;
+        }
+        saveRoster(loadRoster().filter(function (person) { return person.id !== btn.dataset.id; }));
+        pendingRemove = "";
+        editId = "";
+        render();
+        return;
+      }
+      if (action === "clear") {
+        if (!pendingClear) {
+          pendingClear = true;
+          render();
+          return;
+        }
+        saveRoster([]);
+        localStorage.removeItem(STORE.plan);
+        pendingClear = false;
+        hostPanel = "setup";
+        render();
+        return;
+      }
+      if (action === "panel") {
+        hostPanel = btn.dataset.panel || "setup";
+        pendingMatch = false;
+        render();
+        return;
+      }
+      if (action === "preview") {
+        previewId = btn.dataset.id;
+        const people = visiblePeople(loadPlan(), loadRoster());
+        const index = people.findIndex(function (person) { return person.id === previewId; });
+        if (index >= 0) phoneIndex = index;
+        hostPanel = "preview";
+        render();
+        return;
+      }
+      if (action === "set-round") {
+        showRound = Number(btn.dataset.round) || 0;
+        render();
+        return;
+      }
+      if (action === "round-step") {
+        const plan = loadPlan();
+        const count = plan ? plan.roundGroups.length : 1;
+        showRound = (showRound + Number(btn.dataset.step) + count) % count;
+        render();
+        return;
+      }
+      if (action === "person-step") {
+        const count = visiblePeople(loadPlan(), loadRoster()).length || 1;
+        phoneIndex = (phoneIndex + Number(btn.dataset.step) + count) % count;
+        render();
+        return;
+      }
+    });
+
+    document.querySelector("#app").addEventListener("change", function (event) {
+      if (event.target.id === "phone-person") {
+        phoneIndex = Number(event.target.value) || 0;
+        render();
+      }
+    });
+
+    document.querySelector("#app").addEventListener("input", function (event) {
+      if (event.target.id !== "chapter-filter") return;
+      const query = event.target.value.trim();
+      document.querySelectorAll("[data-chapter]").forEach(function (row) {
+        row.hidden = Boolean(query) && !row.dataset.chapter.includes(query);
+      });
+    });
+
+    document.querySelector("#app").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const form = event.target;
+      const action = form.dataset.action;
+      const data = new FormData(form);
+      if (action === "save-member") {
+        const name = take(data, "name", 20);
+        const chain = pickedChains(data);
+        const chapter = knownChapter(data.get("chapter"));
+        if (!name) { statusMessage = "請填姓名"; render(); return; }
+        if (!chapter) { statusMessage = "請選擇分會"; render(); return; }
+        if (!chain) { statusMessage = "請至少選一個產業鏈"; render(); return; }
+        const me = {
+          name: name,
+          company: take(data, "company", 40),
+          industry: take(data, "industry", 20),
+          chain: chain,
+          chapter: chapter,
+          have: take(data, "have", 120),
+          want: take(data, "want", 120)
+        };
+        localStorage.setItem(STORE.me, JSON.stringify(me));
+        statusMessage = "資料碼好了，請給主持掃描。";
+        render();
+        return;
+      }
+      if (action === "save-edit") {
+        const roster = loadRoster();
+        const name = take(data, "name", 20);
+        const chain = pickedChains(data);
+        const chapter = knownChapter(data.get("chapter"));
+        if (!name) { statusMessage = "請填姓名"; render(); return; }
+        if (!chapter) { statusMessage = "請選擇分會"; render(); return; }
+        if (!chain) { statusMessage = "請至少選一個產業鏈"; render(); return; }
+        if (roster.some(function (person) { return person.id !== editId && person.name === name; })) {
+          statusMessage = "名單裡已經有這個姓名";
+          render();
+          return;
+        }
+        const next = roster.map(function (person) {
+          if (person.id !== editId) return person;
+          return {
+            id: person.id,
+            name: name,
+            company: take(data, "company", 40),
+            industry: take(data, "industry", 20),
+            chain: chain,
+            chapter: chapter,
+            have: take(data, "have", 120),
+            want: take(data, "want", 120)
+          };
+        });
+        saveRoster(next);
+        editId = "";
+        render();
+        return;
+      }
+      if (action === "add-manual") {
+        const name = take(data, "name", 20);
+        const chain = pickedChains(data);
+        const chapter = knownChapter(data.get("chapter"));
+        if (!name) { statusMessage = "請填姓名"; render(); return; }
+        if (!chapter) { statusMessage = "請選擇分會"; render(); return; }
+        if (!chain) { statusMessage = "請至少選一個產業鏈"; render(); return; }
+        const result = upsert({
+          name: name,
+          company: take(data, "company", 40),
+          industry: take(data, "industry", 20),
+          chain: chain,
+          chapter: chapter,
+          have: take(data, "have", 120),
+          want: take(data, "want", 120)
+        });
+        statusMessage = result.updated ? "已更新" + name : "已加入" + name;
+        showManual = false;
+        render();
+        return;
+      }
+      if (action === "paste-code") {
+        try {
+          const profile = Match.decodeProfile(payloadFromInput(data.get("code")));
+          const result = upsert(profile);
+          statusMessage = result.updated ? "已更新" + result.row.name : "已收下" + result.row.name;
+          showPaste = false;
+        } catch (error) {
+          statusMessage = error.message || "無法收下這段內容";
+        }
+        render();
+        return;
+      }
+      if (action === "add-chapter") {
+        const roster = loadRoster();
+        let added = 0;
+        form.querySelectorAll("input[name='m']:checked").forEach(function (input) {
+          const row = CHAPTER[Number(input.value)];
+          if (!row || roster.some(function (person) { return person.name === row[0]; })) return;
+          roster.unshift({
+            id: newId(roster),
+            name: row[0],
+            company: row[1],
+            industry: row[2],
+            chain: "",
+            chapter: "大芯",
+            have: row[3],
+            want: ""
+          });
+          added += 1;
+        });
+        saveRoster(roster);
+        statusMessage = added ? "已加入 " + added + " 人。想要的資源仍可請本人補。" : "沒有新的人被加入";
+        render();
+        return;
+      }
+      if (action === "match") {
+        const roster = loadRoster();
+        const plan = loadPlan();
+        const fresh = !plan || plan.fingerprint !== fingerprint(roster);
+        if (!fresh && !pendingMatch) {
+          draftSettings = readSettings();
+          pendingMatch = true;
+          render();
+          return;
+        }
+        pendingMatch = false;
+        draftSettings = null;
+        runMatch();
+      }
+    });
+
+    window.addEventListener("hashchange", render);
+    window.addEventListener("storage", function (event) {
+      if (!location.hash.startsWith("#host")) return;
+      if (event.key !== STORE.roster && event.key !== STORE.plan) return;
+      if (document.querySelector("#app input:focus, #app textarea:focus")) {
+        statusMessage = "有新的資料。完成輸入後會出現在名單。";
+        return;
+      }
+      render();
+    });
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState !== "visible" || !location.hash.startsWith("#host")) return;
+      if (editId || document.querySelector("#app input:focus, #app textarea:focus")) return;
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>
