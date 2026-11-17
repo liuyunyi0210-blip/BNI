@@ -452,7 +452,7 @@
       return { name: lines[1], rounds: rounds };
     }
 
-    var GENERIC = new Set("服務 公司 企業 客戶 資源 合作 介紹 專業 有限 股份 我們 可以 以及 一個 需求 朋友 處理 認識 能夠 希望 提供 幫忙 引薦 想要 需要 一下 這個 那個 方面 相關 業務 產品 方案".split(" "));
+    var GENERIC = new Set("服務 公司 企業 客戶 資源 合作 介紹 專業 有限 股份 我們 可以 以及 一個 需求 朋友 處理 認識 能夠 希望 提供 幫忙 引薦 想要 需要 一下 這個 那個 方面 相關 業務 產品 方案 規劃 管理 顧問 諮詢".split(" "));
 
     function offerPhrases(text) {
       const phrases = [];
@@ -512,13 +512,17 @@
       return bestOffer(offerPhrases(haveText), gramSet(wantText));
     }
 
+    function offerText(person) {
+      return [person.have, person.industry].filter(Boolean).join("、");
+    }
+
     function pairKey(a, b) {
       return a < b ? a + "|" + b : b + "|" + a;
     }
 
     function hitsBetween(owner, other) {
       if (owner.phrases && other.wantSet) return bestOffer(owner.phrases, other.wantSet);
-      return complementHits(owner.have, other.want);
+      return complementHits(offerText(owner), other.want);
     }
 
     function pairDetail(a, b, met) {
@@ -727,8 +731,8 @@
     function personalWhy(person, mates) {
       const lines = [];
       for (const mate of mates) {
-        const wanted = complementHits(mate.have, person.want);
-        const offered = complementHits(person.have, mate.want);
+        const wanted = complementHits(offerText(mate), person.want);
+        const offered = complementHits(offerText(person), mate.want);
         if (wanted.length) lines.push(mate.name + "有「" + wanted[0] + "」，對上你想要的");
         else if (offered.length) lines.push("你有「" + offered[0] + "」，對上" + mate.name + "想要的");
       }
@@ -766,7 +770,7 @@
         if (!person.id || !person.name) throw new Error("名單裡有缺少姓名的人");
         if (seen.has(person.id)) throw new Error("名單裡有重複的人");
         seen.add(person.id);
-        person.phrases = offerPhrases(person.have);
+        person.phrases = offerPhrases(offerText(person));
         person.wantSet = gramSet(person.want);
       }
       const requested = Math.max(1, Math.min(4, rounds | 0 || 1));
