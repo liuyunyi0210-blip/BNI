@@ -61,13 +61,15 @@
       font: inherit;
       cursor: pointer;
     }
-    nav button {
+    nav button, nav a {
       border: 0;
       background: transparent;
       border-radius: 999px;
       padding: 7px 14px;
       color: var(--muted);
+      text-decoration: none;
     }
+    nav a { color: var(--accent); font-weight: 650; cursor: pointer; }
     nav button[aria-pressed="true"] {
       background: var(--ink);
       color: #fff;
@@ -486,6 +488,7 @@
         <button type="button" id="tab-list" aria-pressed="true">會員名單</button>
         <button type="button" id="tab-opp" aria-pressed="false">合作機會</button>
         <button type="button" id="tab-learn" aria-pressed="false">學習</button>
+        <a href="match.html">現場媒合</a>
       </nav>
     </div>
     <p class="sub" id="count"></p>
