@@ -183,6 +183,13 @@
     .check:last-child { border-bottom: 0; }
     .check input { width: auto; margin-top: 4px; }
     .check .meta { display: block; font-weight: 400; }
+    .group-card li .tag, .mates li .tag { display: inline-block; font-size: 12px; vertical-align: middle; }
+    .tag.is-leader { color: #fff; background: var(--swatch, var(--accent)); border-color: transparent; }
+    .tag.is-role { color: var(--accent); border-color: currentColor; }
+    .leader-pick { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: var(--muted); }
+    .leader-pick select { flex: 1; min-width: 0; }
+    .leader-line { margin: 4px 0 10px; font-weight: 600; }
+    .leader-line.is-me { color: var(--swatch, var(--accent)); }
     .chains { border: 0; padding: 0; min-width: 0; }
     .chains legend { padding: 0; margin-bottom: 6px; }
     .chip-grid { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -383,6 +390,55 @@
       return index >= 0 ? String(index) : "";
     }
 
+    var ROLE_RANKS = [["副主席", 1], ["主席", 0], ["秘書", 2], ["財務", 2], ["教育", 3], ["會員", 3], ["活動", 3], ["導師", 3], ["大使", 4], ["董事", 4]];
+
+    function isCadre(person) {
+      return Boolean(person && clean(person.role));
+    }
+
+    function roleRank(role) {
+      const text = clean(role);
+      if (!text) return 99;
+      for (const pair of ROLE_RANKS) {
+        if (text.includes(pair[0])) return pair[1];
+      }
+      return 5;
+    }
+
+    function autoLeaders(roundGroups, people) {
+      const byId = new Map(people.map(function (person) { return [person.id, person]; }));
+      const led = new Map();
+      return roundGroups.map(function (groups) {
+        return groups.map(function (ids) {
+          const ranked = ids.slice().sort(function (a, b) {
+            const pa = byId.get(a);
+            const pb = byId.get(b);
+            return (isCadre(pb) - isCadre(pa))
+              || ((led.get(a) || 0) - (led.get(b) || 0))
+              || (roleRank(pa && pa.role) - roleRank(pb && pb.role))
+              || (ids.indexOf(a) - ids.indexOf(b));
+          });
+          const id = ranked[0] || "";
+          if (id) led.set(id, (led.get(id) || 0) + 1);
+          return id;
+        });
+      });
+    }
+
+    function syncLeaders(plan) {
+      plan.roundGroups.forEach(function (groups, roundIndex) {
+        groups.forEach(function (ids, groupIndex) {
+          const leaderId = ((plan.leaders || [])[roundIndex] || [])[groupIndex] || "";
+          const leader = plan.cards[leaderId];
+          for (const id of ids) {
+            const round = plan.cards[id] && plan.cards[id].rounds[roundIndex];
+            if (round) round.leader = leader ? leader.name : "";
+          }
+        });
+      });
+      return plan;
+    }
+
     function sharedChains(a, b) {
       const other = new Set(chainList(b.chain));
       return chainList(a.chain).filter(function (name) { return other.has(name); });
@@ -397,7 +453,8 @@
         clip(person.have, 120),
         clip(person.want, 120),
         encodeChains(person.chain),
-        encodeChapter(person.chapter)
+        encodeChapter(person.chapter),
+        clip(person.role, 12)
       ].join("\n"));
     }
 
@@ -411,14 +468,21 @@
         have: lines[4] || "",
         want: lines[5] || "",
         chain: decodeChains(lines[6]),
-        chapter: knownChapter(lines[7])
+        chapter: knownChapter(lines[7]),
+        role: clip(lines[8], 12)
       };
     }
 
     function encodePersonal(card, withCompany) {
-      const lines = ["1", cleanCell(card.name)];
+      const lines = ["2", cleanCell(card.name)];
       for (const round of card.rounds) {
-        lines.push(String(round.group) + "|" + cleanCell(clip(round.why, 32)));
+        let leader = "";
+        if (round.leader && round.leader === card.name) leader = "0";
+        else {
+          const at = round.mates.findIndex(function (mate) { return mate.name === round.leader; });
+          if (at >= 0) leader = String(at + 1);
+        }
+        lines.push(String(round.group) + "|" + leader + "|" + cleanCell(clip(round.why, 32)));
         for (const mate of round.mates) {
           const company = withCompany ? cleanCell(clip(mate.company, 8)) : "";
           lines.push([cleanCell(mate.name), cleanCell(clip(mate.industry, 10)), company, withCompany ? encodeChains(mate.chain) : "", encodeChapter(mate.chapter)].join("|"));
@@ -430,7 +494,8 @@
 
     function decodePersonal(payload) {
       const lines = decodeText(payload).split("\n");
-      if (lines[0] !== "1" || !clean(lines[1])) throw new Error("無法讀取組別");
+      const version = lines[0];
+      if ((version !== "1" && version !== "2") || !clean(lines[1])) throw new Error("無法讀取組別");
       const rounds = [];
       let i = 2;
       while (i < lines.length) {
@@ -438,7 +503,8 @@
         const head = lines[i].split("|");
         const group = Number(head[0]);
         if (!Number.isInteger(group) || group < 1) throw new Error("無法讀取組別");
-        const why = head.slice(1).join("|");
+        const leaderAt = version === "2" ? head[1] : "";
+        const why = head.slice(version === "2" ? 2 : 1).join("|");
         i += 1;
         const mates = [];
         while (i < lines.length && lines[i]) {
@@ -446,7 +512,10 @@
           mates.push({ name: bits[0] || "", industry: bits[1] || "", company: bits[2] || "", chain: decodeChains(bits[3]), chapter: knownChapter(bits[4]) });
           i += 1;
         }
-        rounds.push({ group: group, why: why, mates: mates });
+        let leader = "";
+        if (leaderAt === "0") leader = lines[1];
+        else if (/^\d+$/.test(leaderAt) && mates[Number(leaderAt) - 1]) leader = mates[Number(leaderAt) - 1].name;
+        rounds.push({ group: group, why: why, mates: mates, leader: leader });
       }
       if (!rounds.length) throw new Error("無法讀取組別");
       return { name: lines[1], rounds: rounds };
@@ -536,6 +605,7 @@
       const shared = sharedChains(a, b);
       score += Math.min(2, shared.length) * 4;
       if (a.chapter && a.chapter === b.chapter) score -= 10;
+      if (isCadre(a) && isCadre(b)) score -= 20;
       const times = met.get(pairKey(a.id, b.id)) || 0;
       score -= times * 40;
       return { score: score, notes: notes, times: times, shared: shared };
@@ -761,6 +831,7 @@
           industry: clean(person.industry),
           chain: knownChain(person.chain),
           chapter: knownChapter(person.chapter),
+          role: clip(person.role, 12),
           have: clip(person.have, 120),
           want: clip(person.want, 120)
         };
@@ -838,10 +909,13 @@
         repeats.push(byId.get(parts[0]).name + "與" + byId.get(parts[1]).name);
       }
       const cap = groupCap(groupSize);
-      return {
-        roundGroups: byRound.map(function (groups) {
-          return groups.map(function (group) { return group.map(function (person) { return person.id; }); });
-        }),
+      const roundGroups = byRound.map(function (groups) {
+        return groups.map(function (group) { return group.map(function (person) { return person.id; }); });
+      });
+      const leaders = autoLeaders(roundGroups, cleaned);
+      return syncLeaders({
+        roundGroups: roundGroups,
+        leaders: leaders,
         highlights: highlights,
         linked: linked,
         cards: cards,
@@ -851,7 +925,7 @@
         singleGroup: singleGroup,
         oversized: sizePlan.some(function (size) { return size > cap; }),
         roundCount: roundCount
-      };
+      });
     }
 
     var Match = {
@@ -861,7 +935,9 @@
       decodeProfile: decodeProfile,
       encodePersonal: encodePersonal,
       decodePersonal: decodePersonal,
-      complementHits: complementHits
+      complementHits: complementHits,
+      autoLeaders: autoLeaders,
+      syncLeaders: syncLeaders
     };
   </script>
   <script>
@@ -936,7 +1012,7 @@
     function loadRoster() {
       const roster = loadJson(STORE.roster, []);
       if (!Array.isArray(roster)) return [];
-      return roster.map(function (person) { return Object.assign({}, person, { chain: knownChain(person.chain), chapter: knownChapter(person.chapter) }); });
+      return roster.map(function (person) { return Object.assign({}, person, { chain: knownChain(person.chain), chapter: knownChapter(person.chapter), role: clean(person.role) }); });
     }
 
     function saveRoster(roster) {
@@ -959,7 +1035,7 @@
 
     function fingerprint(roster) {
       return roster.map(function (person) {
-        return [person.id, person.name, person.company, person.industry, person.chain, person.chapter, person.have, person.want].join("\u0001");
+        return [person.id, person.name, person.company, person.industry, person.chain, person.chapter, person.role, person.have, person.want].join("\u0001");
       }).sort().join("\u0002");
     }
 
@@ -980,6 +1056,7 @@
         industry: profile.industry || "",
         chain: knownChain(profile.chain),
         chapter: knownChapter(profile.chapter),
+        role: clean(profile.role),
         have: profile.have || "",
         want: profile.want || ""
       };
@@ -1046,6 +1123,22 @@
       return `<fieldset class="field chains"><legend>產業鏈（可多選）</legend><div class="chip-grid">${chips}</div></fieldset>`;
     }
 
+    function roleField(value) {
+      const options = ["主席", "副主席", "秘書財務", "教育協調", "會員委員會", "活動協調", "導師協調", "大使"].map(function (name) {
+        return `<option value="${esc(name)}"></option>`;
+      }).join("");
+      return `<label class="field">幹部職務（選填）<input name="role" maxlength="12" list="role-options" value="${esc(value || "")}" placeholder="例如：主席、副主席、秘書財務"><datalist id="role-options">${options}</datalist></label>`;
+    }
+
+    function leadersOf(plan, roster) {
+      if (!plan.leaders || plan.leaders.length !== plan.roundGroups.length) {
+        plan.leaders = Match.autoLeaders(plan.roundGroups, roster);
+        Match.syncLeaders(plan);
+        savePlan(plan);
+      }
+      return plan.leaders;
+    }
+
     function pickedChains(data) {
       return knownChain(data.getAll("chain"));
     }
@@ -1096,7 +1189,7 @@
         try { svg = qrSvg(url); } catch (error) { svg = ""; }
         qr = `<section class="panel phone-card"><p class="kicker">給主持掃</p><h2>${esc(me.name)}</h2><p class="meta">${esc(roleLine(me))}</p>${svg ? `<div class="qr">${svg}</div>` : ""}<p>請主持用相機掃描。掃完你就在這場名單裡。</p><p class="url">${esc(url)}</p><button class="secondary" type="button" data-action="copy" data-id="me">複製連結</button></section>`;
       }
-      const form = `<section class="panel"><h2>${saved ? "修改資料" : "登錄資料"}</h2><form data-action="save-member">${field("name", "姓名", me.name, { required: true, max: 20, placeholder: "林歡偉" })}${chapterField(me.chapter)}${field("company", "公司", me.company, { max: 40, placeholder: "公司名稱" })}${field("industry", "行業別", me.industry, { max: 20, placeholder: "例如：居家室內設計" })}${chainField(me.chain)}${field("have", "我有的資源", me.have, { area: true, placeholder: "例如：居家空間設計、能介紹要裝修的屋主" })}${field("want", "想要的資源", me.want, { area: true, placeholder: "例如：想認識能介紹企業貸款、或有商業空間案子的人" })}<p class="hint">兩欄資源都填，分組才會把「想要的」對上別人「有的」。每欄最多 120 字。</p><button class="primary" type="submit">${saved ? "更新資料碼" : "完成，產生資料碼"}</button></form></section>`;
+      const form = `<section class="panel"><h2>${saved ? "修改資料" : "登錄資料"}</h2><form data-action="save-member">${field("name", "姓名", me.name, { required: true, max: 20, placeholder: "林歡偉" })}${chapterField(me.chapter)}${roleField(me.role)}${field("company", "公司", me.company, { max: 40, placeholder: "公司名稱" })}${field("industry", "行業別", me.industry, { max: 20, placeholder: "例如：居家室內設計" })}${chainField(me.chain)}${field("have", "我有的資源", me.have, { area: true, placeholder: "例如：居家空間設計、能介紹要裝修的屋主" })}${field("want", "想要的資源", me.want, { area: true, placeholder: "例如：想認識能介紹企業貸款、或有商業空間案子的人" })}<p class="hint">兩欄資源都填，分組才會把「想要的」對上別人「有的」。每欄最多 120 字。</p><button class="primary" type="submit">${saved ? "更新資料碼" : "完成，產生資料碼"}</button></form></section>`;
       paint(`${statusHtml()}<p><button class="text-btn" type="button" data-action="go" data-hash="">回到上一頁</button></p>${saved ? qr + form : form}`, "請把資料碼給主持，不要用自己的相機掃自己的碼。", "填完後把這張碼給主持掃。");
     }
 
@@ -1168,15 +1261,15 @@
       const people = roster.map(function (person) {
         const editing = editId === person.id;
         const body = editing
-          ? `<form data-action="save-edit">${field("name", "姓名", person.name, { required: true, max: 20 })}${chapterField(person.chapter)}${field("company", "公司", person.company, { max: 40 })}${field("industry", "行業別", person.industry, { max: 20 })}${chainField(person.chain)}${field("have", "我有的資源", person.have, { area: true })}${field("want", "想要的資源", person.want, { area: true })}<div class="actions"><button class="primary" type="submit">儲存</button><button class="secondary" type="button" data-action="cancel-edit">取消</button></div></form>`
+          ? `<form data-action="save-edit">${field("name", "姓名", person.name, { required: true, max: 20 })}${chapterField(person.chapter)}${roleField(person.role)}${field("company", "公司", person.company, { max: 40 })}${field("industry", "行業別", person.industry, { max: 20 })}${chainField(person.chain)}${field("have", "我有的資源", person.have, { area: true })}${field("want", "想要的資源", person.want, { area: true })}<div class="actions"><button class="primary" type="submit">儲存</button><button class="secondary" type="button" data-action="cancel-edit">取消</button></div></form>`
           : `<p class="meta">${esc(roleLine(person) || "未填公司與行業")}</p><p class="hint">有的：${esc(person.have || "未填")}</p><p class="hint">想要：${esc(person.want || "未填")}</p><div class="row-actions"><button class="text-btn" type="button" data-action="edit" data-id="${esc(person.id)}">編輯</button><button class="danger" type="button" data-action="remove" data-id="${esc(person.id)}" ${pendingRemove === person.id ? 'aria-pressed="true"' : ""}>${pendingRemove === person.id ? "確定移除" : "移除"}</button></div>`;
-        return `<article class="person"><div class="person-top"><h3>${esc(person.name)}${person.chapter ? "" : '<span class="tag">未選分會</span>'}${person.chain ? "" : '<span class="tag">未選產業鏈</span>'}${person.want ? "" : '<span class="tag">未填想要</span>'}</h3></div>${body}</article>`;
+        return `<article class="person"><div class="person-top"><h3>${esc(person.name)}${person.role ? `<span class="tag is-role">${esc(person.role)}</span>` : ""}${person.chapter ? "" : '<span class="tag">未選分會</span>'}${person.chain ? "" : '<span class="tag">未選產業鏈</span>'}${person.want ? "" : '<span class="tag">未填想要</span>'}</h3></div>${body}</article>`;
       }).join("");
       const chapter = showChapter ? `<div class="stack"><label class="field">搜尋分會名單<input id="chapter-filter" placeholder="姓名、公司或行業"></label><form data-action="add-chapter">${CHAPTER.map(function (row, index) {
         const here = roster.some(function (person) { return person.name === row[0]; });
         return `<label class="check${here ? " is-in" : ""}" data-chapter="${esc(row.join(" "))}"><input type="checkbox" name="m" value="${index}" ${here ? "disabled" : ""}><span><strong>${esc(row[0])}</strong>${here ? " 已在名單" : ""}<span class="meta">${esc(row[2])}${row[1] ? " · " + esc(row[1]) : ""}</span></span></label>`;
       }).join("")}<div class="actions"><button class="secondary" type="button" data-action="check-chapter">全選尚未加入的人</button><button class="primary" type="submit">加入勾選的人</button></div></form></div>` : "";
-      const manual = showManual ? `<form data-action="add-manual">${field("name", "姓名", "", { required: true, max: 20 })}${chapterField("")}${field("company", "公司", "", { max: 40 })}${field("industry", "行業別", "", { max: 20 })}${chainField("")}${field("have", "我有的資源", "", { area: true })}${field("want", "想要的資源", "", { area: true })}<button class="primary" type="submit">加入名單</button></form>` : "";
+      const manual = showManual ? `<form data-action="add-manual">${field("name", "姓名", "", { required: true, max: 20 })}${chapterField("")}${roleField("")}${field("company", "公司", "", { max: 40 })}${field("industry", "行業別", "", { max: 20 })}${chainField("")}${field("have", "我有的資源", "", { area: true })}${field("want", "想要的資源", "", { area: true })}<button class="primary" type="submit">加入名單</button></form>` : "";
       const paste = showPaste ? `<form data-action="paste-code"><label class="field">資料碼或連結<input name="code" placeholder="貼上會員畫面上的連結"></label><button class="primary" type="submit">收下</button></form>` : "";
       return `<section class="panel"><p class="kicker">出席名單</p><h2>${roster.length} 人</h2><div class="actions"><button class="secondary" type="button" data-action="toggle" data-flag="showPaste" aria-pressed="${showPaste}">貼上資料碼</button><button class="secondary" type="button" data-action="toggle" data-flag="showManual" aria-pressed="${showManual}">手動加一位</button><button class="secondary" type="button" data-action="toggle" data-flag="showChapter" aria-pressed="${showChapter}">從分會名單勾選</button></div>${paste}${manual}${chapter}<div class="roster">${people || `<p class="hint">還沒有人。請會員打開「登錄我的資料」，再把資料碼給你掃。</p>`}</div>${roster.length ? `<button class="danger" type="button" data-action="clear" ${pendingClear ? 'aria-pressed="true"' : ""}>${pendingClear ? "確定清空名單" : "清空名單"}</button>` : ""}</section>`;
     }
@@ -1184,7 +1277,7 @@
     function settingsHtml(roster, settings, plan, stale) {
       const need = roster.filter(function (person) { return !person.want; }).length;
       const matchLabel = pendingMatch ? "確定重排，已掃過的碼要重掃" : (plan ? "重新媒合" : "開始媒合");
-      return `<section class="panel"><p class="kicker">官方媒合</p><h2>人數與輪數</h2><ol class="steps"><li>會員用自己的手機登錄，把資料碼給你掃。</li><li>主持頁請用 Safari 或 Chrome 打開。用同一支手機的相機掃，掃完回到這一頁。</li><li>設定每組人數和輪數，開始媒合。</li><li>先投影給全場。想把組別留在手機裡的人，再掃自己的結果碼。</li></ol><form data-action="match"><label class="field">每組人數<input id="group-size" name="groupSize" type="number" min="2" max="6" value="${settings.groupSize}"></label><label class="field">輪數<input id="round-count" name="rounds" type="number" min="1" max="4" value="${settings.rounds}"></label><p class="hint">分組會讓「想要的」對上別人「有的」，同產業鏈的人會優先排在一起，同一組盡量混合不同分會、不同行業，下一輪盡量換人。輪數最多 4，結果碼才掃得開。</p>${need ? `<p class="hint">還有 ${need} 人沒填想要的資源，這些人會依行業錯開來排。</p>` : ""}<button class="primary" type="submit" ${roster.length < 2 ? "disabled" : ""}>${matchLabel}</button></form>${stale ? `<p class="callout">名單或資源已改過。請重新媒合，再讓會員重掃結果碼。</p>` : ""}</section>`;
+      return `<section class="panel"><p class="kicker">官方媒合</p><h2>人數與輪數</h2><ol class="steps"><li>會員用自己的手機登錄，把資料碼給你掃。</li><li>主持頁請用 Safari 或 Chrome 打開。用同一支手機的相機掃，掃完回到這一頁。</li><li>設定每組人數和輪數，開始媒合。</li><li>先投影給全場。想把組別留在手機裡的人，再掃自己的結果碼。</li></ol><form data-action="match"><label class="field">每組人數<input id="group-size" name="groupSize" type="number" min="2" max="6" value="${settings.groupSize}"></label><label class="field">輪數<input id="round-count" name="rounds" type="number" min="1" max="4" value="${settings.rounds}"></label><p class="hint">分組會讓「想要的」對上別人「有的」，同產業鏈的人會優先排在一起，同一組盡量混合不同分會、不同行業，領導幹部會分散到各組當組長，下一輪盡量換人。輪數最多 4，結果碼才掃得開。</p>${need ? `<p class="hint">還有 ${need} 人沒填想要的資源，這些人會依行業錯開來排。</p>` : ""}<button class="primary" type="submit" ${roster.length < 2 ? "disabled" : ""}>${matchLabel}</button></form>${stale ? `<p class="callout">名單或資源已改過。請重新媒合，再讓會員重掃結果碼。</p>` : ""}</section>`;
     }
 
     function resultHtml(plan, roster, stale) {
@@ -1206,13 +1299,16 @@
         return `<section class="panel phone-card" id="result-anchor"><p class="kicker">投到會員手機</p><h2>${esc(person.name)}</h2><label class="field">換一位<select id="phone-person">${people.map(function (item, index) { return `<option value="${index}" ${index === phoneIndex ? "selected" : ""}>${esc(item.name)}</option>`; }).join("")}</select></label>${svg ? `<div class="qr">${svg}</div>` : `<p class="callout">${esc(qrError)}</p>`}<p>請 ${esc(person.name)} 用相機掃描自己的名字。打開後看得到每一輪的組別。</p>${url.length > 1500 ? `<p class="hint">這張碼比較密，請把螢幕調亮再掃。</p>` : ""}<p class="url">${esc(url)}</p><div class="actions"><button class="secondary" type="button" data-action="person-step" data-step="-1">上一位</button><button class="secondary" type="button" data-action="person-step" data-step="1">下一位</button><button class="secondary" type="button" data-action="copy" data-id="${esc(person.id)}">複製連結</button><button class="text-btn" type="button" data-action="preview" data-id="${esc(person.id)}">預覽他的畫面</button></div><div class="actions"><button class="text-btn" type="button" data-action="panel" data-panel="board">回到分組表</button></div></section>`;
       }
       const round = plan.roundGroups[Math.min(showRound, plan.roundGroups.length - 1)] || [];
+      const leaders = leadersOf(plan, roster)[showRound] || [];
       const cards = round.map(function (ids, index) {
         const members = ids.map(function (id) { return byId.get(id); }).filter(Boolean);
         const color = COLORS[index % COLORS.length];
         const hint = (plan.highlights[showRound] || [])[index] || "";
-        return `<article class="group-card" style="--swatch:${color}"><h3>第 ${index + 1} 組</h3><ul>${members.map(function (person) { return `<li><strong>${esc(person.name)}</strong><span>${esc(roleLine(person))}</span></li>`; }).join("")}</ul><p class="hint">${esc(hint)}</p></article>`;
+        const picker = `<label class="leader-pick">組長<select data-leader-round="${showRound}" data-leader-group="${index}">${members.map(function (person) { return `<option value="${esc(person.id)}" ${person.id === leaders[index] ? "selected" : ""}>${esc(person.name)}${person.role ? "（" + esc(person.role) + "）" : ""}</option>`; }).join("")}</select></label>`;
+        return `<article class="group-card" style="--swatch:${color}"><h3>第 ${index + 1} 組</h3><ul>${members.map(function (person) { return `<li><strong>${esc(person.name)}${person.id === leaders[index] ? '<span class="tag is-leader">組長</span>' : ""}${person.role ? `<span class="tag is-role">${esc(person.role)}</span>` : ""}</strong><span>${esc(roleLine(person))}</span></li>`; }).join("")}</ul>${picker}<p class="hint">${esc(hint)}</p></article>`;
       }).join("");
-      return `<section class="panel" id="result-anchor"><p class="kicker">分組結果${plan.at ? " · " + esc(clock(plan.at)) : ""}</p><h2>第 ${showRound + 1} 輪</h2><p>${esc(summary)}</p><div class="actions"><button class="secondary" type="button" data-action="panel" data-panel="project">投影這一輪</button><button class="primary" type="button" data-action="panel" data-panel="phone" ${stale ? "disabled" : ""}>給會員掃結果碼</button></div>${stale ? `<p class="hint">名單已改過，結果碼先關掉。重新媒合後再投放。</p>` : ""}<div class="round-switch">${plan.roundGroups.map(function (_, index) { return `<button type="button" data-action="set-round" data-round="${index}" aria-pressed="${index === showRound}">第 ${index + 1} 輪</button>`; }).join("")}</div></section><div class="board">${cards}</div>`;
+      const manualLeaders = Boolean(plan.leaderManual);
+      return `<section class="panel" id="result-anchor"><p class="kicker">分組結果${plan.at ? " · " + esc(clock(plan.at)) : ""}</p><h2>第 ${showRound + 1} 輪</h2><p>${esc(summary)}</p><div class="actions"><button class="secondary" type="button" data-action="panel" data-panel="project">投影這一輪</button><button class="primary" type="button" data-action="panel" data-panel="phone" ${stale ? "disabled" : ""}>給會員掃結果碼</button></div>${stale ? `<p class="hint">名單已改過，結果碼先關掉。重新媒合後再投放。</p>` : ""}<p class="hint">組長先自動指派：優先由領導幹部擔任，同一人盡量不連續當。可以在每組下方改人。${manualLeaders ? `已手動改過組長，已掃過結果碼的人要重掃才會看到新的組長。 <button class="text-btn" type="button" data-action="reset-leaders">組長改回自動</button>` : ""}</p><div class="round-switch">${plan.roundGroups.map(function (_, index) { return `<button type="button" data-action="set-round" data-round="${index}" aria-pressed="${index === showRound}">第 ${index + 1} 輪</button>`; }).join("")}</div></section><div class="board">${cards}</div>`;
     }
 
     function summaryText(plan) {
@@ -1224,6 +1320,13 @@
         ? `不同輪再次同組 ${plan.repeatPairs} 對${plan.repeats.length ? "：" + plan.repeats.slice(0, 4).join("、") : ""}`
         : "每一輪都換到新的人";
       const extra = [];
+      const roster = loadRoster();
+      const cadres = new Set(roster.filter(function (person) { return person.role; }).map(function (person) { return person.id; }));
+      if (cadres.size) {
+        extra.push((plan.leaders || []).map(function (round, index) {
+          return `第 ${index + 1} 輪 ${round.filter(function (id) { return cadres.has(id); }).length}/${round.length} 組由幹部當組長`;
+        }).join("，"));
+      }
       if (plan.singleGroup) extra.push("人數只夠一組，所以只排 1 輪");
       if (plan.oversized) extra.push("有一組比設定多 1 人，這樣才不會有人落單");
       return [sizeText, linked, repeat].concat(extra).filter(Boolean).join("。") + "。";
@@ -1233,9 +1336,10 @@
       if (showRound < 0 || showRound >= plan.roundGroups.length) showRound = 0;
       const byId = new Map(roster.map(function (person) { return [person.id, person]; }));
       const round = plan.roundGroups[showRound] || [];
+      const leaders = leadersOf(plan, roster)[showRound] || [];
       const cards = round.map(function (ids, index) {
         const members = ids.map(function (id) { return byId.get(id); }).filter(Boolean);
-        return `<article class="group-card" style="--swatch:${COLORS[index % COLORS.length]}"><h3>第 ${index + 1} 組</h3><ul>${members.map(function (person) { return `<li><strong>${esc(person.name)}</strong><span>${esc([knownChapter(person.chapter), person.industry].filter(Boolean).join(" · "))}</span></li>`; }).join("")}</ul></article>`;
+        return `<article class="group-card" style="--swatch:${COLORS[index % COLORS.length]}"><h3>第 ${index + 1} 組</h3><ul>${members.map(function (person) { return `<li><strong>${esc(person.name)}${person.id === leaders[index] ? '<span class="tag is-leader">組長</span>' : ""}</strong><span>${esc([knownChapter(person.chapter), person.industry].filter(Boolean).join(" · "))}</span></li>`; }).join("")}</ul></article>`;
       }).join("");
       return `<p class="kicker">第 ${showRound + 1} 輪，共 ${plan.roundGroups.length} 輪。組號就是桌號。</p><div class="board">${cards}</div><div class="round-switch"><button type="button" data-action="round-step" data-step="-1">上一輪</button>${plan.roundGroups.map(function (_, index) { return `<button type="button" data-action="set-round" data-round="${index}" aria-pressed="${index === showRound}">第 ${index + 1} 輪</button>`; }).join("")}<button type="button" data-action="round-step" data-step="1">下一輪</button><button type="button" data-action="panel" data-panel="board">離開投影</button></div>`;
     }
@@ -1264,11 +1368,11 @@
       const round = card.rounds[index];
       const color = COLORS[(round.group - 1) % COLORS.length];
       const mates = round.mates.map(function (mate) {
-        return `<li><strong>${esc(mate.name)}</strong><span>${esc([chapterLabel(mate.chapter), mate.industry, mate.chain, mate.company].filter(Boolean).join(" · "))}</span></li>`;
+        return `<li><strong>${esc(mate.name)}${round.leader && mate.name === round.leader ? '<span class="tag is-leader">組長</span>' : ""}</strong><span>${esc([chapterLabel(mate.chapter), mate.industry, mate.chain, mate.company].filter(Boolean).join(" · "))}</span></li>`;
       }).join("");
       const me = loadMe();
       const warn = !preview && me && me.name !== card.name ? `<p class="callout">這張卡是 ${esc(card.name)}。若不是你，請掃自己的名字。</p>` : "";
-      return `<section class="ticket" style="--swatch:${color}">${warn}<p class="me-name">${esc(card.name)}</p><p class="kicker">第 ${index + 1} 輪，共 ${card.rounds.length} 輪</p><p class="group-no">第 ${round.group} 組</p><p class="walk">走到第 ${round.group} 桌</p><div class="why">${esc(round.why || "這一輪先認識同組的人")}</div><h2>同組</h2><ul class="mates">${mates || "<li>這一輪沒有其他組員</li>"}</ul><div class="round-switch">${card.rounds.map(function (item, roundIndex) { return `<button type="button" data-action="set-round" data-round="${roundIndex}" aria-pressed="${roundIndex === index}">第 ${roundIndex + 1} 輪</button>`; }).join("")}</div>${preview ? `<button class="text-btn" type="button" data-action="panel" data-panel="phone">返回主持</button>` : `<div class="actions"><button class="text-btn" type="button" data-action="go" data-hash="">回到首頁</button><button class="text-btn" type="button" data-action="clear-card">這不是我的組別</button></div>`}</section>`;
+      return `<section class="ticket" style="--swatch:${color}">${warn}<p class="me-name">${esc(card.name)}</p><p class="kicker">第 ${index + 1} 輪，共 ${card.rounds.length} 輪</p><p class="group-no">第 ${round.group} 組</p><p class="walk">走到第 ${round.group} 桌</p>${round.leader ? `<p class="leader-line${round.leader === card.name ? " is-me" : ""}">${round.leader === card.name ? "這一輪你是組長，請帶大家自我介紹、交換需求。" : "組長：" + esc(round.leader)}</p>` : ""}<div class="why">${esc(round.why || "這一輪先認識同組的人")}</div><h2>同組</h2><ul class="mates">${mates || "<li>這一輪沒有其他組員</li>"}</ul><div class="round-switch">${card.rounds.map(function (item, roundIndex) { return `<button type="button" data-action="set-round" data-round="${roundIndex}" aria-pressed="${roundIndex === index}">第 ${roundIndex + 1} 輪</button>`; }).join("")}</div>${preview ? `<button class="text-btn" type="button" data-action="panel" data-panel="phone">返回主持</button>` : `<div class="actions"><button class="text-btn" type="button" data-action="go" data-hash="">回到首頁</button><button class="text-btn" type="button" data-action="clear-card">這不是我的組別</button></div>`}</section>`;
     }
 
     function clamp(value, min, max, fallback) {
@@ -1422,6 +1526,17 @@
         render();
         return;
       }
+      if (action === "reset-leaders") {
+        const plan = loadPlan();
+        if (!plan) return;
+        plan.leaders = Match.autoLeaders(plan.roundGroups, loadRoster());
+        plan.leaderManual = false;
+        Match.syncLeaders(plan);
+        savePlan(plan);
+        statusMessage = "組長已改回自動指派。";
+        render();
+        return;
+      }
       if (action === "set-round") {
         showRound = Number(btn.dataset.round) || 0;
         render();
@@ -1445,6 +1560,22 @@
     document.querySelector("#app").addEventListener("change", function (event) {
       if (event.target.id === "phone-person") {
         phoneIndex = Number(event.target.value) || 0;
+        render();
+        return;
+      }
+      if (event.target.dataset.leaderRound !== undefined) {
+        const plan = loadPlan();
+        if (!plan) return;
+        const roundIndex = Number(event.target.dataset.leaderRound);
+        const groupIndex = Number(event.target.dataset.leaderGroup);
+        leadersOf(plan, loadRoster());
+        if (!plan.leaders[roundIndex]) return;
+        plan.leaders[roundIndex][groupIndex] = event.target.value;
+        plan.leaderManual = true;
+        Match.syncLeaders(plan);
+        savePlan(plan);
+        const leader = plan.cards[event.target.value];
+        statusMessage = `第 ${roundIndex + 1} 輪第 ${groupIndex + 1} 組的組長改成${leader ? leader.name : ""}。`;
         render();
       }
     });
@@ -1475,6 +1606,7 @@
           industry: take(data, "industry", 20),
           chain: chain,
           chapter: chapter,
+          role: take(data, "role", 12),
           have: take(data, "have", 120),
           want: take(data, "want", 120)
         };
@@ -1505,6 +1637,7 @@
             industry: take(data, "industry", 20),
             chain: chain,
             chapter: chapter,
+            role: take(data, "role", 12),
             have: take(data, "have", 120),
             want: take(data, "want", 120)
           };
@@ -1527,6 +1660,7 @@
           industry: take(data, "industry", 20),
           chain: chain,
           chapter: chapter,
+          role: take(data, "role", 12),
           have: take(data, "have", 120),
           want: take(data, "want", 120)
         });
