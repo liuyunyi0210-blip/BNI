@@ -37,11 +37,7 @@ export function RegisterForm() {
         setError(data.error || "儲存失敗");
         return;
       }
-      setStatus(
-        data.updated
-          ? `已更新 ${data.member.name} 的媒合資料，可再到「我的組別」等主持投放結果碼。`
-          : `已登錄 ${data.member.name}。主持匯入／媒合後，請用結果碼打開組別。`,
-      );
+      setStatus(data.message || `已送出 ${data.member?.name || ""} 的申請，待主辦核准。`);
       try {
         localStorage.setItem(
           "bni-match-me-v1",
@@ -61,7 +57,7 @@ export function RegisterForm() {
     <section className="panel">
       <p className="kicker">訪客</p>
       <h2>登錄我的媒合資料</h2>
-      <p className="hint">不必登入。填姓名、分會、資源後送出，主持才能把你排進現場媒合。</p>
+      <p className="hint">不必登入。送出後進入待審，主辦核准才會進正式名單與現場媒合。</p>
       {status ? <p className="status">{status}</p> : null}
       {error ? <p className="status error">{error}</p> : null}
       <form onSubmit={onSubmit} className="grid two">

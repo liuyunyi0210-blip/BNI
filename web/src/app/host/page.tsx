@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { HostGate } from "../../components/HostGate";
 import { HostNav } from "../../components/HostNav";
+import { HostSubmissions } from "../../components/HostSubmissions";
 
 export default function HostHomePage() {
   return (
@@ -14,22 +15,25 @@ export default function HostHomePage() {
         <HostNav current="home" />
       </header>
       <HostGate>
-        <div className="grid two">
-          <Link className="panel" href="/host/members" style={{ textDecoration: "none", color: "inherit" }}>
-            <p className="kicker">後台</p>
-            <h2 style={{ marginTop: 0 }}>會員管理</h2>
-            <p className="hint">新增、編輯、停用、匯出。</p>
-          </Link>
-          <Link className="panel" href="/host/import" style={{ textDecoration: "none", color: "inherit" }}>
-            <p className="kicker">後台</p>
-            <h2 style={{ marginTop: 0 }}>匯入名單</h2>
-            <p className="hint">上傳 CSV 批次匯入。</p>
-          </Link>
-          <Link className="panel" href="/host/match" style={{ textDecoration: "none", color: "inherit" }}>
-            <p className="kicker">現場</p>
-            <h2 style={{ marginTop: 0 }}>媒合設定</h2>
-            <p className="hint">設定每組人數／輪數，載入名單打開媒合台。</p>
-          </Link>
+        <div className="grid" style={{ gap: 12 }}>
+          <HostSubmissions />
+          <div className="grid two">
+            <Link className="panel" href="/host/members" style={{ textDecoration: "none", color: "inherit" }}>
+              <p className="kicker">後台</p>
+              <h2 style={{ marginTop: 0 }}>會員管理</h2>
+              <p className="hint">新增、編輯、停用、匯出。</p>
+            </Link>
+            <Link className="panel" href="/host/import" style={{ textDecoration: "none", color: "inherit" }}>
+              <p className="kicker">後台</p>
+              <h2 style={{ marginTop: 0 }}>匯入名單</h2>
+              <p className="hint">上傳 CSV 批次匯入。</p>
+            </Link>
+            <Link className="panel" href="/host/match" style={{ textDecoration: "none", color: "inherit" }}>
+              <p className="kicker">現場</p>
+              <h2 style={{ marginTop: 0 }}>媒合設定</h2>
+              <p className="hint">設定每組人數／輪數，載入名單打開媒合台。</p>
+            </Link>
+          </div>
         </div>
       </HostGate>
     </main>
