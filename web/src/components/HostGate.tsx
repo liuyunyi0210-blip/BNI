@@ -58,7 +58,7 @@ export function HostGate({ children }: { children: ReactNode }) {
           </p>
           <p className="hint">
             請到 Cursor 的 Publish Settings，把誰可以開啟改成 <strong>Private</strong>（只有你）或{" "}
-            <strong>Team</strong>（團隊），再用主辦 Cursor 帳號重新打開這個網址。平台會先要求登入，之後點「主辦登入」即可進後台。
+            <strong>Team</strong>（團隊），再用主辦 Cursor 帳號打開「主辦入口」。平台會先要求登入，之後才能用後台與媒合設定。
           </p>
         </>
       ) : (
