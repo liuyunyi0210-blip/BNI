@@ -1,0 +1,2384 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f3f1ec">
+  <title>大芯分會 · 現場媒合</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f3f1ec;
+      --paper: #fff;
+      --ink: #1a1814;
+      --muted: #6f675f;
+      --line: #e7e1d8;
+      --accent: #7a2e2e;
+      --shadow: 0 1px 2px rgba(26, 24, 20, 0.04), 0 10px 28px rgba(26, 24, 20, 0.05);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "PingFang TC", "Noto Sans TC", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    header, main, footer {
+      max-width: 980px;
+      margin: 0 auto;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+    header { padding-top: 28px; }
+    .title-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .mark {
+      margin: 0;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      color: var(--accent);
+    }
+    h1 { margin: 2px 0 0; font-size: 32px; font-weight: 650; letter-spacing: 0.02em; }
+    nav {
+      display: flex;
+      gap: 2px;
+      padding: 4px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+    }
+    nav a {
+      border-radius: 999px;
+      padding: 7px 14px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    nav a[aria-current="page"] { background: var(--ink); color: #fff; }
+    .sub { margin: 10px 0 0; color: var(--muted); font-size: 14px; }
+    main { padding-top: 18px; padding-bottom: 28px; }
+    footer {
+      padding-top: 8px;
+      padding-bottom: 28px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    button, input, textarea, select { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--paper);
+      padding: 10px 12px;
+      font-weight: 400;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    input:focus, textarea:focus, select:focus, button:focus-visible, a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .choices { display: grid; gap: 12px; }
+    .choice {
+      display: block;
+      width: 100%;
+      text-align: left;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .choice strong, .panel h2, .ticket h2, .group-card h3 {
+      font-weight: 650;
+      letter-spacing: 0.02em;
+    }
+    .choice strong { display: block; margin: 4px 0; font-size: 22px; }
+    .choice .desc { display: block; color: var(--muted); font-size: 14px; }
+    .kicker {
+      display: block;
+      margin: 0 0 4px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+    .panel, .group-card, .ticket, .person, .callout {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+    .panel, .ticket { padding: 16px; }
+    .panel + .panel, .stack > * + * { margin-top: 12px; }
+    .panel h2, .ticket h2 { margin: 0 0 8px; font-size: 18px; }
+    .panel p, .ticket p { margin: 0 0 8px; }
+    .panel p:last-child, .ticket p:last-child { margin-bottom: 0; }
+    .field { display: flex; flex-direction: column; gap: 6px; margin: 0 0 12px; font-size: 13px; font-weight: 700; color: var(--muted); }
+    .actions, .row-actions, .round-switch { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .primary, .secondary, .round-switch button, .text-btn {
+      border-radius: 999px;
+      padding: 12px 16px;
+      min-height: 44px;
+    }
+    .primary { background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .secondary, .round-switch button {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+    .round-switch button[aria-pressed="true"], .primary[aria-pressed="true"] {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+    .text-btn, .danger {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      padding: 8px 0;
+      min-height: 44px;
+    }
+    .danger[aria-pressed="true"] { font-weight: 700; }
+    .meta, .hint { color: var(--muted); font-size: 13px; }
+    .callout { padding: 12px 14px; background: #f7f1ea; box-shadow: none; }
+    .steps { margin: 0; padding-left: 1.2em; }
+    .steps li { margin: 4px 0; }
+    .host-top { display: grid; gap: 12px; }
+    .roster { display: flex; flex-direction: column; gap: 8px; }
+    .person { padding: 12px; }
+    .person-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+    .person h3 { margin: 0; font-size: 18px; }
+    .tag {
+      display: inline-block;
+      margin-left: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 1px 8px;
+      vertical-align: 1px;
+    }
+    .check {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .check:last-child { border-bottom: 0; }
+    .check input { width: auto; margin-top: 4px; }
+    .check .meta { display: block; font-weight: 400; }
+    .group-card li .tag, .mates li .tag { display: inline-block; font-size: 12px; vertical-align: middle; }
+    .tag.is-leader { color: #fff; background: var(--swatch, var(--accent)); border-color: transparent; }
+    .tag.is-role { color: var(--accent); border-color: currentColor; }
+    .leader-pick { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: var(--muted); }
+    .leader-pick select { flex: 1; min-width: 0; }
+    .leader-line { margin: 4px 0 10px; font-weight: 600; }
+    .leader-line.is-me { color: var(--swatch, var(--accent)); }
+    .feedback-block { margin-top: 14px; }
+    .feedback-block h2 { margin-bottom: 4px; }
+    .feedback-mate {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .feedback-mate:last-child { border-bottom: 0; }
+    .feedback-mate strong { display: block; margin-bottom: 6px; }
+    .feedback-flags {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .feedback-flags label {
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+      font-size: 13px;
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .feedback-flags input { width: auto; margin-top: 2px; }
+    .rank-list { list-style: none; margin: 0; padding: 0; }
+    .rank-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+      font-weight: 500;
+    }
+    .rank-list li:last-child { border-bottom: 0; }
+    .rank-list .place { color: var(--muted); min-width: 2.5em; }
+    .rank-list .score { font-weight: 650; color: var(--accent); }
+    .award-stage {
+      position: relative;
+      min-height: calc(100vh - 48px);
+      display: grid;
+      place-items: center;
+      padding: 24px 12px 96px;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .award-stage::before {
+      content: "";
+      position: absolute;
+      inset: -10% -5%;
+      z-index: -2;
+      background:
+        radial-gradient(ellipse 70% 55% at 50% 18%, rgba(122, 46, 46, 0.16), transparent 62%),
+        radial-gradient(ellipse 50% 40% at 15% 85%, rgba(196, 106, 47, 0.12), transparent 70%),
+        linear-gradient(180deg, #ebe4d8 0%, var(--bg) 48%, #e7dfd2 100%);
+      animation: award-bg 7s ease-in-out infinite alternate;
+    }
+    .award-confetti {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+    }
+    .award-confetti i {
+      position: absolute;
+      top: -12px;
+      width: 8px;
+      height: 14px;
+      border-radius: 2px;
+      opacity: 0;
+      animation: award-fall 2.8s ease-in forwards;
+      animation-delay: var(--delay, 0s);
+      background: var(--bit, var(--accent));
+    }
+    .award-card {
+      width: min(720px, 100%);
+      text-align: center;
+      padding: 28px 22px 24px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--paper) 92%, #fff);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+    .award-card .kicker {
+      opacity: 0;
+      transform: translateY(10px);
+      animation: award-rise 0.7s ease forwards;
+    }
+    .award-title {
+      margin: 4px 0 6px;
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: award-rise 0.75s ease 0.25s forwards;
+    }
+    .award-sub {
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 15px;
+      opacity: 0;
+      animation: award-rise 0.7s ease 0.45s forwards;
+    }
+    .award-podium {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      align-items: end;
+      margin: 0 auto 18px;
+      max-width: 560px;
+    }
+    @media (min-width: 700px) {
+      .award-podium {
+        grid-template-columns: 1fr 1.2fr 1fr;
+        gap: 14px;
+      }
+      .award-podium .place-1 { order: 2; }
+      .award-podium .place-2 { order: 1; }
+      .award-podium .place-3 { order: 3; }
+    }
+    .award-place {
+      padding: 16px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      opacity: 0;
+      transform: translateY(28px) scale(0.96);
+    }
+    .award-place.place-3 { animation: award-pop 0.7s cubic-bezier(.2,.8,.2,1) 1.0s forwards; }
+    .award-place.place-2 { animation: award-pop 0.7s cubic-bezier(.2,.8,.2,1) 1.7s forwards; }
+    .award-place.place-1 {
+      padding: 22px 14px 18px;
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+      background: linear-gradient(180deg, #fff8f2 0%, #fff 70%);
+      animation: award-pop 0.85s cubic-bezier(.2,.8,.2,1) 2.5s forwards;
+    }
+    .award-place .medal {
+      display: inline-block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+    }
+    .award-place.place-1 .medal { font-size: 13px; letter-spacing: 0.18em; }
+    .award-place .name {
+      margin: 0;
+      font-size: clamp(22px, 3.5vw, 34px);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .award-place.place-1 .name {
+      font-size: clamp(30px, 5vw, 48px);
+      color: var(--accent);
+    }
+    .award-place .meta-line {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .award-place .count {
+      margin: 10px 0 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .award-place.place-1 .count { font-size: 22px; }
+    .award-side {
+      display: grid;
+      gap: 10px;
+      margin: 8px auto 0;
+      max-width: 560px;
+      opacity: 0;
+      animation: award-rise 0.7s ease 3.3s forwards;
+    }
+    @media (min-width: 700px) {
+      .award-side { grid-template-columns: 1fr 1fr; }
+    }
+    .award-side .chip-card {
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      text-align: left;
+    }
+    .award-side .chip-card strong { display: block; font-size: 16px; }
+    .award-side .chip-card span { color: var(--muted); font-size: 13px; }
+    .award-empty {
+      margin: 24px 0;
+      color: var(--muted);
+      opacity: 0;
+      animation: award-rise 0.6s ease 0.3s forwards;
+    }
+    .award-controls {
+      position: sticky;
+      bottom: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      padding: 14px 0 8px;
+      background: color-mix(in srgb, var(--bg) 90%, transparent);
+    }
+    @keyframes award-rise {
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes award-pop {
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes award-bg {
+      from { transform: scale(1); }
+      to { transform: scale(1.04); }
+    }
+    @keyframes award-fall {
+      0% { opacity: 0; transform: translate3d(0, -20px, 0) rotate(0deg); }
+      12% { opacity: 0.9; }
+      100% { opacity: 0; transform: translate3d(var(--drift, 20px), 105vh, 0) rotate(220deg); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .award-stage::before,
+      .award-confetti i,
+      .award-card .kicker,
+      .award-title,
+      .award-sub,
+      .award-place,
+      .award-side,
+      .award-empty {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    }
+    body.awarding header { display: none; }
+    body.awarding main, body.awarding footer { max-width: 1100px; }
+    .chains { border: 0; padding: 0; min-width: 0; }
+    .chains legend { padding: 0; margin-bottom: 6px; }
+    .chip-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { position: relative; cursor: pointer; }
+    .chip input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .chip span {
+      display: inline-block;
+      min-height: 36px;
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .chip input:checked + span { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .chip input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .check.is-in { color: var(--muted); }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .group-card {
+      padding: 14px;
+      border-top: 3px solid var(--swatch, var(--accent));
+    }
+    .group-card h3 { margin: 0 0 8px; font-size: 28px; color: var(--swatch, var(--accent)); }
+    .group-card ul, .mates { list-style: none; margin: 0; padding: 0; }
+    .group-card li, .mates li { padding: 6px 0; border-bottom: 1px solid var(--line); }
+    .group-card li:last-child, .mates li:last-child { border-bottom: 0; }
+    .group-card li span, .mates li span { display: block; color: var(--muted); font-size: 13px; }
+    .ticket { max-width: 520px; }
+    .me-name { margin: 0; font-size: 16px; color: var(--muted); }
+    .group-no {
+      margin: 4px 0;
+      font-size: 64px;
+      line-height: 1.05;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+      color: var(--swatch, var(--accent));
+    }
+    .walk { font-size: 18px; font-weight: 650; }
+    .why {
+      margin: 12px 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #f7f1ea;
+      text-align: left;
+    }
+    .qr {
+      width: min(320px, 100%);
+      margin: 12px auto;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    .qr svg { display: block; width: 100%; height: auto; }
+    .url {
+      word-break: break-all;
+      font-size: 12px;
+      color: var(--muted);
+      max-height: 4.8em;
+      overflow: auto;
+    }
+    .phone-card { text-align: center; }
+    .phone-card .why, .phone-card .mates, .phone-card h2 { text-align: left; }
+    .split { display: grid; gap: 12px; }
+    @media (min-width: 800px) {
+      .choices, .split { grid-template-columns: 1fr 1fr; }
+      .host-top { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    }
+    @media (max-width: 700px) {
+      header, main, footer { padding-left: 16px; padding-right: 16px; }
+      h1 { font-size: 28px; }
+      .group-no { font-size: 56px; }
+    }
+    body.projecting header, body.focus-result header { display: none; }
+    body.projecting main, body.projecting footer { max-width: 1200px; }
+    body.projecting .group-card h3 { font-size: clamp(32px, 4vw, 52px); }
+    body.projecting .group-card li strong { font-size: clamp(20px, 2.5vw, 34px); }
+    body.projecting .round-switch {
+      position: sticky;
+      bottom: 0;
+      padding: 12px 0 8px;
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title-row">
+      <div>
+        <p class="mark">BNI</p>
+        <h1>現場媒合</h1>
+      </div>
+      <nav>
+        <a href="index.html">會員名單</a>
+        <a href="match.html" aria-current="page">現場媒合</a>
+      </nav>
+    </div>
+    <p class="sub" id="sub">會員先登錄資源，主持再分組，組別開在自己的手機上。</p>
+  </header>
+  <main id="app"></main>
+  <footer id="foot"></footer>
+  <script src="qrcode.js"></script>
+  <script id="engine">
+    function groupCap(target) {
+      return Math.max(2, Math.min(6, target | 0 || 2));
+    }
+
+    function groupSizes(n, target) {
+      const cap = groupCap(target);
+      if (n <= 0) return [];
+      if (n === 1) return [1];
+      if (n <= cap) return [n];
+      let groups = Math.ceil(n / cap);
+      while (groups > 1 && Math.floor(n / groups) < 2) groups -= 1;
+      const base = Math.floor(n / groups);
+      const extra = n % groups;
+      const sizes = [];
+      for (let i = 0; i < groups; i++) sizes.push(base + (i < extra ? 1 : 0));
+      return sizes;
+    }
+
+    function clean(text) {
+      return String(text == null ? "" : text).replace(/\s+/g, " ").trim();
+    }
+
+    function cleanCell(text) {
+      return clean(text).replace(/\|/g, " ");
+    }
+
+    function clip(text, max) {
+      return Array.from(clean(text)).slice(0, max).join("");
+    }
+
+    function encodeText(text) {
+      const bytes = new TextEncoder().encode(text);
+      let binary = "";
+      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+      return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+    }
+
+    function decodeText(payload) {
+      const pad = payload.length % 4 === 0 ? "" : "=".repeat(4 - (payload.length % 4));
+      const binary = atob(String(payload || "").replace(/-/g, "+").replace(/_/g, "/") + pad);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return new TextDecoder().decode(bytes);
+    }
+
+    var CHAINS = [
+      "企業產業鏈", "行銷產業鏈", "網路行銷產業鏈", "企業內訓產業鏈", "外銷產品產業鏈",
+      "資產規劃產業鏈", "美麗人生產業鏈", "文創產業鏈", "商品設計產業鏈", "快樂生活產業鏈",
+      "幸福產業鏈", "好運氣產業鏈", "婚禮產業鏈", "兒童教育產業鏈", "銀髮族產業鏈",
+      "健康產業鏈", "健康食品產業鏈", "醫療用品產業鏈", "生鮮食品產業鏈", "汽車產業鏈",
+      "工程產業鏈", "營建工程產業鏈", "公共工程產業鏈", "居家服務產業鏈",
+      "餐飲美食產業鏈", "節慶送禮產業鏈", "環保清潔產業鏈", "室內裝修產業鏈", "不動產產業鏈",
+      "開店創業產業鏈", "展覽活動產業鏈"
+    ];
+
+    function chainList(value) {
+      const raw = Array.isArray(value) ? value : String(value == null ? "" : value).split(/[、,，]/);
+      const picked = new Set(raw.map(function (item) {
+        const text = clean(item);
+        return text && !/產業鏈$/.test(text) && CHAINS.indexOf(text + "產業鏈") >= 0 ? text + "產業鏈" : text;
+      }));
+      return CHAINS.filter(function (name) { return picked.has(name); });
+    }
+
+    function knownChain(value) {
+      return chainList(value).join("、");
+    }
+
+    function encodeChains(value) {
+      return chainList(value).map(function (name) { return CHAINS.indexOf(name).toString(36); }).join("");
+    }
+
+    function decodeChains(code) {
+      const text = clean(code);
+      if (!/^[0-9a-z]+$/.test(text)) return knownChain(text);
+      return knownChain(Array.from(text).map(function (ch) { return CHAINS[parseInt(ch, 36)] || ""; }));
+    }
+
+    var CHAPTERS = ["大展", "大豪", "大商之道", "大芯"];
+
+    function knownChapter(value) {
+      const text = clean(value).replace(/分會$/, "");
+      if (/^\d$/.test(text)) return CHAPTERS[Number(text)] || "";
+      return CHAPTERS.indexOf(text) >= 0 ? text : "";
+    }
+
+    function encodeChapter(value) {
+      const index = CHAPTERS.indexOf(knownChapter(value));
+      return index >= 0 ? String(index) : "";
+    }
+
+    var ROLE_RANKS = [["副主席", 1], ["主席", 0], ["秘書", 2], ["財務", 2], ["教育", 3], ["會員", 3], ["活動", 3], ["導師", 3], ["大使", 4], ["董事", 4]];
+
+    function isCadre(person) {
+      return Boolean(person && clean(person.role));
+    }
+
+    function roleRank(role) {
+      const text = clean(role);
+      if (!text) return 99;
+      for (const pair of ROLE_RANKS) {
+        if (text.includes(pair[0])) return pair[1];
+      }
+      return 5;
+    }
+
+    function autoLeaders(roundGroups, people) {
+      const byId = new Map(people.map(function (person) { return [person.id, person]; }));
+      const led = new Map();
+      return roundGroups.map(function (groups) {
+        return groups.map(function (ids) {
+          const ranked = ids.slice().sort(function (a, b) {
+            const pa = byId.get(a);
+            const pb = byId.get(b);
+            return (isCadre(pb) - isCadre(pa))
+              || ((led.get(a) || 0) - (led.get(b) || 0))
+              || (roleRank(pa && pa.role) - roleRank(pb && pb.role))
+              || (ids.indexOf(a) - ids.indexOf(b));
+          });
+          const id = ranked[0] || "";
+          if (id) led.set(id, (led.get(id) || 0) + 1);
+          return id;
+        });
+      });
+    }
+
+    function syncLeaders(plan) {
+      plan.roundGroups.forEach(function (groups, roundIndex) {
+        groups.forEach(function (ids, groupIndex) {
+          const leaderId = ((plan.leaders || [])[roundIndex] || [])[groupIndex] || "";
+          const leader = plan.cards[leaderId];
+          for (const id of ids) {
+            const round = plan.cards[id] && plan.cards[id].rounds[roundIndex];
+            if (round) round.leader = leader ? leader.name : "";
+          }
+        });
+      });
+      return plan;
+    }
+
+    function sharedChains(a, b) {
+      const other = new Set(chainList(b.chain));
+      return chainList(a.chain).filter(function (name) { return other.has(name); });
+    }
+
+    function encodeProfile(person) {
+      return encodeText([
+        "1",
+        clean(person.name),
+        clean(person.company),
+        clean(person.industry),
+        clip(person.have, 120),
+        clip(person.want, 120),
+        encodeChains(person.chain),
+        encodeChapter(person.chapter),
+        clip(person.role, 12)
+      ].join("\n"));
+    }
+
+    function decodeProfile(payload) {
+      const lines = decodeText(payload).split("\n");
+      if (lines[0] !== "1" || !clean(lines[1])) throw new Error("無法讀取資料碼");
+      return {
+        name: lines[1] || "",
+        company: lines[2] || "",
+        industry: lines[3] || "",
+        have: lines[4] || "",
+        want: lines[5] || "",
+        chain: decodeChains(lines[6]),
+        chapter: knownChapter(lines[7]),
+        role: clip(lines[8], 12)
+      };
+    }
+
+    function encodePersonal(card, withCompany) {
+      const lines = ["2", cleanCell(card.name)];
+      for (const round of card.rounds) {
+        let leader = "";
+        if (round.leader && round.leader === card.name) leader = "0";
+        else {
+          const at = round.mates.findIndex(function (mate) { return mate.name === round.leader; });
+          if (at >= 0) leader = String(at + 1);
+        }
+        lines.push(String(round.group) + "|" + leader + "|" + cleanCell(clip(round.why, 32)));
+        for (const mate of round.mates) {
+          const company = withCompany ? cleanCell(clip(mate.company, 8)) : "";
+          lines.push([cleanCell(mate.name), cleanCell(clip(mate.industry, 10)), company, withCompany ? encodeChains(mate.chain) : "", encodeChapter(mate.chapter)].join("|"));
+        }
+        lines.push("");
+      }
+      return encodeText(lines.join("\n"));
+    }
+
+    function decodePersonal(payload) {
+      const lines = decodeText(payload).split("\n");
+      const version = lines[0];
+      if ((version !== "1" && version !== "2") || !clean(lines[1])) throw new Error("無法讀取組別");
+      const rounds = [];
+      let i = 2;
+      while (i < lines.length) {
+        if (!lines[i]) { i += 1; continue; }
+        const head = lines[i].split("|");
+        const group = Number(head[0]);
+        if (!Number.isInteger(group) || group < 1) throw new Error("無法讀取組別");
+        const leaderAt = version === "2" ? head[1] : "";
+        const why = head.slice(version === "2" ? 2 : 1).join("|");
+        i += 1;
+        const mates = [];
+        while (i < lines.length && lines[i]) {
+          const bits = lines[i].split("|");
+          mates.push({ name: bits[0] || "", industry: bits[1] || "", company: bits[2] || "", chain: decodeChains(bits[3]), chapter: knownChapter(bits[4]) });
+          i += 1;
+        }
+        let leader = "";
+        if (leaderAt === "0") leader = lines[1];
+        else if (/^\d+$/.test(leaderAt) && mates[Number(leaderAt) - 1]) leader = mates[Number(leaderAt) - 1].name;
+        rounds.push({ group: group, why: why, mates: mates, leader: leader });
+      }
+      if (!rounds.length) throw new Error("無法讀取組別");
+      return { name: lines[1], rounds: rounds };
+    }
+
+    var GENERIC = new Set("服務 公司 企業 客戶 資源 合作 介紹 專業 有限 股份 我們 可以 以及 一個 需求 朋友 處理 認識 能夠 希望 提供 幫忙 引薦 想要 需要 一下 這個 那個 方面 相關 業務 產品 方案 規劃 管理 顧問 諮詢".split(" "));
+
+    function offerPhrases(text) {
+      const phrases = [];
+      const seen = new Set();
+      const chunks = [];
+      clean(text).split(/[、,，;；。.!！？?／/|｜]+/).forEach(function (piece) {
+        const chars = Array.from(piece.trim());
+        if (chars.length < 2) return;
+        if (chars.length <= 12) chunks.push(chars);
+        else {
+          for (let i = 0; i < chars.length && chunks.length < 8; i += 8) chunks.push(chars.slice(i, i + 12));
+        }
+      });
+      for (const chars of chunks) {
+        const maxLen = Math.min(8, chars.length);
+        for (let len = maxLen; len >= 2; len--) {
+          for (let i = 0; i + len <= chars.length; i++) {
+            const phrase = chars.slice(i, i + len).join("");
+            if (GENERIC.has(phrase) || seen.has(phrase)) continue;
+            seen.add(phrase);
+            phrases.push(phrase);
+          }
+        }
+      }
+      return phrases;
+    }
+
+    function gramSet(text) {
+      const chars = Array.from(clean(text)).slice(0, 120);
+      const set = new Set();
+      const maxLen = Math.min(8, chars.length);
+      for (let len = 2; len <= maxLen; len++) {
+        for (let i = 0; i + len <= chars.length; i++) {
+          const phrase = chars.slice(i, i + len).join("");
+          if (!GENERIC.has(phrase)) set.add(phrase);
+        }
+      }
+      return set;
+    }
+
+    function bestOffer(phrases, wantSet) {
+      const hits = [];
+      for (const phrase of phrases) {
+        if (wantSet.has(phrase)) hits.push(phrase);
+      }
+      hits.sort(function (a, b) { return Array.from(b).length - Array.from(a).length; });
+      const kept = [];
+      for (const phrase of hits) {
+        if (kept.some(function (existing) { return existing.includes(phrase) || phrase.includes(existing); })) continue;
+        kept.push(phrase);
+        if (kept.length === 2) break;
+      }
+      return kept;
+    }
+
+    function complementHits(haveText, wantText) {
+      return bestOffer(offerPhrases(haveText), gramSet(wantText));
+    }
+
+    function offerText(person) {
+      return [person.have, person.industry].filter(Boolean).join("、");
+    }
+
+    function pairKey(a, b) {
+      return a < b ? a + "|" + b : b + "|" + a;
+    }
+
+    function hitsBetween(owner, other) {
+      if (owner.phrases && other.wantSet) return bestOffer(owner.phrases, other.wantSet);
+      return complementHits(offerText(owner), other.want);
+    }
+
+    function pairDetail(a, b, met) {
+      const aHits = hitsBetween(a, b);
+      const bHits = hitsBetween(b, a);
+      const notes = [];
+      for (const phrase of aHits) notes.push({ owner: a.name, other: b.name, phrase: phrase });
+      for (const phrase of bHits) notes.push({ owner: b.name, other: a.name, phrase: phrase });
+      let score = Math.min(18, (aHits.length + bHits.length) * 9);
+      if (a.industry && b.industry) score += a.industry === b.industry ? -4 : 2;
+      const shared = sharedChains(a, b);
+      score += Math.min(2, shared.length) * 4;
+      if (a.chapter && a.chapter === b.chapter) score -= 10;
+      if (isCadre(a) && isCadre(b)) score -= 20;
+      const times = met.get(pairKey(a.id, b.id)) || 0;
+      score -= times * 40;
+      return { score: score, notes: notes, times: times, shared: shared };
+    }
+
+    function mulberry32(seed) {
+      let a = seed >>> 0;
+      return function () {
+        a |= 0;
+        a = a + 0x6D2B79F5 | 0;
+        let t = Math.imul(a ^ a >>> 15, 1 | a);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    function shuffle(list, rng) {
+      const arr = list.slice();
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        const tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+      }
+      return arr;
+    }
+
+    function meetingTotal(person, met) {
+      let total = 0;
+      for (const [key, times] of met) {
+        const ids = key.split("|");
+        if (ids[0] === person.id || ids[1] === person.id) total += times;
+      }
+      return total;
+    }
+
+    function marginal(person, group, met) {
+      let score = 0;
+      for (const member of group) score += pairDetail(person, member, met).score;
+      return score;
+    }
+
+    function buildGreedy(people, met, groupSize, rng) {
+      const sizes = groupSizes(people.length, groupSize);
+      const remaining = shuffle(people, rng);
+      const groups = [];
+      for (const size of sizes) {
+        if (!remaining.length) break;
+        let seedAt = 0;
+        let least = Infinity;
+        for (let i = 0; i < remaining.length; i++) {
+          const weight = meetingTotal(remaining[i], met) + rng() * 0.01;
+          if (weight < least) {
+            least = weight;
+            seedAt = i;
+          }
+        }
+        const group = [remaining.splice(seedAt, 1)[0]];
+        while (group.length < size && remaining.length) {
+          let bestI = 0;
+          let bestS = -Infinity;
+          for (let i = 0; i < remaining.length; i++) {
+            const score = marginal(remaining[i], group, met) + rng() * 0.01;
+            if (score > bestS) {
+              bestS = score;
+              bestI = i;
+            }
+          }
+          group.push(remaining.splice(bestI, 1)[0]);
+        }
+        groups.push(group);
+      }
+      for (const person of remaining) groups[groups.length - 1].push(person);
+      return groups;
+    }
+
+    function seedWithPairs(people, met, groupSize, rng) {
+      const sizes = groupSizes(people.length, groupSize);
+      const groups = sizes.map(function (size) { return { size: size, members: [] }; });
+      const pairs = [];
+      for (let i = 0; i < people.length; i++) {
+        for (let j = i + 1; j < people.length; j++) {
+          pairs.push([i, j, pairDetail(people[i], people[j], met).score, rng()]);
+        }
+      }
+      pairs.sort(function (a, b) { return b[2] - a[2] || a[3] - b[3]; });
+      const used = new Set();
+      for (const pair of pairs) {
+        const i = pair[0];
+        const j = pair[1];
+        if (used.has(i) || used.has(j)) continue;
+        const group = groups.find(function (item) { return item.members.length + 2 <= item.size; });
+        if (!group) continue;
+        group.members.push(people[i], people[j]);
+        used.add(i);
+        used.add(j);
+      }
+      const rest = [];
+      for (let i = 0; i < people.length; i++) if (!used.has(i)) rest.push(people[i]);
+      for (const person of shuffle(rest, rng)) {
+        let best = null;
+        let bestS = -Infinity;
+        for (const group of groups) {
+          if (group.members.length >= group.size) continue;
+          const score = marginal(person, group.members, met) + rng() * 0.01;
+          if (score > bestS) {
+            bestS = score;
+            best = group;
+          }
+        }
+        if (best) best.members.push(person);
+        else groups[0].members.push(person);
+      }
+      return groups.map(function (group) { return group.members; });
+    }
+
+    function scoreGroups(groups, met) {
+      let score = 0;
+      for (const group of groups) {
+        let links = 0;
+        for (let i = 0; i < group.length; i++) {
+          for (let j = i + 1; j < group.length; j++) {
+            const detail = pairDetail(group[i], group[j], met);
+            score += detail.score;
+            if (detail.notes.length) links += 1;
+          }
+        }
+        if (links > 0) score += 5;
+      }
+      return score;
+    }
+
+    function improve(groups, met, steps, rng) {
+      let current = groups.map(function (group) { return group.slice(); });
+      let score = scoreGroups(current, met);
+      for (let k = 0; k < steps; k++) {
+        if (current.length < 2) break;
+        const a = Math.floor(rng() * current.length);
+        const b = Math.floor(rng() * current.length);
+        if (a === b || !current[a].length || !current[b].length) continue;
+        const i = Math.floor(rng() * current[a].length);
+        const j = Math.floor(rng() * current[b].length);
+        const next = current.map(function (group) { return group.slice(); });
+        const tmp = next[a][i];
+        next[a][i] = next[b][j];
+        next[b][j] = tmp;
+        const nextScore = scoreGroups(next, met);
+        if (nextScore > score) {
+          current = next;
+          score = nextScore;
+        }
+      }
+      return { groups: current, score: score };
+    }
+
+    function assertPartition(people, groups) {
+      const ids = [];
+      for (const group of groups) {
+        for (const person of group) ids.push(person.id);
+      }
+      if (ids.length !== people.length || new Set(ids).size !== people.length) {
+        throw new Error("分組結果不完整");
+      }
+    }
+
+    function groupBrief(members) {
+      const lines = [];
+      let linked = false;
+      for (let i = 0; i < members.length; i++) {
+        for (let j = i + 1; j < members.length; j++) {
+          const detail = pairDetail(members[i], members[j], new Map());
+          if (detail.notes.length) linked = true;
+          for (const note of detail.notes) {
+            lines.push(note.owner + "有的「" + note.phrase + "」，對上" + note.other + "想要的");
+          }
+        }
+      }
+      if (lines.length) return { text: lines.slice(0, 2).join("；"), linked: true };
+      const chainCount = new Map();
+      for (const member of members) {
+        for (const name of chainList(member.chain)) chainCount.set(name, (chainCount.get(name) || 0) + 1);
+      }
+      const common = CHAINS.filter(function (name) { return (chainCount.get(name) || 0) >= 2; });
+      if (common.length) return { text: "同在" + common.slice(0, 2).join("、") + "，可以談產業鏈合作", linked: false };
+      const industries = [];
+      for (const member of members) {
+        if (member.industry && industries.indexOf(member.industry) < 0) industries.push(member.industry);
+      }
+      if (industries.length >= 2) return { text: "這組行業錯開：" + industries.slice(0, 3).join("、"), linked: false };
+      return { text: "這組先認識彼此", linked: linked };
+    }
+
+    function personalWhy(person, mates) {
+      const lines = [];
+      for (const mate of mates) {
+        const wanted = complementHits(offerText(mate), person.want);
+        const offered = complementHits(offerText(person), mate.want);
+        if (wanted.length) lines.push(mate.name + "有「" + wanted[0] + "」，對上你想要的");
+        else if (offered.length) lines.push("你有「" + offered[0] + "」，對上" + mate.name + "想要的");
+      }
+      if (lines.length) return clip(lines.slice(0, 2).join("；"), 32);
+      for (const mate of mates) {
+        const shared = sharedChains(person, mate);
+        if (shared.length) return clip("你和" + mate.name + "同在" + shared[0], 32);
+      }
+      const industries = [];
+      for (const mate of mates) {
+        if (mate.industry && mate.industry !== person.industry && industries.indexOf(mate.industry) < 0) {
+          industries.push(mate.industry);
+        }
+      }
+      if (industries.length) return clip("這輪錯開行業，認識" + industries.slice(0, 2).join("、"), 32);
+      return "這輪認識新的會員";
+    }
+
+    function planMeeting(people, groupSize, rounds, seed) {
+      if (!people || people.length < 2) throw new Error("至少要兩個人");
+      const cleaned = people.map(function (person) {
+        return {
+          id: person.id,
+          name: clean(person.name),
+          company: clean(person.company),
+          industry: clean(person.industry),
+          chain: knownChain(person.chain),
+          chapter: knownChapter(person.chapter),
+          role: clip(person.role, 12),
+          have: clip(person.have, 120),
+          want: clip(person.want, 120)
+        };
+      });
+      const seen = new Set();
+      for (const person of cleaned) {
+        if (!person.id || !person.name) throw new Error("名單裡有缺少姓名的人");
+        if (seen.has(person.id)) throw new Error("名單裡有重複的人");
+        seen.add(person.id);
+        person.phrases = offerPhrases(offerText(person));
+        person.wantSet = gramSet(person.want);
+      }
+      const requested = Math.max(1, Math.min(4, rounds | 0 || 1));
+      const sizePlan = groupSizes(cleaned.length, groupSize);
+      const singleGroup = sizePlan.length < 2;
+      const roundCount = singleGroup ? 1 : requested;
+      const rng = mulberry32(seed >>> 0);
+      const met = new Map();
+      const byRound = [];
+      for (let r = 0; r < roundCount; r++) {
+        let best = null;
+        let bestScore = -Infinity;
+        for (let t = 0; t < 12; t++) {
+          const built = t % 2 === 0
+            ? buildGreedy(cleaned, met, groupSize, rng)
+            : seedWithPairs(cleaned, met, groupSize, rng);
+          const improved = improve(built, met, 280, rng);
+          if (improved.score > bestScore) {
+            bestScore = improved.score;
+            best = improved.groups;
+          }
+        }
+        assertPartition(cleaned, best);
+        byRound.push(best);
+        for (const group of best) {
+          for (let i = 0; i < group.length; i++) {
+            for (let j = i + 1; j < group.length; j++) {
+              const key = pairKey(group[i].id, group[j].id);
+              met.set(key, (met.get(key) || 0) + 1);
+            }
+          }
+        }
+      }
+      const cards = {};
+      for (const person of cleaned) cards[person.id] = { name: person.name, rounds: [] };
+      const highlights = [];
+      const linked = [];
+      for (const groups of byRound) {
+        const texts = [];
+        let linkCount = 0;
+        groups.forEach(function (group, index) {
+          const brief = groupBrief(group);
+          texts.push(brief.text);
+          if (brief.linked) linkCount += 1;
+          const number = index + 1;
+          for (const person of group) {
+            const mates = group.filter(function (other) { return other.id !== person.id; });
+            cards[person.id].rounds.push({
+              group: number,
+              why: personalWhy(person, mates),
+              mates: mates.map(function (other) {
+                return { name: other.name, industry: other.industry, company: other.company, chain: other.chain, chapter: other.chapter };
+              })
+            });
+          }
+        });
+        highlights.push(texts);
+        linked.push(linkCount);
+      }
+      const byId = new Map(cleaned.map(function (person) { return [person.id, person]; }));
+      const repeats = [];
+      for (const [key, times] of met) {
+        if (times < 2) continue;
+        const parts = key.split("|");
+        repeats.push(byId.get(parts[0]).name + "與" + byId.get(parts[1]).name);
+      }
+      const cap = groupCap(groupSize);
+      const roundGroups = byRound.map(function (groups) {
+        return groups.map(function (group) { return group.map(function (person) { return person.id; }); });
+      });
+      const leaders = autoLeaders(roundGroups, cleaned);
+      return syncLeaders({
+        roundGroups: roundGroups,
+        leaders: leaders,
+        highlights: highlights,
+        linked: linked,
+        cards: cards,
+        repeats: repeats,
+        repeatPairs: repeats.length,
+        sizes: sizePlan,
+        singleGroup: singleGroup,
+        oversized: sizePlan.some(function (size) { return size > cap; }),
+        roundCount: roundCount
+      });
+    }
+
+    function encodeFeedback(report) {
+      const name = clean(report && report.name);
+      if (!name) throw new Error("無法產生回饋碼");
+      const lines = ["1", cleanCell(name)];
+      const entries = Array.isArray(report.entries) ? report.entries : [];
+      for (const entry of entries) {
+        const mate = cleanCell(entry.mate);
+        const round = Number(entry.round);
+        if (!mate || !Number.isInteger(round) || round < 1) continue;
+        const flags = [
+          entry.giveNetwork ? "1" : "0",
+          entry.recvNetwork ? "1" : "0",
+          entry.giveBusiness ? "1" : "0",
+          entry.recvBusiness ? "1" : "0"
+        ].join("|");
+        if (flags === "0|0|0|0") continue;
+        lines.push([String(round), mate, flags].join("|"));
+      }
+      if (lines.length < 3) throw new Error("還沒有勾選任何引薦");
+      return encodeText(lines.join("\n"));
+    }
+
+    function decodeFeedback(payload) {
+      const lines = decodeText(payload).split("\n");
+      if (lines[0] !== "1" || !clean(lines[1])) throw new Error("無法讀取回饋碼");
+      const entries = [];
+      for (let i = 2; i < lines.length; i++) {
+        if (!lines[i]) continue;
+        const bits = lines[i].split("|");
+        const round = Number(bits[0]);
+        const mate = clean(bits[1]);
+        if (!mate || !Number.isInteger(round) || round < 1) continue;
+        const giveNetwork = bits[2] === "1";
+        const recvNetwork = bits[3] === "1";
+        const giveBusiness = bits[4] === "1";
+        const recvBusiness = bits[5] === "1";
+        if (!(giveNetwork || recvNetwork || giveBusiness || recvBusiness)) continue;
+        entries.push({
+          round: round,
+          mate: mate,
+          giveNetwork: giveNetwork,
+          recvNetwork: recvNetwork,
+          giveBusiness: giveBusiness,
+          recvBusiness: recvBusiness
+        });
+      }
+      if (!entries.length) throw new Error("這張回饋碼沒有內容");
+      return { name: clean(lines[1]), entries: entries };
+    }
+
+    function feedbackEdges(entries, reporter) {
+      const edges = [];
+      const who = clean(reporter);
+      for (const entry of entries || []) {
+        const mate = clean(entry.mate);
+        const round = Number(entry.round);
+        if (!who || !mate || who === mate || !Number.isInteger(round) || round < 1) continue;
+        if (entry.giveNetwork) edges.push({ round: round, giver: who, receiver: mate, kind: "network" });
+        if (entry.recvNetwork) edges.push({ round: round, giver: mate, receiver: who, kind: "network" });
+        if (entry.giveBusiness) edges.push({ round: round, giver: who, receiver: mate, kind: "business" });
+        if (entry.recvBusiness) edges.push({ round: round, giver: mate, receiver: who, kind: "business" });
+      }
+      return edges;
+    }
+
+    function mergeFeedbackEdges(existing, incoming) {
+      const map = new Map();
+      function add(edge) {
+        const giver = clean(edge.giver);
+        const receiver = clean(edge.receiver);
+        const kind = edge.kind === "business" ? "business" : "network";
+        const round = Number(edge.round);
+        if (!giver || !receiver || giver === receiver || !Number.isInteger(round) || round < 1) return;
+        const key = [round, giver, receiver, kind].join("|");
+        if (map.has(key)) return;
+        map.set(key, { round: round, giver: giver, receiver: receiver, kind: kind });
+      }
+      (existing || []).forEach(add);
+      (incoming || []).forEach(add);
+      return Array.from(map.values());
+    }
+
+    function rankReferrals(edges, kind) {
+      const scores = new Map();
+      for (const edge of edges || []) {
+        if (kind && edge.kind !== kind) continue;
+        scores.set(edge.giver, (scores.get(edge.giver) || 0) + 1);
+      }
+      return Array.from(scores.entries()).map(function (pair) {
+        return { name: pair[0], count: pair[1] };
+      }).sort(function (a, b) {
+        return b.count - a.count || a.name.localeCompare(b.name, "zh-Hant");
+      });
+    }
+
+    var Match = {
+      groupSizes: groupSizes,
+      planMeeting: planMeeting,
+      encodeProfile: encodeProfile,
+      decodeProfile: decodeProfile,
+      encodePersonal: encodePersonal,
+      decodePersonal: decodePersonal,
+      encodeFeedback: encodeFeedback,
+      decodeFeedback: decodeFeedback,
+      feedbackEdges: feedbackEdges,
+      mergeFeedbackEdges: mergeFeedbackEdges,
+      rankReferrals: rankReferrals,
+      complementHits: complementHits,
+      autoLeaders: autoLeaders,
+      syncLeaders: syncLeaders
+    };
+  </script>
+  <script>
+    const STORE = {
+      roster: "bni-match-roster-v1",
+      plan: "bni-match-plan-v1",
+      me: "bni-match-me-v1",
+      card: "bni-match-card-v1",
+      feedback: "bni-match-feedback-v1",
+      hostFeedback: "bni-match-host-feedback-v1"
+    };
+    const COLORS = ["#7a2e2e", "#2c5f8a", "#2f7d55", "#6a4c93", "#c46a2f", "#8c3d4a", "#3d6b8c", "#5c534c"];
+    const CHAPTER = [
+      ["林歡偉", "台灣先智專利商標事務所", "商標與專利代理", "商標註冊、侵權處理與智財權保護"],
+      ["葉淨維", "", "中英文簡報顧問", "中英簡報、提案設計與簡報培訓"],
+      ["彭國書", "大尹法律事務所", "訴訟律師", "商事與個人法律"],
+      ["葉意嘉", "訶亞資訊有限公司", "事務機設備", "事務機、影印機與投影機租賃"],
+      ["洪紹惟", "思想科技有限公司", "地圖資訊系統", "地理資訊、圖資與導航"],
+      ["劉昀易", "發財爺科技", "企業資訊系統", "企業資訊系統、AI 工具與流程自動化"],
+      ["李美玲", "東方創新不動產有限公司", "房屋理財顧問", "房屋買賣與資產配置"],
+      ["吳育傑", "宸暐企業有限公司", "人力仲介", "企業徵才與營造人力"],
+      ["賴百珊", "磊山保險經紀人股份有限公司", "人身保險", "人身保險與壽險規劃"],
+      ["劉柏儀", "沐設計有限公司", "居家室內設計", "居家空間設計與整修"],
+      ["黃雯馨", "南山人壽保險股份有限公司", "產物保險", "產物保險"],
+      ["彭國益", "台新國際商業銀行", "銀行貸款（個人貸款）", "個人信貸、房貸與企業融資"],
+      ["曹淇峰", "峰潮企業有限公司", "包租代管", "包租代管與房屋租賃"],
+      ["劉帥志", "飛鳥流企劃有限公司", "台日交流顧問", "台日商務交流"],
+      ["劉上豪", "賀米亞設計工作室", "廣告設計", "品牌視覺、活動與文宣設計"],
+      ["吳璜", "亦象室內裝修設計有限公司", "商業空間設計", "商業空間、老屋翻新與豪宅"],
+      ["鄭喬安", "粒線體大健康團隊", "體態管理保健品", "體態管理與保健品"],
+      ["陳馨麗", "李九英麻油老舖", "麻油苦茶油", "麻油與苦茶油"],
+      ["許宸維", "康見國際股份有限公司", "心血管健康管理", "心血管健康管理"],
+      ["李旺穎", "順辰實業有限公司", "等滲透營養補充", "等滲透營養補充"],
+      ["陳婕玲", "龍巖股份有限公司", "生命禮儀", "生命禮儀與生前契約"],
+      ["王律中", "易其佳實業有限公司", "人像攝影", "人像、全家福與商業活動紀錄"],
+      ["鄭宇杰", "晨希花坊", "花藝設計", "中西式與歐式花藝"],
+      ["陳懿雯", "桔佶坊", "手工餅乾", "手工餅乾"],
+      ["羅啟仁", "查理的工作室", "商業攝影", "商品與形象攝影"],
+      ["劉庭宇", "赤牛哥汕頭火鍋", "火鍋餐飲", "汕頭火鍋"],
+      ["張瑪琍", "", "董事顧問", "分會董事顧問"],
+      ["胡佳瑩", "", "分會大使、主持樂團", "分會大使，主持樂團"]
+    ];
+
+    let hostPanel = "setup";
+    let showRound = 0;
+    let phoneIndex = 0;
+    let showChapter = false;
+    let showManual = false;
+    let showPaste = false;
+    let editId = "";
+    let pendingRemove = "";
+    let pendingClear = false;
+    let pendingMatch = false;
+    let previewId = "";
+    let draftSettings = null;
+    let statsRound = "all";
+    let showFeedbackQr = false;
+    let statusMessage = "";
+    const urlById = {};
+
+    function esc(text) {
+      return String(text == null ? "" : text).replace(/[&<>"']/g, function (ch) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+      });
+    }
+
+    function loadJson(key, fallback) {
+      try {
+        const value = JSON.parse(localStorage.getItem(key) || "null");
+        return value == null ? fallback : value;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function loadRoster() {
+      const roster = loadJson(STORE.roster, []);
+      if (!Array.isArray(roster)) return [];
+      return roster.map(function (person) { return Object.assign({}, person, { chain: knownChain(person.chain), chapter: knownChapter(person.chapter), role: clean(person.role) }); });
+    }
+
+    function saveRoster(roster) {
+      localStorage.setItem(STORE.roster, JSON.stringify(roster));
+    }
+
+    function loadPlan() {
+      const plan = loadJson(STORE.plan, null);
+      return plan && plan.roundGroups ? plan : null;
+    }
+
+    function savePlan(plan) {
+      localStorage.setItem(STORE.plan, JSON.stringify(plan));
+    }
+
+    function loadMe() {
+      const me = loadJson(STORE.me, null);
+      return me && me.name ? Object.assign({}, me, { chain: knownChain(me.chain), chapter: knownChapter(me.chapter) }) : null;
+    }
+
+    function loadMemberFeedback() {
+      const data = loadJson(STORE.feedback, {});
+      return data && typeof data === "object" && !Array.isArray(data) ? data : {};
+    }
+
+    function saveMemberFeedback(data) {
+      localStorage.setItem(STORE.feedback, JSON.stringify(data || {}));
+    }
+
+    function memberFeedbackKey(name, roundIndex) {
+      return clean(name) + "\u0001" + String(roundIndex);
+    }
+
+    function loadRoundFeedback(name, roundIndex) {
+      const bag = loadMemberFeedback()[memberFeedbackKey(name, roundIndex)] || {};
+      return bag && typeof bag === "object" ? bag : {};
+    }
+
+    function saveRoundFeedback(name, roundIndex, matesMap) {
+      const data = loadMemberFeedback();
+      data[memberFeedbackKey(name, roundIndex)] = matesMap || {};
+      saveMemberFeedback(data);
+    }
+
+    function collectMemberFeedbackReport(card) {
+      const entries = [];
+      for (let i = 0; i < card.rounds.length; i++) {
+        const saved = loadRoundFeedback(card.name, i);
+        const names = card.rounds[i].mates.map(function (mate) { return mate.name; });
+        names.forEach(function (mateName) {
+          const row = saved[mateName] || {};
+          if (!(row.giveNetwork || row.recvNetwork || row.giveBusiness || row.recvBusiness)) return;
+          entries.push({
+            round: i + 1,
+            mate: mateName,
+            giveNetwork: Boolean(row.giveNetwork),
+            recvNetwork: Boolean(row.recvNetwork),
+            giveBusiness: Boolean(row.giveBusiness),
+            recvBusiness: Boolean(row.recvBusiness)
+          });
+        });
+      }
+      return { name: card.name, entries: entries };
+    }
+
+    function loadHostFeedback() {
+      const raw = loadJson(STORE.hostFeedback, { edges: [], reporters: [] });
+      if (Array.isArray(raw)) return { edges: raw, reporters: [] };
+      return {
+        edges: Array.isArray(raw.edges) ? raw.edges : [],
+        reporters: Array.isArray(raw.reporters) ? raw.reporters : []
+      };
+    }
+
+    function saveHostFeedback(store) {
+      localStorage.setItem(STORE.hostFeedback, JSON.stringify({
+        edges: store && store.edges ? store.edges : [],
+        reporters: store && store.reporters ? store.reporters : []
+      }));
+    }
+
+    function ingestHostFeedback(report) {
+      const current = loadHostFeedback();
+      const incoming = Match.feedbackEdges(report.entries, report.name);
+      const merged = Match.mergeFeedbackEdges(current.edges, incoming);
+      const reporters = current.reporters.slice();
+      if (reporters.indexOf(report.name) < 0) reporters.push(report.name);
+      saveHostFeedback({ edges: merged, reporters: reporters });
+      return {
+        added: merged.length - current.edges.length,
+        total: merged.length,
+        reporter: report.name,
+        reporters: reporters.length,
+        edges: incoming.length
+      };
+    }
+
+    function fingerprint(roster) {
+      return roster.map(function (person) {
+        return [person.id, person.name, person.company, person.industry, person.chain, person.chapter, person.role, person.have, person.want].join("\u0001");
+      }).sort().join("\u0002");
+    }
+
+    function newId(roster) {
+      const used = new Set(roster.map(function (person) { return person.id; }));
+      let id = "";
+      do { id = "p" + Math.random().toString(36).slice(2, 8); } while (used.has(id));
+      return id;
+    }
+
+    function upsert(profile) {
+      const roster = loadRoster();
+      const index = roster.findIndex(function (person) { return person.name === profile.name; });
+      const row = {
+        id: index >= 0 ? roster[index].id : newId(roster),
+        name: profile.name,
+        company: profile.company || "",
+        industry: profile.industry || "",
+        chain: knownChain(profile.chain),
+        chapter: knownChapter(profile.chapter),
+        role: clean(profile.role),
+        have: profile.have || "",
+        want: profile.want || ""
+      };
+      if (index >= 0) roster[index] = row;
+      else roster.unshift(row);
+      saveRoster(roster);
+      return { row: row, updated: index >= 0 };
+    }
+
+    function absHash(hash) {
+      return location.origin + location.pathname + location.search + hash;
+    }
+
+    function qrSvg(text) {
+      if (typeof qrcode !== "function") return "";
+      const qr = qrcode(0, text.length > 700 ? "L" : "M");
+      qr.addData(text);
+      qr.make();
+      return qr.createSvgTag({ cellSize: 4, margin: 8, scalable: true });
+    }
+
+    function resultUrl(card) {
+      let payload = Match.encodePersonal(card, true);
+      let url = absHash("#p=" + payload);
+      if (url.length > 1100) {
+        payload = Match.encodePersonal(card, false);
+        url = absHash("#p=" + payload);
+      }
+      return url;
+    }
+
+    function payloadFromInput(raw) {
+      const text = String(raw || "").trim();
+      const found = text.match(/#(j|f)=([A-Za-z0-9\-_]+)/);
+      if (found) return { kind: found[1], payload: found[2] };
+      if (/^[A-Za-z0-9\-_]+$/.test(text)) return { kind: "", payload: text };
+      throw new Error("這段內容不是會員資料碼或回饋碼");
+    }
+
+    function go(hash) {
+      if ((location.hash || "") === (hash || "")) render();
+      else location.hash = hash || "";
+    }
+
+    function paint(html, foot, sub) {
+      document.querySelector("#app").innerHTML = html;
+      document.querySelector("#foot").textContent = foot || "";
+      if (sub) document.querySelector("#sub").textContent = sub;
+    }
+
+    function field(name, label, value, opts) {
+      const options = opts || {};
+      const tag = options.area
+        ? `<textarea name="${name}" maxlength="${options.max || 120}" placeholder="${esc(options.placeholder || "")}">${esc(value || "")}</textarea>`
+        : `<input name="${name}" maxlength="${options.max || 40}" value="${esc(value || "")}" placeholder="${esc(options.placeholder || "")}" ${options.required ? "required" : ""}>`;
+      return `<label class="field">${esc(label)}${tag}</label>`;
+    }
+
+    function chainField(value) {
+      const current = new Set(chainList(value));
+      const chips = CHAINS.map(function (name) {
+        return `<label class="chip"><input type="checkbox" name="chain" value="${esc(name)}"${current.has(name) ? " checked" : ""}><span>${esc(name.replace(/產業鏈$/, ""))}</span></label>`;
+      }).join("");
+      return `<fieldset class="field chains"><legend>產業鏈（可多選）</legend><div class="chip-grid">${chips}</div></fieldset>`;
+    }
+
+    function roleField(value) {
+      const options = ["主席", "副主席", "秘書財務", "教育協調", "會員委員會", "活動協調", "導師協調", "大使"].map(function (name) {
+        return `<option value="${esc(name)}"></option>`;
+      }).join("");
+      return `<label class="field">幹部職務（選填）<input name="role" maxlength="12" list="role-options" value="${esc(value || "")}" placeholder="例如：主席、副主席、秘書財務"><datalist id="role-options">${options}</datalist></label>`;
+    }
+
+    function leadersOf(plan, roster) {
+      if (!plan.leaders || plan.leaders.length !== plan.roundGroups.length) {
+        plan.leaders = Match.autoLeaders(plan.roundGroups, roster);
+        Match.syncLeaders(plan);
+        savePlan(plan);
+      }
+      return plan.leaders;
+    }
+
+    function pickedChains(data) {
+      return knownChain(data.getAll("chain"));
+    }
+
+    function roleLine(person) {
+      return [chapterLabel(person.chapter), person.industry, person.chain, person.company].filter(Boolean).join(" · ");
+    }
+
+    function chapterLabel(value) {
+      const chapter = knownChapter(value);
+      return chapter ? chapter + "分會" : "";
+    }
+
+    function chapterField(value) {
+      const current = knownChapter(value);
+      const options = [`<option value="">請選擇</option>`].concat(CHAPTERS.map(function (name) {
+        return `<option value="${esc(name)}"${name === current ? " selected" : ""}>${esc(name)}分會</option>`;
+      }));
+      return `<label class="field">分會<select name="chapter" required>${options.join("")}</select></label>`;
+    }
+
+    function statusHtml() {
+      if (!statusMessage) return "";
+      const html = `<p class="callout" role="status">${esc(statusMessage)}</p>`;
+      statusMessage = "";
+      return html;
+    }
+
+    function renderHome() {
+      document.body.classList.remove("projecting", "awarding", "focus-result");
+      const me = loadMe();
+      const card = loadJson(STORE.card, null);
+      const mine = me
+        ? `<section class="panel"><p class="kicker">這支手機</p><h2>${esc(me.name)}</h2><p class="meta">${esc(roleLine(me) || "尚未填完資料")}</p><div class="actions"><button class="primary" type="button" data-action="go" data-hash="#member">出示資料碼</button>${card && card.name ? `<button class="secondary" type="button" data-action="open-card">查看組別</button>` : ""}</div></section>`
+        : "";
+      paint(`${statusHtml()}<div class="choices"><button class="choice" type="button" data-action="go" data-hash="#member"><span class="kicker">會員</span><strong>登錄我的資料</strong><span class="desc">填姓名、公司、行業、產業鏈，以及你有的資源、想要的資源。完成後把資料碼給主持掃。</span></button><button class="choice" type="button" data-action="go" data-hash="#host"><span class="kicker">主持</span><strong>官方媒合</strong><span class="desc">設定每組人數和輪數。分完組，把組別投回每個人的手機。</span></button></div>${mine ? `<div class="stack">${mine}</div>` : ""}`, "資料留在這支手機裡。掃碼的時候，才會傳到對方那支手機。這個網頁沒有另外的伺服器。", "會員先登錄資源，主持再分組，組別開在自己的手機上。");
+    }
+
+    function renderMember() {
+      document.body.classList.remove("projecting", "awarding", "focus-result");
+      const me = loadMe() || { name: "", company: "", industry: "", chain: "", chapter: "", have: "", want: "" };
+      const saved = Boolean(loadMe());
+      let qr = "";
+      if (saved) {
+        const url = absHash("#j=" + Match.encodeProfile(me));
+        urlById.me = url;
+        let svg = "";
+        try { svg = qrSvg(url); } catch (error) { svg = ""; }
+        qr = `<section class="panel phone-card"><p class="kicker">給主持掃</p><h2>${esc(me.name)}</h2><p class="meta">${esc(roleLine(me))}</p>${svg ? `<div class="qr">${svg}</div>` : ""}<p>請主持用相機掃描。掃完你就在這場名單裡。</p><p class="url">${esc(url)}</p><button class="secondary" type="button" data-action="copy" data-id="me">複製連結</button></section>`;
+      }
+      const form = `<section class="panel"><h2>${saved ? "修改資料" : "登錄資料"}</h2><form data-action="save-member">${field("name", "姓名", me.name, { required: true, max: 20, placeholder: "林歡偉" })}${chapterField(me.chapter)}${roleField(me.role)}${field("company", "公司", me.company, { max: 40, placeholder: "公司名稱" })}${field("industry", "行業別", me.industry, { max: 20, placeholder: "例如：居家室內設計" })}${chainField(me.chain)}${field("have", "我有的資源", me.have, { area: true, placeholder: "例如：居家空間設計、能介紹要裝修的屋主" })}${field("want", "想要的資源", me.want, { area: true, placeholder: "例如：想認識能介紹企業貸款、或有商業空間案子的人" })}<p class="hint">兩欄資源都填，分組才會把「想要的」對上別人「有的」。每欄最多 120 字。</p><button class="primary" type="submit">${saved ? "更新資料碼" : "完成，產生資料碼"}</button></form></section>`;
+      paint(`${statusHtml()}<p><button class="text-btn" type="button" data-action="go" data-hash="">回到上一頁</button></p>${saved ? qr + form : form}`, "請把資料碼給主持，不要用自己的相機掃自己的碼。", "填完後把這張碼給主持掃。");
+    }
+
+    function renderIngest(payload) {
+      document.body.classList.remove("projecting", "awarding", "focus-result");
+      let profile;
+      try { profile = Match.decodeProfile(decodeURIComponent(payload)); }
+      catch (error) {
+        try { profile = Match.decodeProfile(payload); }
+        catch (again) { profile = null; }
+      }
+      if (!profile) {
+        paint(`<section class="panel"><h2>這張資料碼讀不起來</h2><p>請會員重新出示資料碼。</p><button class="primary" type="button" data-action="go" data-hash="#host">回到主持</button></section>`, "", "資料碼無法讀取。");
+        return;
+      }
+      const result = upsert(profile);
+      paint(`<section class="panel"><p class="kicker">${result.updated ? "已更新" : "已收下"}</p><h2>${esc(result.row.name)}</h2><p>${esc(roleLine(result.row))}</p><p>${result.updated ? "這個人的資料已改成剛掃到的內容。" : "已放進這支手機的主持名單。"}</p><button class="primary" type="button" data-action="go" data-hash="#host">回到主持</button></section>`, "請回到主持頁確認名單。", "這筆資料已經在主持名單裡。");
+    }
+
+    function visiblePeople(plan, roster) {
+      if (!plan || !plan.roundGroups[0]) return [];
+      const byId = new Map(roster.map(function (person) { return [person.id, person]; }));
+      return plan.roundGroups[0].flat().map(function (id) { return byId.get(id); }).filter(Boolean);
+    }
+
+    function take(data, key, max) {
+      return Array.from(String(data.get(key) || "").trim()).slice(0, max).join("");
+    }
+
+    function clock(ms) {
+      try {
+        return new Date(ms).toLocaleString("zh-Hant", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+      } catch (error) {
+        return "";
+      }
+    }
+
+    function renderHost() {
+      const roster = loadRoster();
+      const plan = loadPlan();
+      const stale = Boolean(plan && plan.fingerprint !== fingerprint(roster));
+      if (!plan && hostPanel !== "setup") hostPanel = "setup";
+      document.body.classList.toggle("projecting", hostPanel === "project");
+      document.body.classList.toggle("awarding", hostPanel === "award");
+      document.body.classList.toggle("focus-result", hostPanel === "preview");
+      if (hostPanel === "preview") {
+        const person = roster.find(function (item) { return item.id === previewId; });
+        const card = person && plan ? plan.cards[person.id] : null;
+        if (!card) hostPanel = "phone";
+        else {
+          let shown = card;
+          try { shown = Match.decodePersonal(resultUrl(card).split("#p=")[1]); }
+          catch (error) { shown = card; }
+          paint(personalHtml(shown, true), "這是會員掃開後會看到的畫面。", "預覽會員手機。");
+          return;
+        }
+      }
+      if (hostPanel === "project" && plan) {
+        paint(projectHtml(plan, roster, stale), "組號就是桌號。宣布下一輪時，按下面的輪次。", "投影這一輪的組別。");
+        return;
+      }
+      if (hostPanel === "award") {
+        paint(awardHtml(plan, roster), "可再播一次，或回到人脈統計。", "人脈王頒獎。");
+        return;
+      }
+      if (hostPanel === "stats") {
+        paint(`${statusHtml()}${statsHtml(plan, roster)}`, "會員產生回饋碼後，用相機掃進這一頁。", "人脈與商機引薦統計。");
+        return;
+      }
+      let preset = null;
+      try { preset = JSON.parse(localStorage.getItem("bni-match-host-settings-v1") || "null"); } catch (error) { preset = null; }
+      const settings = draftSettings || {
+        groupSize: plan && plan.groupSize ? plan.groupSize : (preset && preset.groupSize ? preset.groupSize : 4),
+        rounds: plan && plan.roundsRequested ? plan.roundsRequested : (preset && preset.rounds ? preset.rounds : 3)
+      };
+      paint(`${statusHtml()}<div class="host-top">${rosterHtml(roster)}${settingsHtml(roster, settings, plan, stale)}</div>${plan ? resultHtml(plan, roster, stale) : ""}`, "掃碼只在現場的手機之間傳。結果碼給會員用相機打開，手機會留下他每一輪的組別。", `主持名單 ${roster.length} 人。`);
+    }
+
+    function rosterHtml(roster) {
+      const people = roster.map(function (person) {
+        const editing = editId === person.id;
+        const body = editing
+          ? `<form data-action="save-edit">${field("name", "姓名", person.name, { required: true, max: 20 })}${chapterField(person.chapter)}${roleField(person.role)}${field("company", "公司", person.company, { max: 40 })}${field("industry", "行業別", person.industry, { max: 20 })}${chainField(person.chain)}${field("have", "我有的資源", person.have, { area: true })}${field("want", "想要的資源", person.want, { area: true })}<div class="actions"><button class="primary" type="submit">儲存</button><button class="secondary" type="button" data-action="cancel-edit">取消</button></div></form>`
+          : `<p class="meta">${esc(roleLine(person) || "未填公司與行業")}</p><p class="hint">有的：${esc(person.have || "未填")}</p><p class="hint">想要：${esc(person.want || "未填")}</p><div class="row-actions"><button class="text-btn" type="button" data-action="edit" data-id="${esc(person.id)}">編輯</button><button class="danger" type="button" data-action="remove" data-id="${esc(person.id)}" ${pendingRemove === person.id ? 'aria-pressed="true"' : ""}>${pendingRemove === person.id ? "確定移除" : "移除"}</button></div>`;
+        return `<article class="person"><div class="person-top"><h3>${esc(person.name)}${person.role ? `<span class="tag is-role">${esc(person.role)}</span>` : ""}${person.chapter ? "" : '<span class="tag">未選分會</span>'}${person.chain ? "" : '<span class="tag">未選產業鏈</span>'}${person.want ? "" : '<span class="tag">未填想要</span>'}</h3></div>${body}</article>`;
+      }).join("");
+      const chapter = showChapter ? `<div class="stack"><label class="field">搜尋分會名單<input id="chapter-filter" placeholder="姓名、公司或行業"></label><form data-action="add-chapter">${CHAPTER.map(function (row, index) {
+        const here = roster.some(function (person) { return person.name === row[0]; });
+        return `<label class="check${here ? " is-in" : ""}" data-chapter="${esc(row.join(" "))}"><input type="checkbox" name="m" value="${index}" ${here ? "disabled" : ""}><span><strong>${esc(row[0])}</strong>${here ? " 已在名單" : ""}<span class="meta">${esc(row[2])}${row[1] ? " · " + esc(row[1]) : ""}</span></span></label>`;
+      }).join("")}<div class="actions"><button class="secondary" type="button" data-action="check-chapter">全選尚未加入的人</button><button class="primary" type="submit">加入勾選的人</button></div></form></div>` : "";
+      const manual = showManual ? `<form data-action="add-manual">${field("name", "姓名", "", { required: true, max: 20 })}${chapterField("")}${roleField("")}${field("company", "公司", "", { max: 40 })}${field("industry", "行業別", "", { max: 20 })}${chainField("")}${field("have", "我有的資源", "", { area: true })}${field("want", "想要的資源", "", { area: true })}<button class="primary" type="submit">加入名單</button></form>` : "";
+      const paste = showPaste ? `<form data-action="paste-code"><label class="field">資料碼或回饋碼<input name="code" placeholder="貼上會員資料碼或引薦回饋碼"></label><button class="primary" type="submit">收下</button></form>` : "";
+      return `<section class="panel"><p class="kicker">出席名單</p><h2>${roster.length} 人</h2><div class="actions"><button class="secondary" type="button" data-action="toggle" data-flag="showPaste" aria-pressed="${showPaste}">貼上資料碼</button><button class="secondary" type="button" data-action="toggle" data-flag="showManual" aria-pressed="${showManual}">手動加一位</button><button class="secondary" type="button" data-action="toggle" data-flag="showChapter" aria-pressed="${showChapter}">從分會名單勾選</button></div>${paste}${manual}${chapter}<div class="roster">${people || `<p class="hint">還沒有人。請會員打開「登錄我的資料」，再把資料碼給你掃。</p>`}</div>${roster.length ? `<button class="danger" type="button" data-action="clear" ${pendingClear ? 'aria-pressed="true"' : ""}>${pendingClear ? "確定清空名單" : "清空名單"}</button>` : ""}</section>`;
+    }
+
+    function settingsHtml(roster, settings, plan, stale) {
+      const need = roster.filter(function (person) { return !person.want; }).length;
+      const matchLabel = pendingMatch ? "確定重排，已掃過的碼要重掃" : (plan ? "重新媒合" : "開始媒合");
+      return `<section class="panel"><p class="kicker">官方媒合</p><h2>人數與輪數</h2><ol class="steps"><li>會員用自己的手機登錄，把資料碼給你掃。</li><li>主持頁請用 Safari 或 Chrome 打開。用同一支手機的相機掃，掃完回到這一頁。</li><li>設定每組人數和輪數，開始媒合。</li><li>先投影給全場。想把組別留在手機裡的人，再掃自己的結果碼。</li></ol><form data-action="match"><label class="field">每組人數<input id="group-size" name="groupSize" type="number" min="2" max="6" value="${settings.groupSize}"></label><label class="field">輪數<input id="round-count" name="rounds" type="number" min="1" max="4" value="${settings.rounds}"></label><p class="hint">分組會讓「想要的」對上別人「有的」，同產業鏈的人會優先排在一起，同一組盡量混合不同分會、不同行業，領導幹部會分散到各組當組長，下一輪盡量換人。輪數最多 4，結果碼才掃得開。</p>${need ? `<p class="hint">還有 ${need} 人沒填想要的資源，這些人會依行業錯開來排。</p>` : ""}<button class="primary" type="submit" ${roster.length < 2 ? "disabled" : ""}>${matchLabel}</button></form>${stale ? `<p class="callout">名單或資源已改過。請重新媒合，再讓會員重掃結果碼。</p>` : ""}</section>`;
+    }
+
+    function resultHtml(plan, roster, stale) {
+      if (showRound < 0 || showRound >= plan.roundGroups.length) showRound = 0;
+      const byId = new Map(roster.map(function (person) { return [person.id, person]; }));
+      const summary = summaryText(plan);
+      if (hostPanel === "phone") {
+        const people = visiblePeople(plan, roster);
+        if (!people.length) return `<section class="panel" id="result-anchor"><h2>沒有可以投放的人</h2></section>`;
+        if (phoneIndex >= people.length) phoneIndex = 0;
+        const person = people[phoneIndex];
+        const card = plan.cards[person.id];
+        if (!card) return `<section class="panel" id="result-anchor"><h2>這個人的組別遺失</h2><p>請重新媒合。</p></section>`;
+        const url = resultUrl(card);
+        urlById[person.id] = url;
+        let svg = "";
+        let qrError = "";
+        try { svg = qrSvg(url); } catch (error) { qrError = "這張碼太長，請改小每組人數或輪數後重新媒合。"; }
+        return `<section class="panel phone-card" id="result-anchor"><p class="kicker">投到會員手機</p><h2>${esc(person.name)}</h2><label class="field">換一位<select id="phone-person">${people.map(function (item, index) { return `<option value="${index}" ${index === phoneIndex ? "selected" : ""}>${esc(item.name)}</option>`; }).join("")}</select></label>${svg ? `<div class="qr">${svg}</div>` : `<p class="callout">${esc(qrError)}</p>`}<p>請 ${esc(person.name)} 用相機掃描自己的名字。打開後看得到每一輪的組別。</p>${url.length > 1500 ? `<p class="hint">這張碼比較密，請把螢幕調亮再掃。</p>` : ""}<p class="url">${esc(url)}</p><div class="actions"><button class="secondary" type="button" data-action="person-step" data-step="-1">上一位</button><button class="secondary" type="button" data-action="person-step" data-step="1">下一位</button><button class="secondary" type="button" data-action="copy" data-id="${esc(person.id)}">複製連結</button><button class="text-btn" type="button" data-action="preview" data-id="${esc(person.id)}">預覽他的畫面</button></div><div class="actions"><button class="text-btn" type="button" data-action="panel" data-panel="board">回到分組表</button></div></section>`;
+      }
+      const round = plan.roundGroups[Math.min(showRound, plan.roundGroups.length - 1)] || [];
+      const leaders = leadersOf(plan, roster)[showRound] || [];
+      const cards = round.map(function (ids, index) {
+        const members = ids.map(function (id) { return byId.get(id); }).filter(Boolean);
+        const color = COLORS[index % COLORS.length];
+        const hint = (plan.highlights[showRound] || [])[index] || "";
+        const picker = `<label class="leader-pick">組長<select data-leader-round="${showRound}" data-leader-group="${index}">${members.map(function (person) { return `<option value="${esc(person.id)}" ${person.id === leaders[index] ? "selected" : ""}>${esc(person.name)}${person.role ? "（" + esc(person.role) + "）" : ""}</option>`; }).join("")}</select></label>`;
+        return `<article class="group-card" style="--swatch:${color}"><h3>第 ${index + 1} 組</h3><ul>${members.map(function (person) { return `<li><strong>${esc(person.name)}${person.id === leaders[index] ? '<span class="tag is-leader">組長</span>' : ""}${person.role ? `<span class="tag is-role">${esc(person.role)}</span>` : ""}</strong><span>${esc(roleLine(person))}</span></li>`; }).join("")}</ul>${picker}<p class="hint">${esc(hint)}</p></article>`;
+      }).join("");
+      const manualLeaders = Boolean(plan.leaderManual);
+      return `<section class="panel" id="result-anchor"><p class="kicker">分組結果${plan.at ? " · " + esc(clock(plan.at)) : ""}</p><h2>第 ${showRound + 1} 輪</h2><p>${esc(summary)}</p><div class="actions"><button class="secondary" type="button" data-action="panel" data-panel="project">投影這一輪</button><button class="primary" type="button" data-action="panel" data-panel="phone" ${stale ? "disabled" : ""}>給會員掃結果碼</button></div>${stale ? `<p class="hint">名單已改過，結果碼先關掉。重新媒合後再投放。</p>` : ""}<p class="hint">組長先自動指派：優先由領導幹部擔任，同一人盡量不連續當。可以在每組下方改人。${manualLeaders ? `已手動改過組長，已掃過結果碼的人要重掃才會看到新的組長。 <button class="text-btn" type="button" data-action="reset-leaders">組長改回自動</button>` : ""}</p><div class="actions"><button class="secondary" type="button" data-action="panel" data-panel="stats">人脈統計</button></div><div class="round-switch">${plan.roundGroups.map(function (_, index) { return `<button type="button" data-action="set-round" data-round="${index}" aria-pressed="${index === showRound}">第 ${index + 1} 輪</button>`; }).join("")}</div></section><div class="board">${cards}</div>`;
+    }
+
+    function rankListHtml(rows, emptyText) {
+      if (!rows.length) return `<p class="hint">${esc(emptyText)}</p>`;
+      return `<ol class="rank-list">${rows.slice(0, 10).map(function (row, index) {
+        return `<li><span><span class="place">${index + 1}.</span>${esc(row.name)}</span><span class="score">${row.count}</span></li>`;
+      }).join("")}</ol>`;
+    }
+
+    function statsHtml(plan, roster) {
+      const store = loadHostFeedback();
+      const roundCount = plan ? plan.roundGroups.length : 0;
+      if (statsRound !== "all") {
+        const n = Number(statsRound);
+        if (!Number.isInteger(n) || n < 1 || n > Math.max(1, roundCount)) statsRound = "all";
+      }
+      const edges = store.edges.filter(function (edge) {
+        return statsRound === "all" || Number(edge.round) === Number(statsRound);
+      });
+      const network = Match.rankReferrals(edges, "network");
+      const business = Match.rankReferrals(edges, "business");
+      const total = Match.rankReferrals(edges, "");
+      const king = total[0];
+      const people = visiblePeople(plan, roster);
+      const names = (people.length ? people : roster).map(function (person) { return person.name; });
+      const roundOptions = [`<option value="all"${statsRound === "all" ? " selected" : ""}>全部輪次</option>`]
+        .concat(Array.from({ length: roundCount }, function (_, index) {
+          const value = String(index + 1);
+          return `<option value="${value}"${String(statsRound) === value ? " selected" : ""}>第 ${value} 輪</option>`;
+        }));
+      const nameOptions = names.map(function (name) {
+        return `<option value="${esc(name)}">${esc(name)}</option>`;
+      }).join("");
+      const manual = names.length >= 2 ? `<form data-action="add-feedback"><h3>手動補一筆</h3><label class="field">輪次<select name="round">${Array.from({ length: Math.max(1, roundCount) }, function (_, index) { return `<option value="${index + 1}">第 ${index + 1} 輪</option>`; }).join("")}</select></label><label class="field">提供者<select name="giver" required><option value="">請選擇</option>${nameOptions}</select></label><label class="field">對象<select name="receiver" required><option value="">請選擇</option>${nameOptions}</select></label><div class="feedback-flags"><label><input type="checkbox" name="network" value="1" checked>人脈引薦</label><label><input type="checkbox" name="business" value="1">商機引薦</label></div><button class="primary" type="submit">加入紀錄</button></form>` : `<p class="hint">名單至少兩人，才能手動補引薦。</p>`;
+      const awardBtn = king
+        ? `<button class="primary" type="button" data-action="panel" data-panel="award">人脈王頒獎</button>`
+        : `<button class="primary" type="button" disabled>人脈王頒獎</button>`;
+      return `<section class="panel"><p class="kicker">現場統計</p><h2>人脈王</h2><p>${king ? `${esc(king.name)} 目前 ${king.count} 筆引薦（人脈＋商機）。` : "還沒有引薦紀錄。請會員在組別頁勾選後產生回饋碼給你掃。"}</p><p class="hint">已收回饋 ${store.reporters.length}${roster.length ? " / " + roster.length : ""} 人 · 引薦紀錄 ${edges.length} 筆</p><label class="field">統計範圍<select id="stats-round">${roundOptions.join("")}</select></label><div class="actions">${awardBtn}<button class="secondary" type="button" data-action="panel" data-panel="board">回到分組表</button><button class="text-btn" type="button" data-action="clear-feedback">清空引薦統計</button></div></section><div class="split"><section class="panel"><h2>人脈王榜</h2><p class="hint">人脈引薦提供次數</p>${rankListHtml(network, "尚無人脈引薦")}</section><section class="panel"><h2>商機王榜</h2><p class="hint">商機引薦提供次數</p>${rankListHtml(business, "尚無商機引薦")}</section><section class="panel"><h2>總引薦榜</h2><p class="hint">人脈＋商機合計</p>${rankListHtml(total, "尚無紀錄")}</section><section class="panel">${manual}<p class="hint">同一輪、同一對人、同一類型只會算一次，雙方都勾也不會重複。</p></section></div>`;
+    }
+
+    function personLookup(roster) {
+      const map = new Map();
+      (roster || []).forEach(function (person) { map.set(person.name, person); });
+      return map;
+    }
+
+    function awardMeta(person) {
+      if (!person) return "";
+      return [knownChapter(person.chapter), person.industry, person.company].filter(Boolean).join(" · ");
+    }
+
+    function awardPlaceHtml(row, place, byName) {
+      if (!row) return `<article class="award-place place-${place}"><span class="medal">第 ${place} 名</span><p class="name">從缺</p><p class="meta-line">本場尚無紀錄</p></article>`;
+      const person = byName.get(row.name);
+      const meta = awardMeta(person);
+      return `<article class="award-place place-${place}"><span class="medal">第 ${place} 名</span><p class="name">${esc(row.name)}</p>${meta ? `<p class="meta-line">${esc(meta)}</p>` : ""}<p class="count">${row.count} 筆引薦</p></article>`;
+    }
+
+    function awardConfettiHtml() {
+      const colors = ["#7a2e2e", "#c46a2f", "#2c5f8a", "#2f7d55", "#b08d57", "#8c3d4a"];
+      let html = "";
+      for (let i = 0; i < 28; i += 1) {
+        const left = 4 + (i * 37) % 92;
+        const delay = (0.8 + (i % 9) * 0.22 + (i % 5) * 0.07).toFixed(2);
+        const drift = ((i % 2 ? 1 : -1) * (12 + (i % 7) * 8)) + "px";
+        const bit = colors[i % colors.length];
+        html += `<i style="left:${left}%;--delay:${delay}s;--drift:${drift};--bit:${bit}"></i>`;
+      }
+      return `<div class="award-confetti" aria-hidden="true">${html}</div>`;
+    }
+
+    function awardHtml(plan, roster) {
+      const store = loadHostFeedback();
+      const roundCount = plan ? plan.roundGroups.length : 0;
+      if (statsRound !== "all") {
+        const n = Number(statsRound);
+        if (!Number.isInteger(n) || n < 1 || n > Math.max(1, roundCount)) statsRound = "all";
+      }
+      const edges = store.edges.filter(function (edge) {
+        return statsRound === "all" || Number(edge.round) === Number(statsRound);
+      });
+      const total = Match.rankReferrals(edges, "");
+      const network = Match.rankReferrals(edges, "network");
+      const business = Match.rankReferrals(edges, "business");
+      const byName = personLookup(roster);
+      const scope = statsRound === "all" ? "全部輪次" : `第 ${statsRound} 輪`;
+      const controls = `<div class="award-controls"><button class="primary" type="button" data-action="replay-award">再播一次</button><button class="secondary" type="button" data-action="panel" data-panel="stats">回到人脈統計</button><button class="text-btn" type="button" data-action="panel" data-panel="board">回到分組表</button></div>`;
+      if (!total.length) {
+        return `<section class="award-stage"><div class="award-card"><p class="kicker">現場頒獎</p><h2 class="award-title">人脈王</h2><p class="award-empty">還沒有引薦紀錄，先收回饋碼再頒獎。</p></div>${controls}</section>`;
+      }
+      const side = `<div class="award-side"><div class="chip-card"><span>人脈引薦王</span><strong>${network[0] ? esc(network[0].name) : "從缺"}</strong><span>${network[0] ? network[0].count + " 筆人脈引薦" : "尚無紀錄"}</span></div><div class="chip-card"><span>商機引薦王</span><strong>${business[0] ? esc(business[0].name) : "從缺"}</strong><span>${business[0] ? business[0].count + " 筆商機引薦" : "尚無紀錄"}</span></div></div>`;
+      return `<section class="award-stage">${awardConfettiHtml()}<div class="award-card"><p class="kicker">現場頒獎 · ${esc(scope)}</p><h2 class="award-title">本場人脈王</h2><p class="award-sub">依人脈＋商機引薦合計，先揭曉第三名、第二名，最後是人脈王。</p><div class="award-podium">${awardPlaceHtml(total[2], 3, byName)}${awardPlaceHtml(total[1], 2, byName)}${awardPlaceHtml(total[0], 1, byName)}</div>${side}</div>${controls}</section>`;
+    }
+
+    function summaryText(plan) {
+      const sizeText = plan.sizes.every(function (size) { return size === plan.sizes[0]; })
+        ? `每組 ${plan.sizes[0]} 人`
+        : `各組人數 ${plan.sizes.join("、")}`;
+      const linked = plan.linked.map(function (count, index) { return `第 ${index + 1} 輪 ${count} 組對得上資源`; }).join("，");
+      const repeat = plan.repeatPairs
+        ? `不同輪再次同組 ${plan.repeatPairs} 對${plan.repeats.length ? "：" + plan.repeats.slice(0, 4).join("、") : ""}`
+        : "每一輪都換到新的人";
+      const extra = [];
+      const roster = loadRoster();
+      const cadres = new Set(roster.filter(function (person) { return person.role; }).map(function (person) { return person.id; }));
+      if (cadres.size) {
+        extra.push((plan.leaders || []).map(function (round, index) {
+          return `第 ${index + 1} 輪 ${round.filter(function (id) { return cadres.has(id); }).length}/${round.length} 組由幹部當組長`;
+        }).join("，"));
+      }
+      if (plan.singleGroup) extra.push("人數只夠一組，所以只排 1 輪");
+      if (plan.oversized) extra.push("有一組比設定多 1 人，這樣才不會有人落單");
+      return [sizeText, linked, repeat].concat(extra).filter(Boolean).join("。") + "。";
+    }
+
+    function projectHtml(plan, roster) {
+      if (showRound < 0 || showRound >= plan.roundGroups.length) showRound = 0;
+      const byId = new Map(roster.map(function (person) { return [person.id, person]; }));
+      const round = plan.roundGroups[showRound] || [];
+      const leaders = leadersOf(plan, roster)[showRound] || [];
+      const cards = round.map(function (ids, index) {
+        const members = ids.map(function (id) { return byId.get(id); }).filter(Boolean);
+        return `<article class="group-card" style="--swatch:${COLORS[index % COLORS.length]}"><h3>第 ${index + 1} 組</h3><ul>${members.map(function (person) { return `<li><strong>${esc(person.name)}${person.id === leaders[index] ? '<span class="tag is-leader">組長</span>' : ""}</strong><span>${esc([knownChapter(person.chapter), person.industry].filter(Boolean).join(" · "))}</span></li>`; }).join("")}</ul></article>`;
+      }).join("");
+      return `<p class="kicker">第 ${showRound + 1} 輪，共 ${plan.roundGroups.length} 輪。組號就是桌號。</p><div class="board">${cards}</div><div class="round-switch"><button type="button" data-action="round-step" data-step="-1">上一輪</button>${plan.roundGroups.map(function (_, index) { return `<button type="button" data-action="set-round" data-round="${index}" aria-pressed="${index === showRound}">第 ${index + 1} 輪</button>`; }).join("")}<button type="button" data-action="round-step" data-step="1">下一輪</button><button type="button" data-action="panel" data-panel="board">離開投影</button></div>`;
+    }
+
+    function renderPersonal(payload, preview) {
+      let card;
+      try { card = Match.decodePersonal(decodeURIComponent(payload)); }
+      catch (error) {
+        try { card = Match.decodePersonal(payload); }
+        catch (again) { card = null; }
+      }
+      if (!card) {
+        document.body.classList.add("focus-result");
+        paint(`<section class="panel"><h2>這張組別讀不起來</h2><p>請主持再出示一次你的結果碼。</p><button class="primary" type="button" data-action="go" data-hash="">回到首頁</button></section>`, "", "組別無法讀取。");
+        return;
+      }
+      if (!preview) localStorage.setItem(STORE.card, JSON.stringify(card));
+      document.body.classList.add("focus-result");
+      document.body.classList.remove("projecting", "awarding");
+      paint(personalHtml(card, false), "組別存在這支手機。主持宣布下一輪時，點對應的輪次。", `${card.name} 的組別`);
+    }
+
+    function personalHtml(card, preview) {
+      if (showRound < 0 || showRound >= card.rounds.length) showRound = 0;
+      const index = Math.min(showRound, card.rounds.length - 1);
+      const round = card.rounds[index];
+      const color = COLORS[(round.group - 1) % COLORS.length];
+      const mates = round.mates.map(function (mate) {
+        return `<li><strong>${esc(mate.name)}${round.leader && mate.name === round.leader ? '<span class="tag is-leader">組長</span>' : ""}</strong><span>${esc([chapterLabel(mate.chapter), mate.industry, mate.chain, mate.company].filter(Boolean).join(" · "))}</span></li>`;
+      }).join("");
+      const me = loadMe();
+      const warn = !preview && me && me.name !== card.name ? `<p class="callout">這張卡是 ${esc(card.name)}。若不是你，請掃自己的名字。</p>` : "";
+      const saved = preview ? {} : loadRoundFeedback(card.name, index);
+      const feedback = !preview && round.mates.length ? `<div class="feedback-block"><h2>這一輪的引薦回饋</h2><p class="hint">對同組的人勾選即可，可複選。填完再產生回饋碼給主持掃。</p>${round.mates.map(function (mate) {
+        const row = saved[mate.name] || {};
+        return `<div class="feedback-mate" data-mate="${esc(mate.name)}"><strong>${esc(mate.name)}</strong><div class="feedback-flags"><label><input type="checkbox" data-fb="giveNetwork" data-card="${esc(card.name)}" data-round="${index}" data-mate="${esc(mate.name)}"${row.giveNetwork ? " checked" : ""}>我有提供人脈引薦</label><label><input type="checkbox" data-fb="recvNetwork" data-card="${esc(card.name)}" data-round="${index}" data-mate="${esc(mate.name)}"${row.recvNetwork ? " checked" : ""}>我有收到人脈引薦</label><label><input type="checkbox" data-fb="giveBusiness" data-card="${esc(card.name)}" data-round="${index}" data-mate="${esc(mate.name)}"${row.giveBusiness ? " checked" : ""}>我有提供商機引薦</label><label><input type="checkbox" data-fb="recvBusiness" data-card="${esc(card.name)}" data-round="${index}" data-mate="${esc(mate.name)}"${row.recvBusiness ? " checked" : ""}>我有收到商機引薦</label></div></div>`;
+      }).join("")}</div>` : "";
+      let feedbackQr = "";
+      if (!preview && showFeedbackQr) {
+        try {
+          const report = collectMemberFeedbackReport(card);
+          const url = absHash("#f=" + Match.encodeFeedback(report));
+          urlById.feedback = url;
+          let svg = "";
+          try { svg = qrSvg(url); } catch (error) { svg = ""; }
+          feedbackQr = `<section class="panel phone-card" style="margin-top:12px"><p class="kicker">給主持掃</p><h2>引薦回饋碼</h2><p>${esc(card.name)} 已勾 ${report.entries.length} 筆對象。</p>${svg ? `<div class="qr">${svg}</div>` : ""}<p class="url">${esc(url)}</p><button class="secondary" type="button" data-action="copy" data-id="feedback">複製連結</button></section>`;
+        } catch (error) {
+          feedbackQr = `<p class="callout" role="status">${esc(error.message || "還無法產生回饋碼")}</p>`;
+          showFeedbackQr = false;
+        }
+      }
+      const memberActions = preview
+        ? `<button class="text-btn" type="button" data-action="panel" data-panel="phone">返回主持</button>`
+        : `<div class="actions"><button class="primary" type="button" data-action="make-feedback">產生回饋碼</button><button class="text-btn" type="button" data-action="go" data-hash="">回到首頁</button><button class="text-btn" type="button" data-action="clear-card">這不是我的組別</button></div>${feedbackQr}`;
+      return `<section class="ticket" style="--swatch:${color}">${warn}<p class="me-name">${esc(card.name)}</p><p class="kicker">第 ${index + 1} 輪，共 ${card.rounds.length} 輪</p><p class="group-no">第 ${round.group} 組</p><p class="walk">走到第 ${round.group} 桌</p>${round.leader ? `<p class="leader-line${round.leader === card.name ? " is-me" : ""}">${round.leader === card.name ? "這一輪你是組長，請帶大家自我介紹、交換需求。" : "組長：" + esc(round.leader)}</p>` : ""}<div class="why">${esc(round.why || "這一輪先認識同組的人")}</div><h2>同組</h2><ul class="mates">${mates || "<li>這一輪沒有其他組員</li>"}</ul>${feedback}<div class="round-switch">${card.rounds.map(function (item, roundIndex) { return `<button type="button" data-action="set-round" data-round="${roundIndex}" aria-pressed="${roundIndex === index}">第 ${roundIndex + 1} 輪</button>`; }).join("")}</div>${memberActions}</section>`;
+    }
+
+    function clamp(value, min, max, fallback) {
+      if (!Number.isFinite(value)) return fallback;
+      return Math.min(max, Math.max(min, Math.round(value)));
+    }
+
+    function readSettings() {
+      const groupInput = document.querySelector("#group-size");
+      const roundInput = document.querySelector("#round-count");
+      return {
+        groupSize: clamp(Number(groupInput && groupInput.value), 2, 6, 4),
+        rounds: clamp(Number(roundInput && roundInput.value), 1, 4, 3)
+      };
+    }
+
+    function runMatch() {
+      const roster = loadRoster();
+      if (roster.length < 2) {
+        statusMessage = "至少要兩個人才能分組";
+        render();
+        return;
+      }
+      const settings = readSettings();
+      try {
+        const result = Match.planMeeting(roster, settings.groupSize, settings.rounds, Date.now() >>> 0);
+        result.fingerprint = fingerprint(roster);
+        result.groupSize = settings.groupSize;
+        result.roundsRequested = settings.rounds;
+        result.at = Date.now();
+        savePlan(result);
+        hostPanel = "board";
+        showRound = 0;
+        phoneIndex = 0;
+        statusMessage = result.singleGroup ? "人數只夠一組，已排成 1 輪。" : "分組完成。可以投影，或把結果碼給會員掃。";
+      } catch (error) {
+        statusMessage = error.message || "無法分組";
+      }
+      render();
+      const anchor = document.querySelector("#result-anchor");
+      if (anchor) anchor.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function renderFeedbackIngest(payload) {
+      document.body.classList.remove("projecting", "awarding", "focus-result");
+      let report;
+      try { report = Match.decodeFeedback(decodeURIComponent(payload)); }
+      catch (error) {
+        try { report = Match.decodeFeedback(payload); }
+        catch (again) { report = null; }
+      }
+      if (!report) {
+        paint(`<section class="panel"><h2>這張回饋碼讀不起來</h2><p>請會員重新出示回饋碼。</p><button class="primary" type="button" data-action="go" data-hash="#host">回到主持</button></section>`, "", "回饋碼無法讀取。");
+        return;
+      }
+      const result = ingestHostFeedback(report);
+      hostPanel = "stats";
+      paint(`<section class="panel"><p class="kicker">已收下回饋</p><h2>${esc(result.reporter)}</h2><p>這次讀到 ${result.edges} 筆勾選，名單裡新增 ${result.added} 筆引薦紀錄。</p><p>目前共 ${result.reporters} 人交過回饋碼，引薦紀錄 ${result.total} 筆。</p><div class="actions"><button class="primary" type="button" data-action="go-stats">看人脈統計</button><button class="secondary" type="button" data-action="go" data-hash="#host">回到主持</button></div></section>`, "請繼續掃下一位，或打開人脈統計。", "回饋已進人脈統計。");
+    }
+
+    function render() {
+      const hash = location.hash || "";
+      if (hash.startsWith("#j=")) return renderIngest(hash.slice(3));
+      if (hash.startsWith("#f=")) return renderFeedbackIngest(hash.slice(3));
+      if (hash.startsWith("#p=")) return renderPersonal(hash.slice(3), false);
+      if (hash.startsWith("#member")) return renderMember();
+      if (hash.startsWith("#host")) return renderHost();
+      renderHome();
+    }
+
+    document.querySelector("#app").addEventListener("click", function (event) {
+      const btn = event.target.closest("[data-action]");
+      if (!btn || btn.disabled) return;
+      const action = btn.dataset.action;
+      if (action === "go") {
+        go(btn.dataset.hash || "");
+        return;
+      }
+      if (action === "go-stats") {
+        hostPanel = "stats";
+        go("#host");
+        return;
+      }
+      if (action === "copy") {
+        const url = urlById[btn.dataset.id] || "";
+        if (!navigator.clipboard || !navigator.clipboard.writeText) {
+          statusMessage = "無法複製，請長按下面的連結";
+          render();
+          return;
+        }
+        navigator.clipboard.writeText(url).then(function () {
+          statusMessage = "連結已複製";
+          render();
+        }, function () {
+          statusMessage = "無法複製，請長按下面的連結";
+          render();
+        });
+        return;
+      }
+      if (action === "open-card") {
+        const card = loadJson(STORE.card, null);
+        if (!card || !card.rounds || !card.rounds.length) return;
+        showRound = 0;
+        go("#p=" + Match.encodePersonal(card, Boolean(card.rounds.some(function (round) {
+          return round.mates.some(function (mate) { return mate.company; });
+        }))));
+        return;
+      }
+      if (action === "clear-card") {
+        localStorage.removeItem(STORE.card);
+        showFeedbackQr = false;
+        showRound = 0;
+        go("");
+        return;
+      }
+      if (action === "make-feedback") {
+        showFeedbackQr = true;
+        render();
+        const box = document.querySelector(".phone-card");
+        if (box) box.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      if (action === "clear-feedback") {
+        saveHostFeedback({ edges: [], reporters: [] });
+        statusMessage = "引薦統計已清空";
+        render();
+        return;
+      }
+      if (action === "toggle") {
+        if (btn.dataset.flag === "showChapter") showChapter = !showChapter;
+        if (btn.dataset.flag === "showManual") showManual = !showManual;
+        if (btn.dataset.flag === "showPaste") showPaste = !showPaste;
+        render();
+        return;
+      }
+      if (action === "check-chapter") {
+        document.querySelectorAll(".check input:not(:disabled)").forEach(function (input) { input.checked = true; });
+        return;
+      }
+      if (action === "edit") {
+        editId = btn.dataset.id;
+        pendingRemove = "";
+        render();
+        return;
+      }
+      if (action === "cancel-edit") {
+        editId = "";
+        render();
+        return;
+      }
+      if (action === "remove") {
+        if (pendingRemove !== btn.dataset.id) {
+          pendingRemove = btn.dataset.id;
+          render();
+          return;
+        }
+        saveRoster(loadRoster().filter(function (person) { return person.id !== btn.dataset.id; }));
+        pendingRemove = "";
+        editId = "";
+        render();
+        return;
+      }
+      if (action === "clear") {
+        if (!pendingClear) {
+          pendingClear = true;
+          render();
+          return;
+        }
+        saveRoster([]);
+        localStorage.removeItem(STORE.plan);
+        saveHostFeedback({ edges: [], reporters: [] });
+        pendingClear = false;
+        hostPanel = "setup";
+        render();
+        return;
+      }
+      if (action === "panel") {
+        hostPanel = btn.dataset.panel || "setup";
+        pendingMatch = false;
+        render();
+        return;
+      }
+      if (action === "replay-award") {
+        hostPanel = "award";
+        const stage = document.querySelector(".award-stage");
+        if (stage) {
+          const clone = stage.cloneNode(true);
+          stage.parentNode.replaceChild(clone, stage);
+        } else {
+          render();
+        }
+        return;
+      }
+      if (action === "preview") {
+        previewId = btn.dataset.id;
+        const people = visiblePeople(loadPlan(), loadRoster());
+        const index = people.findIndex(function (person) { return person.id === previewId; });
+        if (index >= 0) phoneIndex = index;
+        hostPanel = "preview";
+        render();
+        return;
+      }
+      if (action === "reset-leaders") {
+        const plan = loadPlan();
+        if (!plan) return;
+        plan.leaders = Match.autoLeaders(plan.roundGroups, loadRoster());
+        plan.leaderManual = false;
+        Match.syncLeaders(plan);
+        savePlan(plan);
+        statusMessage = "組長已改回自動指派。";
+        render();
+        return;
+      }
+      if (action === "set-round") {
+        showRound = Number(btn.dataset.round) || 0;
+        showFeedbackQr = false;
+        render();
+        return;
+      }
+      if (action === "round-step") {
+        const plan = loadPlan();
+        const count = plan ? plan.roundGroups.length : 1;
+        showRound = (showRound + Number(btn.dataset.step) + count) % count;
+        render();
+        return;
+      }
+      if (action === "person-step") {
+        const count = visiblePeople(loadPlan(), loadRoster()).length || 1;
+        phoneIndex = (phoneIndex + Number(btn.dataset.step) + count) % count;
+        render();
+        return;
+      }
+    });
+
+    document.querySelector("#app").addEventListener("change", function (event) {
+      if (event.target.id === "phone-person") {
+        phoneIndex = Number(event.target.value) || 0;
+        render();
+        return;
+      }
+      if (event.target.id === "stats-round") {
+        statsRound = event.target.value || "all";
+        render();
+        return;
+      }
+      if (event.target.dataset.fb) {
+        const name = event.target.dataset.card;
+        const roundIndex = Number(event.target.dataset.round);
+        const mate = event.target.dataset.mate;
+        const fieldName = event.target.dataset.fb;
+        if (!name || !mate || !Number.isInteger(roundIndex)) return;
+        const saved = loadRoundFeedback(name, roundIndex);
+        const row = Object.assign({
+          giveNetwork: false,
+          recvNetwork: false,
+          giveBusiness: false,
+          recvBusiness: false
+        }, saved[mate] || {});
+        row[fieldName] = Boolean(event.target.checked);
+        if (!(row.giveNetwork || row.recvNetwork || row.giveBusiness || row.recvBusiness)) delete saved[mate];
+        else saved[mate] = row;
+        saveRoundFeedback(name, roundIndex, saved);
+        showFeedbackQr = false;
+        return;
+      }
+      if (event.target.dataset.leaderRound !== undefined) {
+        const plan = loadPlan();
+        if (!plan) return;
+        const roundIndex = Number(event.target.dataset.leaderRound);
+        const groupIndex = Number(event.target.dataset.leaderGroup);
+        leadersOf(plan, loadRoster());
+        if (!plan.leaders[roundIndex]) return;
+        plan.leaders[roundIndex][groupIndex] = event.target.value;
+        plan.leaderManual = true;
+        Match.syncLeaders(plan);
+        savePlan(plan);
+        const leader = plan.cards[event.target.value];
+        statusMessage = `第 ${roundIndex + 1} 輪第 ${groupIndex + 1} 組的組長改成${leader ? leader.name : ""}。`;
+        render();
+      }
+    });
+
+    document.querySelector("#app").addEventListener("input", function (event) {
+      if (event.target.id !== "chapter-filter") return;
+      const query = event.target.value.trim();
+      document.querySelectorAll("[data-chapter]").forEach(function (row) {
+        row.hidden = Boolean(query) && !row.dataset.chapter.includes(query);
+      });
+    });
+
+    document.querySelector("#app").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const form = event.target;
+      const action = form.dataset.action;
+      const data = new FormData(form);
+      if (action === "save-member") {
+        const name = take(data, "name", 20);
+        const chain = pickedChains(data);
+        const chapter = knownChapter(data.get("chapter"));
+        if (!name) { statusMessage = "請填姓名"; render(); return; }
+        if (!chapter) { statusMessage = "請選擇分會"; render(); return; }
+        if (!chain) { statusMessage = "請至少選一個產業鏈"; render(); return; }
+        const me = {
+          name: name,
+          company: take(data, "company", 40),
+          industry: take(data, "industry", 20),
+          chain: chain,
+          chapter: chapter,
+          role: take(data, "role", 12),
+          have: take(data, "have", 120),
+          want: take(data, "want", 120)
+        };
+        localStorage.setItem(STORE.me, JSON.stringify(me));
+        statusMessage = "資料碼好了，請給主持掃描。";
+        render();
+        return;
+      }
+      if (action === "save-edit") {
+        const roster = loadRoster();
+        const name = take(data, "name", 20);
+        const chain = pickedChains(data);
+        const chapter = knownChapter(data.get("chapter"));
+        if (!name) { statusMessage = "請填姓名"; render(); return; }
+        if (!chapter) { statusMessage = "請選擇分會"; render(); return; }
+        if (!chain) { statusMessage = "請至少選一個產業鏈"; render(); return; }
+        if (roster.some(function (person) { return person.id !== editId && person.name === name; })) {
+          statusMessage = "名單裡已經有這個姓名";
+          render();
+          return;
+        }
+        const next = roster.map(function (person) {
+          if (person.id !== editId) return person;
+          return {
+            id: person.id,
+            name: name,
+            company: take(data, "company", 40),
+            industry: take(data, "industry", 20),
+            chain: chain,
+            chapter: chapter,
+            role: take(data, "role", 12),
+            have: take(data, "have", 120),
+            want: take(data, "want", 120)
+          };
+        });
+        saveRoster(next);
+        editId = "";
+        render();
+        return;
+      }
+      if (action === "add-manual") {
+        const name = take(data, "name", 20);
+        const chain = pickedChains(data);
+        const chapter = knownChapter(data.get("chapter"));
+        if (!name) { statusMessage = "請填姓名"; render(); return; }
+        if (!chapter) { statusMessage = "請選擇分會"; render(); return; }
+        if (!chain) { statusMessage = "請至少選一個產業鏈"; render(); return; }
+        const result = upsert({
+          name: name,
+          company: take(data, "company", 40),
+          industry: take(data, "industry", 20),
+          chain: chain,
+          chapter: chapter,
+          role: take(data, "role", 12),
+          have: take(data, "have", 120),
+          want: take(data, "want", 120)
+        });
+        statusMessage = result.updated ? "已更新" + name : "已加入" + name;
+        showManual = false;
+        render();
+        return;
+      }
+      if (action === "paste-code") {
+        try {
+          const parsed = payloadFromInput(data.get("code"));
+          if (parsed.kind === "f") {
+            const report = Match.decodeFeedback(parsed.payload);
+            const result = ingestHostFeedback(report);
+            statusMessage = `已收下${result.reporter}的回饋，新增 ${result.added} 筆`;
+            showPaste = false;
+            hostPanel = "stats";
+          } else {
+            const profile = Match.decodeProfile(parsed.payload);
+            const result = upsert(profile);
+            statusMessage = result.updated ? "已更新" + result.row.name : "已收下" + result.row.name;
+            showPaste = false;
+          }
+        } catch (error) {
+          statusMessage = error.message || "無法收下這段內容";
+        }
+        render();
+        return;
+      }
+      if (action === "add-chapter") {
+        const roster = loadRoster();
+        let added = 0;
+        form.querySelectorAll("input[name='m']:checked").forEach(function (input) {
+          const row = CHAPTER[Number(input.value)];
+          if (!row || roster.some(function (person) { return person.name === row[0]; })) return;
+          roster.unshift({
+            id: newId(roster),
+            name: row[0],
+            company: row[1],
+            industry: row[2],
+            chain: "",
+            chapter: "大芯",
+            have: row[3],
+            want: ""
+          });
+          added += 1;
+        });
+        saveRoster(roster);
+        statusMessage = added ? "已加入 " + added + " 人。想要的資源仍可請本人補。" : "沒有新的人被加入";
+        render();
+        return;
+      }
+      if (action === "add-feedback") {
+        const giver = take(data, "giver", 20);
+        const receiver = take(data, "receiver", 20);
+        const round = Number(data.get("round"));
+        const network = data.get("network") === "1";
+        const business = data.get("business") === "1";
+        if (!giver || !receiver) { statusMessage = "請選提供者和對象"; render(); return; }
+        if (giver === receiver) { statusMessage = "提供者和對象不能是同一人"; render(); return; }
+        if (!Number.isInteger(round) || round < 1) { statusMessage = "請選輪次"; render(); return; }
+        if (!network && !business) { statusMessage = "請至少勾人脈或商機"; render(); return; }
+        const current = loadHostFeedback();
+        const incoming = [];
+        if (network) incoming.push({ round: round, giver: giver, receiver: receiver, kind: "network" });
+        if (business) incoming.push({ round: round, giver: giver, receiver: receiver, kind: "business" });
+        const merged = Match.mergeFeedbackEdges(current.edges, incoming);
+        saveHostFeedback({ edges: merged, reporters: current.reporters });
+        statusMessage = merged.length === current.edges.length ? "這筆引薦已經在統計裡" : "已補上引薦紀錄";
+        hostPanel = "stats";
+        render();
+        return;
+      }
+      if (action === "match") {
+        const roster = loadRoster();
+        const plan = loadPlan();
+        const fresh = !plan || plan.fingerprint !== fingerprint(roster);
+        if (!fresh && !pendingMatch) {
+          draftSettings = readSettings();
+          pendingMatch = true;
+          render();
+          return;
+        }
+        pendingMatch = false;
+        draftSettings = null;
+        runMatch();
+      }
+    });
+
+    window.addEventListener("hashchange", render);
+    window.addEventListener("storage", function (event) {
+      if (!location.hash.startsWith("#host")) return;
+      if (event.key !== STORE.roster && event.key !== STORE.plan && event.key !== STORE.hostFeedback) return;
+      if (document.querySelector("#app input:focus, #app textarea:focus")) {
+        statusMessage = "有新的資料。完成輸入後會出現在名單。";
+        return;
+      }
+      render();
+    });
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState !== "visible" || !location.hash.startsWith("#host")) return;
+      if (editId || document.querySelector("#app input:focus, #app textarea:focus")) return;
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>

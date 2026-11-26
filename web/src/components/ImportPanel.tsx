@@ -85,8 +85,8 @@ export function ImportPanel() {
             <button className="primary" type="submit" disabled={busy}>
               {busy ? "匯入中…" : "開始匯入"}
             </button>
-            <a className="text-btn" href="/admin">
-              回到後台列表
+            <a className="text-btn" href="/host/members">
+              回到會員管理
             </a>
           </div>
         </form>

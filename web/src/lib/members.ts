@@ -299,8 +299,11 @@ export function parseMembersCsv(text: string): { rows: MemberInput[]; error?: st
 
 export function membersToCsv(rows: Member[]): string {
   const escape = (value: string) => {
-    if (/[",\n\r]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
-    return value;
+    let text = String(value ?? "");
+    // 避免試算表把欄位當公式執行
+    if (/^[=+\-@]/.test(text)) text = "'" + text;
+    if (/[",\n\r]/.test(text)) return `"${text.replace(/"/g, '""')}"`;
+    return text;
   };
   const lines = [MEMBER_CSV_HEADERS.join(",")];
   for (const row of rows) {
