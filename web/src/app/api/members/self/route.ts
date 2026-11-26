@@ -1,8 +1,9 @@
-import { importMembers, normalizeMember, type MemberInput } from "../../../../lib/members";
+import type { MemberInput } from "../../../../lib/members";
+import { submitGuestProfile } from "../../../../lib/submissions";
 
 export const dynamic = "force-dynamic";
 
-/** 訪客自行登錄／更新媒合資料（不含電話信箱備註）。 */
+/** 訪客送出媒合申請：只進待審佇列，不直接改正式名單。 */
 export async function POST(request: Request) {
   let body: MemberInput;
   try {
@@ -11,49 +12,29 @@ export async function POST(request: Request) {
     return Response.json({ error: "JSON 格式不正確" }, { status: 400 });
   }
 
-  const payload: MemberInput = {
-    name: body.name,
-    chapter: body.chapter,
-    role: body.role,
-    company: body.company,
-    industry: body.industry,
-    chain: body.chain,
-    have: body.have,
-    want: body.want,
-  };
-
-  const normalized = normalizeMember(payload);
-  if ("error" in normalized) {
-    return Response.json({ error: normalized.error }, { status: 400 });
-  }
-
-  const safe: MemberInput = {
-    ...normalized,
-    phone: "",
-    email: "",
-    notes: "訪客自行登錄媒合資料",
-  };
-
-  const result = await importMembers([safe], "upsert");
-  if (result.errors.length && result.inserted === 0 && result.updated === 0) {
-    return Response.json({ error: result.errors[0] || "儲存失敗" }, { status: 400 });
+  const result = await submitGuestProfile(body);
+  if ("error" in result) {
+    return Response.json({ error: result.error }, { status: 400 });
   }
 
   return Response.json(
     {
       ok: true,
-      inserted: result.inserted,
-      updated: result.updated,
+      pending: true,
+      replacedPending: result.replacedPending,
       member: {
-        name: safe.name,
-        chapter: safe.chapter,
-        role: safe.role,
-        company: safe.company,
-        industry: safe.industry,
-        chain: safe.chain,
-        have: safe.have,
-        want: safe.want,
+        name: result.submission.name,
+        chapter: result.submission.chapter,
+        role: result.submission.role,
+        company: result.submission.company,
+        industry: result.submission.industry,
+        chain: result.submission.chain,
+        have: result.submission.have,
+        want: result.submission.want,
       },
+      message: result.replacedPending
+        ? "已更新你的待審申請，主辦核准後才會進正式名單。"
+        : "已送出待審申請，主辦核准後才會進正式名單。",
     },
     { status: 200, headers: { "cache-control": "private, no-store" } },
   );
