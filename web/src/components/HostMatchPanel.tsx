@@ -26,7 +26,7 @@ export function HostMatchPanel() {
     setError("");
     setStatus("");
     try {
-      const res = await fetch("/api/members?admin=1");
+      const res = await fetch("/api/members?admin=1", { credentials: "same-origin" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.error || (res.status === 401 ? "請先主辦登入" : "讀取名單失敗"));
