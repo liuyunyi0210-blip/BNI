@@ -263,12 +263,92 @@ th { color: var(--muted); font-size: 12px; font-weight: 700; }
 
 .field.chains legend {
   padding: 0;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   font-size: 13px;
   font-weight: 700;
   color: var(--muted);
 }
 
+.chains-summary {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.chain-groups {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 900px) {
+  .chain-groups {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.chain-group {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #faf8f5;
+  padding: 12px;
+}
+
+.chain-group-title {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.chain-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@media (min-width: 600px) {
+  .chain-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.chain-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  line-height: 1.25;
+}
+
+.chain-option input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.chain-option span {
+  min-width: 0;
+}
+
+.chain-option.is-on,
+.chain-option:has(input:checked) {
+  border-color: var(--ink);
+  background: #efe8df;
+}
+
+/* 舊 chip 樣式保留給其他可能用法 */
 .chip-grid {
   display: flex;
   flex-wrap: wrap;

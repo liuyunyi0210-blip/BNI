@@ -423,7 +423,52 @@
     body.awarding header { display: none; }
     body.awarding main, body.awarding footer { max-width: 1100px; }
     .chains { border: 0; padding: 0; min-width: 0; }
-    .chains legend { padding: 0; margin-bottom: 6px; }
+    .chains legend { padding: 0; margin-bottom: 4px; }
+    .chains-summary { margin: 0 0 12px; color: var(--muted); font-size: 13px; font-weight: 500; }
+    .chain-groups { display: grid; gap: 12px; }
+    @media (min-width: 900px) { .chain-groups { grid-template-columns: 1fr 1fr; } }
+    .chain-group {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #faf8f5;
+      padding: 12px;
+    }
+    .chain-group-title {
+      margin: 0 0 10px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+    }
+    .chain-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    @media (min-width: 600px) {
+      .chain-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    .chain-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      min-height: 40px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      cursor: pointer;
+      line-height: 1.25;
+    }
+    .chain-option input { width: 16px; height: 16px; margin: 0; flex: 0 0 auto; }
+    .chain-option.is-on, .chain-option:has(input:checked) {
+      border-color: var(--ink);
+      background: #efe8df;
+    }
     .chip-grid { display: flex; flex-wrap: wrap; gap: 6px; }
     .chip { position: relative; cursor: pointer; }
     .chip input { position: absolute; opacity: 0; width: 1px; height: 1px; }
@@ -584,6 +629,15 @@
       "工程產業鏈", "營建工程產業鏈", "公共工程產業鏈", "居家服務產業鏈",
       "餐飲美食產業鏈", "節慶送禮產業鏈", "環保清潔產業鏈", "室內裝修產業鏈", "不動產產業鏈",
       "開店創業產業鏈", "展覽活動產業鏈"
+    ];
+
+    var CHAIN_GROUPS = [
+      { id: "business", label: "企業經營", items: ["企業產業鏈", "行銷產業鏈", "網路行銷產業鏈", "企業內訓產業鏈", "外銷產品產業鏈", "開店創業產業鏈", "展覽活動產業鏈"] },
+      { id: "wealth", label: "資產規劃", items: ["資產規劃產業鏈"] },
+      { id: "lifestyle", label: "生活美學", items: ["美麗人生產業鏈", "文創產業鏈", "商品設計產業鏈", "快樂生活產業鏈", "幸福產業鏈", "好運氣產業鏈", "婚禮產業鏈", "節慶送禮產業鏈"] },
+      { id: "family", label: "家庭人生", items: ["兒童教育產業鏈", "銀髮族產業鏈"] },
+      { id: "health", label: "健康餐飲", items: ["健康產業鏈", "健康食品產業鏈", "醫療用品產業鏈", "生鮮食品產業鏈", "餐飲美食產業鏈"] },
+      { id: "space", label: "工程空間", items: ["汽車產業鏈", "工程產業鏈", "營建工程產業鏈", "公共工程產業鏈", "居家服務產業鏈", "環保清潔產業鏈", "室內裝修產業鏈", "不動產產業鏈"] }
     ];
 
     function chainList(value) {
@@ -1502,10 +1556,15 @@
 
     function chainField(value) {
       const current = new Set(chainList(value));
-      const chips = CHAINS.map(function (name) {
-        return `<label class="chip"><input type="checkbox" name="chain" value="${esc(name)}"${current.has(name) ? " checked" : ""}><span>${esc(name.replace(/產業鏈$/, ""))}</span></label>`;
+      const count = current.size;
+      const groups = CHAIN_GROUPS.map(function (group) {
+        const options = group.items.map(function (name) {
+          const on = current.has(name) ? " is-on" : "";
+          return `<label class="chain-option${on}"><input type="checkbox" name="chain" value="${esc(name)}"${current.has(name) ? " checked" : ""}><span>${esc(name.replace(/產業鏈$/, ""))}</span></label>`;
+        }).join("");
+        return `<div class="chain-group"><h3 class="chain-group-title">${esc(group.label)}</h3><div class="chain-options">${options}</div></div>`;
       }).join("");
-      return `<fieldset class="field chains"><legend>產業鏈（可多選）</legend><div class="chip-grid">${chips}</div></fieldset>`;
+      return `<fieldset class="field chains"><legend>產業鏈（可多選）</legend><p class="chains-summary">${count ? "已選 " + count + " 項" : "尚未選擇，可跨分類勾選"}</p><div class="chain-groups">${groups}</div></fieldset>`;
     }
 
     function unpackWant(want) {
