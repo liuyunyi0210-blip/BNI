@@ -2,6 +2,8 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { CHAPTERS } from "../lib/constants";
+import { formatWantDisplay, packWant, unpackWant } from "../lib/want";
+import { ChainSelect } from "./ChainSelect";
 import { RoleSelect } from "./RoleSelect";
 
 type Member = {
@@ -28,7 +30,8 @@ const emptyForm = {
   industry: "",
   chain: "",
   have: "",
-  want: "",
+  wantNetwork: "",
+  wantClients: "",
   phone: "",
   email: "",
   notes: "",
@@ -64,11 +67,24 @@ export function AdminMembers() {
     event.preventDefault();
     setError("");
     setStatus("");
+    const payload = {
+      name: form.name,
+      chapter: form.chapter,
+      role: form.role,
+      company: form.company,
+      industry: form.industry,
+      chain: form.chain,
+      have: form.have,
+      want: packWant(form.wantNetwork, form.wantClients),
+      phone: form.phone,
+      email: form.email,
+      notes: form.notes,
+    };
     const res = await fetch(editId ? `/api/members/${editId}` : "/api/members", {
       method: editId ? "PATCH" : "POST",
       credentials: "same-origin",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify(payload),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -82,6 +98,7 @@ export function AdminMembers() {
   }
 
   function startEdit(member: Member) {
+    const want = unpackWant(member.want || "");
     setEditId(member.id);
     setForm({
       name: member.name,
@@ -91,7 +108,8 @@ export function AdminMembers() {
       industry: member.industry || "",
       chain: member.chain || "",
       have: member.have || "",
-      want: member.want || "",
+      wantNetwork: want.network,
+      wantClients: want.clients,
       phone: member.phone || "",
       email: member.email || "",
       notes: member.notes || "",
@@ -154,35 +172,37 @@ export function AdminMembers() {
               onChange={(e) => setForm({ ...form, company: e.target.value })}
             />
           </label>
-          <label className="field">
+          <label className="field" style={{ gridColumn: "1 / -1" }}>
             行業別
             <input
               value={form.industry}
               onChange={(e) => setForm({ ...form, industry: e.target.value })}
             />
           </label>
-          <label className="field">
-            產業鏈
-            <input
-              value={form.chain}
-              onChange={(e) => setForm({ ...form, chain: e.target.value })}
-              placeholder="可填多個，用、分隔"
-            />
-          </label>
-          <label className="field">
+          <ChainSelect value={form.chain} onChange={(chain) => setForm({ ...form, chain })} />
+          <label className="field" style={{ gridColumn: "1 / -1" }}>
             我有的資源
             <textarea
               value={form.have}
               onChange={(e) => setForm({ ...form, have: e.target.value })}
             />
           </label>
-          <label className="field">
-            想要的資源
-            <textarea
-              value={form.want}
-              onChange={(e) => setForm({ ...form, want: e.target.value })}
-            />
-          </label>
+          <div className="want-pair">
+            <label className="field">
+              想要的資源 · 業務人脈
+              <textarea
+                value={form.wantNetwork}
+                onChange={(e) => setForm({ ...form, wantNetwork: e.target.value })}
+              />
+            </label>
+            <label className="field">
+              想要的資源 · 目標客戶
+              <textarea
+                value={form.wantClients}
+                onChange={(e) => setForm({ ...form, wantClients: e.target.value })}
+              />
+            </label>
+          </div>
           <label className="field">
             電話
             <input
@@ -279,7 +299,7 @@ export function AdminMembers() {
                   </td>
                   <td>
                     <div className="meta">有：{member.have || "未填"}</div>
-                    <div className="meta">要：{member.want || "未填"}</div>
+                    <div className="meta">要：{formatWantDisplay(member.want || "")}</div>
                   </td>
                   <td>
                     <div className="actions">

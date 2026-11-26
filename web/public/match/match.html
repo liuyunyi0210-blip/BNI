@@ -1508,6 +1508,44 @@
       return `<fieldset class="field chains"><legend>產業鏈（可多選）</legend><div class="chip-grid">${chips}</div></fieldset>`;
     }
 
+    function unpackWant(want) {
+      const text = String(want || "").trim();
+      if (!text) return { network: "", clients: "" };
+      let network = "";
+      let clients = "";
+      const leftover = [];
+      text.split(/\n+/).forEach(function (line) {
+        const trimmed = line.trim();
+        const net = trimmed.match(/^(?:業務人脈|人脈)\s*[:：]\s*(.*)$/);
+        if (net) { network = [network, net[1].trim()].filter(Boolean).join("；"); return; }
+        const cli = trimmed.match(/^(?:目標客戶|客戶)\s*[:：]\s*(.*)$/);
+        if (cli) { clients = [clients, cli[1].trim()].filter(Boolean).join("；"); return; }
+        if (trimmed) leftover.push(trimmed);
+      });
+      if (!network && !clients && leftover.length) network = leftover.join("\n");
+      else if (leftover.length) network = [network].concat(leftover).filter(Boolean).join("\n");
+      return { network: network, clients: clients };
+    }
+
+    function packWant(network, clients) {
+      const parts = [];
+      const n = String(network || "").replace(/\s+/g, " ").trim().slice(0, 120);
+      const c = String(clients || "").replace(/\s+/g, " ").trim().slice(0, 120);
+      if (n) parts.push("業務人脈：" + n);
+      if (c) parts.push("目標客戶：" + c);
+      return parts.join("\n");
+    }
+
+    function wantFields(want) {
+      const parts = unpackWant(want);
+      return field("wantNetwork", "想要的資源 · 業務人脈", parts.network, { area: true, max: 120, placeholder: "想認識哪些同行／合作夥伴" })
+        + field("wantClients", "想要的資源 · 目標客戶", parts.clients, { area: true, max: 120, placeholder: "想接觸哪類客戶或案源" });
+    }
+
+    function takeWant(data) {
+      return packWant(take(data, "wantNetwork", 120), take(data, "wantClients", 120));
+    }
+
     function roleField(value) {
       const roles = ["主席", "副主席", "秘書財務", "教育協調", "導師協調", "執事", "活動協調", "資訊協調", "接待協調", "成長協調", "大使", "董事顧問"];
       const current = clean(value);
@@ -1579,7 +1617,7 @@
         try { svg = qrSvg(url); } catch (error) { svg = ""; }
         qr = `<section class="panel phone-card"><p class="kicker">給主持掃</p><h2>${esc(me.name)}</h2><p class="meta">${esc(roleLine(me))}</p>${svg ? `<div class="qr">${svg}</div>` : ""}<p>請主持用相機掃描。掃完你就在這場名單裡。</p><p class="url">${esc(url)}</p><button class="secondary" type="button" data-action="copy" data-id="me">複製連結</button></section>`;
       }
-      const form = `<section class="panel"><h2>${saved ? "修改資料" : "登錄資料"}</h2><form data-action="save-member">${field("name", "姓名", me.name, { required: true, max: 20, placeholder: "示範姓名" })}${chapterField(me.chapter)}${roleField(me.role)}${field("company", "公司", me.company, { max: 40, placeholder: "公司名稱" })}${field("industry", "行業別", me.industry, { max: 20, placeholder: "例如：居家室內設計" })}${chainField(me.chain)}${field("have", "我有的資源", me.have, { area: true, placeholder: "例如：居家空間設計、能介紹要裝修的屋主" })}${field("want", "想要的資源", me.want, { area: true, placeholder: "例如：想認識能介紹企業貸款、或有商業空間案子的人" })}<p class="hint">兩欄資源都填，分組才會把「想要的」對上別人「有的」。每欄最多 120 字。</p><button class="primary" type="submit">${saved ? "更新資料碼" : "完成，產生資料碼"}</button></form></section>`;
+      const form = `<section class="panel"><h2>${saved ? "修改資料" : "登錄資料"}</h2><form data-action="save-member">${field("name", "姓名", me.name, { required: true, max: 20, placeholder: "示範姓名" })}${chapterField(me.chapter)}${roleField(me.role)}${field("company", "公司", me.company, { max: 40, placeholder: "公司名稱" })}${field("industry", "行業別", me.industry, { max: 20, placeholder: "例如：居家室內設計" })}${chainField(me.chain)}${field("have", "我有的資源", me.have, { area: true, placeholder: "例如：居家空間設計、能介紹要裝修的屋主" })}${wantFields(me.want)}<p class="hint">「我有的資源」必填；「業務人脈」與「目標客戶」至少填一項。分組會把想要的對上別人有的。</p><button class="primary" type="submit">${saved ? "更新資料碼" : "完成，產生資料碼"}</button></form></section>`;
       paint(`${statusHtml()}<p><button class="text-btn" type="button" data-action="go" data-hash="">回到上一頁</button></p>${saved ? qr + form : form}`, "請把資料碼給主持，不要用自己的相機掃自己的碼。", "填完後把這張碼給主持掃。");
     }
 
@@ -1662,7 +1700,7 @@
       const people = roster.map(function (person) {
         const editing = editId === person.id;
         const body = editing
-          ? `<form data-action="save-edit">${field("name", "姓名", person.name, { required: true, max: 20 })}${chapterField(person.chapter)}${roleField(person.role)}${field("company", "公司", person.company, { max: 40 })}${field("industry", "行業別", person.industry, { max: 20 })}${chainField(person.chain)}${field("have", "我有的資源", person.have, { area: true })}${field("want", "想要的資源", person.want, { area: true })}<div class="actions"><button class="primary" type="submit">儲存</button><button class="secondary" type="button" data-action="cancel-edit">取消</button></div></form>`
+          ? `<form data-action="save-edit">${field("name", "姓名", person.name, { required: true, max: 20 })}${chapterField(person.chapter)}${roleField(person.role)}${field("company", "公司", person.company, { max: 40 })}${field("industry", "行業別", person.industry, { max: 20 })}${chainField(person.chain)}${field("have", "我有的資源", person.have, { area: true })}${wantFields(person.want)}<div class="actions"><button class="primary" type="submit">儲存</button><button class="secondary" type="button" data-action="cancel-edit">取消</button></div></form>`
           : `<p class="meta">${esc(roleLine(person) || "未填公司與行業")}</p><p class="hint">有的：${esc(person.have || "未填")}</p><p class="hint">想要：${esc(person.want || "未填")}</p><div class="row-actions"><button class="text-btn" type="button" data-action="edit" data-id="${esc(person.id)}">編輯</button><button class="danger" type="button" data-action="remove" data-id="${esc(person.id)}" ${pendingRemove === person.id ? 'aria-pressed="true"' : ""}>${pendingRemove === person.id ? "確定移除" : "移除"}</button></div>`;
         return `<article class="person"><div class="person-top"><h3>${esc(person.name)}${person.role ? `<span class="tag is-role">${esc(person.role)}</span>` : ""}${person.chapter ? "" : '<span class="tag">未選分會</span>'}${person.chain ? "" : '<span class="tag">未選產業鏈</span>'}${person.want ? "" : '<span class="tag">未填想要</span>'}</h3></div>${body}</article>`;
       }).join("");
@@ -1670,7 +1708,7 @@
         const here = roster.some(function (person) { return person.name === row[0]; });
         return `<label class="check${here ? " is-in" : ""}" data-chapter="${esc(row.join(" "))}"><input type="checkbox" name="m" value="${index}" ${here ? "disabled" : ""}><span><strong>${esc(row[0])}</strong>${here ? " 已在名單" : ""}<span class="meta">${esc(row[2])}${row[1] ? " · " + esc(row[1]) : ""}</span></span></label>`;
       }).join("")}<div class="actions"><button class="secondary" type="button" data-action="check-chapter">全選尚未加入的人</button><button class="primary" type="submit">加入勾選的人</button></div></form>` : `<p class="hint">此頁不內建分會名單。請回主辦後台「載入名單並打開媒合台」，或用手動加入／資料碼。</p>`}</div>` : "";
-      const manual = showManual ? `<form data-action="add-manual">${field("name", "姓名", "", { required: true, max: 20 })}${chapterField("")}${roleField("")}${field("company", "公司", "", { max: 40 })}${field("industry", "行業別", "", { max: 20 })}${chainField("")}${field("have", "我有的資源", "", { area: true })}${field("want", "想要的資源", "", { area: true })}<button class="primary" type="submit">加入名單</button></form>` : "";
+      const manual = showManual ? `<form data-action="add-manual">${field("name", "姓名", "", { required: true, max: 20 })}${chapterField("")}${roleField("")}${field("company", "公司", "", { max: 40 })}${field("industry", "行業別", "", { max: 20 })}${chainField("")}${field("have", "我有的資源", "", { area: true })}${wantFields("")}<button class="primary" type="submit">加入名單</button></form>` : "";
       const paste = showPaste ? `<form data-action="paste-code"><label class="field">資料碼或回饋碼<input name="code" placeholder="貼上會員資料碼或引薦回饋碼"></label><button class="primary" type="submit">收下</button></form>` : "";
       return `<section class="panel"><p class="kicker">出席名單</p><h2>${roster.length} 人</h2><div class="actions"><button class="secondary" type="button" data-action="toggle" data-flag="showPaste" aria-pressed="${showPaste}">貼上資料碼</button><button class="secondary" type="button" data-action="toggle" data-flag="showManual" aria-pressed="${showManual}">手動加一位</button><button class="secondary" type="button" data-action="toggle" data-flag="showChapter" aria-pressed="${showChapter}">從分會名單勾選</button></div>${paste}${manual}${chapter}<div class="roster">${people || `<p class="hint">還沒有人。請會員打開「登錄我的資料」，再把資料碼給你掃。</p>`}</div>${roster.length ? `<button class="danger" type="button" data-action="clear" ${pendingClear ? 'aria-pressed="true"' : ""}>${pendingClear ? "確定清空名單" : "清空名單"}</button>` : ""}</section>`;
     }
@@ -2198,8 +2236,10 @@
           chapter: chapter,
           role: take(data, "role", 12),
           have: take(data, "have", 120),
-          want: take(data, "want", 120)
+          want: takeWant(data)
         };
+        if (!me.have) { statusMessage = "請填我有的資源"; render(); return; }
+        if (!me.want) { statusMessage = "請至少填業務人脈或目標客戶"; render(); return; }
         localStorage.setItem(STORE.me, JSON.stringify(me));
         statusMessage = "資料碼好了，請給主持掃描。";
         render();
@@ -2229,7 +2269,7 @@
             chapter: chapter,
             role: take(data, "role", 12),
             have: take(data, "have", 120),
-            want: take(data, "want", 120)
+            want: takeWant(data)
           };
         });
         saveRoster(next);
@@ -2252,7 +2292,7 @@
           chapter: chapter,
           role: take(data, "role", 12),
           have: take(data, "have", 120),
-          want: take(data, "want", 120)
+          want: takeWant(data)
         });
         statusMessage = result.updated ? "已更新" + name : "已加入" + name;
         showManual = false;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { formatWantDisplay } from "../lib/want";
 
 type Submission = {
   id: number;
@@ -83,7 +84,7 @@ export function HostSubmissions() {
                   </td>
                   <td>
                     <div className="meta">有：{row.have || "未填"}</div>
-                    <div className="meta">要：{row.want || "未填"}</div>
+                    <div className="meta">要：{formatWantDisplay(row.want || "")}</div>
                   </td>
                   <td>
                     <div className="actions">

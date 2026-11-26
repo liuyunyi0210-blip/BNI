@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CHAPTERS } from "../lib/constants";
+import { formatWantDisplay } from "../lib/want";
 
 type Member = {
   id: number;
@@ -98,7 +99,7 @@ export function MemberDirectory() {
               </p>
               {member.chain ? <p>產業鏈：{member.chain}</p> : null}
               <p>有的：{member.have || "未填"}</p>
-              <p>想要：{member.want || "未填"}</p>
+              <p>想要：{formatWantDisplay(member.want || "")}</p>
             </article>
           ))}
         </div>

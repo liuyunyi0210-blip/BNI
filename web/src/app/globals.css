@@ -253,3 +253,60 @@ th { color: var(--muted); font-size: 12px; font-weight: 700; }
 }
 
 .member-card p { margin: 0 0 4px; font-size: 13px; color: var(--muted); }
+
+.field.chains {
+  grid-column: 1 / -1;
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.field.chains legend {
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.chip input {
+  margin: 0;
+}
+
+.chip:has(input:checked) {
+  border-color: var(--ink);
+  background: #f3eee7;
+}
+
+.want-pair {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 800px) {
+  .want-pair {
+    grid-template-columns: 1fr 1fr;
+  }
+}
