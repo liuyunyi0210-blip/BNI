@@ -1537,10 +1537,15 @@
     }
 
     function roleField(value) {
-      const options = ["主席", "副主席", "秘書財務", "教育協調", "會員委員會", "活動協調", "導師協調", "大使"].map(function (name) {
-        return `<option value="${esc(name)}"></option>`;
-      }).join("");
-      return `<label class="field">幹部職務（選填）<input name="role" maxlength="12" list="role-options" value="${esc(value || "")}" placeholder="例如：主席、副主席、秘書財務"><datalist id="role-options">${options}</datalist></label>`;
+      const roles = ["主席", "副主席", "秘書財務", "教育協調", "導師協調", "執事", "活動協調", "資訊協調", "接待協調", "成長協調", "大使", "董事顧問"];
+      const current = clean(value);
+      const known = !current || roles.indexOf(current) >= 0;
+      const options = [`<option value="">未擔任／不填</option>`]
+        .concat(!known ? [`<option value="${esc(current)}" selected>${esc(current)}（原資料）</option>`] : [])
+        .concat(roles.map(function (name) {
+          return `<option value="${esc(name)}"${current === name ? " selected" : ""}>${esc(name)}</option>`;
+        })).join("");
+      return `<label class="field">幹部職務（選填）<select name="role">${options}</select></label>`;
     }
 
     function leadersOf(plan, roster) {

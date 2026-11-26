@@ -1,7 +1,8 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { CHAPTERS, ROLE_SUGGESTIONS } from "../lib/constants";
+import { CHAPTERS } from "../lib/constants";
+import { RoleSelect } from "./RoleSelect";
 
 const empty = {
   name: "",
@@ -80,16 +81,7 @@ export function RegisterForm() {
         </label>
         <label className="field">
           幹部職務（選填）
-          <input
-            list="role-suggestions"
-            value={form.role}
-            onChange={(e) => setForm({ ...form, role: e.target.value })}
-          />
-          <datalist id="role-suggestions">
-            {ROLE_SUGGESTIONS.map((role) => (
-              <option key={role} value={role} />
-            ))}
-          </datalist>
+          <RoleSelect value={form.role} onChange={(role) => setForm({ ...form, role })} />
         </label>
         <label className="field">
           公司
