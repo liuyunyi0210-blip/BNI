@@ -34,16 +34,23 @@ export const CHAINS = [
   "展覽活動產業鏈",
 ] as const;
 
-export const ROLE_SUGGESTIONS = [
+export const ROLE_OPTIONS = [
   "主席",
   "副主席",
   "秘書財務",
   "教育協調",
-  "會員委員會",
-  "活動協調",
   "導師協調",
+  "執事",
+  "活動協調",
+  "資訊協調",
+  "接待協調",
+  "成長協調",
   "大使",
+  "董事顧問",
 ] as const;
+
+/** @deprecated 使用 ROLE_OPTIONS */
+export const ROLE_SUGGESTIONS = ROLE_OPTIONS;
 
 export const MEMBER_CSV_HEADERS = [
   "name",
