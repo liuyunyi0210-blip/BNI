@@ -1282,36 +1282,8 @@
       hostFeedback: "bni-match-host-feedback-v1"
     };
     const COLORS = ["#7a2e2e", "#2c5f8a", "#2f7d55", "#6a4c93", "#c46a2f", "#8c3d4a", "#3d6b8c", "#5c534c"];
-    const CHAPTER = [
-      ["林歡偉", "台灣先智專利商標事務所", "商標與專利代理", "商標註冊、侵權處理與智財權保護"],
-      ["葉淨維", "", "中英文簡報顧問", "中英簡報、提案設計與簡報培訓"],
-      ["彭國書", "大尹法律事務所", "訴訟律師", "商事與個人法律"],
-      ["葉意嘉", "訶亞資訊有限公司", "事務機設備", "事務機、影印機與投影機租賃"],
-      ["洪紹惟", "思想科技有限公司", "地圖資訊系統", "地理資訊、圖資與導航"],
-      ["劉昀易", "發財爺科技", "企業資訊系統", "企業資訊系統、AI 工具與流程自動化"],
-      ["李美玲", "東方創新不動產有限公司", "房屋理財顧問", "房屋買賣與資產配置"],
-      ["吳育傑", "宸暐企業有限公司", "人力仲介", "企業徵才與營造人力"],
-      ["賴百珊", "磊山保險經紀人股份有限公司", "人身保險", "人身保險與壽險規劃"],
-      ["劉柏儀", "沐設計有限公司", "居家室內設計", "居家空間設計與整修"],
-      ["黃雯馨", "南山人壽保險股份有限公司", "產物保險", "產物保險"],
-      ["彭國益", "台新國際商業銀行", "銀行貸款（個人貸款）", "個人信貸、房貸與企業融資"],
-      ["曹淇峰", "峰潮企業有限公司", "包租代管", "包租代管與房屋租賃"],
-      ["劉帥志", "飛鳥流企劃有限公司", "台日交流顧問", "台日商務交流"],
-      ["劉上豪", "賀米亞設計工作室", "廣告設計", "品牌視覺、活動與文宣設計"],
-      ["吳璜", "亦象室內裝修設計有限公司", "商業空間設計", "商業空間、老屋翻新與豪宅"],
-      ["鄭喬安", "粒線體大健康團隊", "體態管理保健品", "體態管理與保健品"],
-      ["陳馨麗", "李九英麻油老舖", "麻油苦茶油", "麻油與苦茶油"],
-      ["許宸維", "康見國際股份有限公司", "心血管健康管理", "心血管健康管理"],
-      ["李旺穎", "順辰實業有限公司", "等滲透營養補充", "等滲透營養補充"],
-      ["陳婕玲", "龍巖股份有限公司", "生命禮儀", "生命禮儀與生前契約"],
-      ["王律中", "易其佳實業有限公司", "人像攝影", "人像、全家福與商業活動紀錄"],
-      ["鄭宇杰", "晨希花坊", "花藝設計", "中西式與歐式花藝"],
-      ["陳懿雯", "桔佶坊", "手工餅乾", "手工餅乾"],
-      ["羅啟仁", "查理的工作室", "商業攝影", "商品與形象攝影"],
-      ["劉庭宇", "赤牛哥汕頭火鍋", "火鍋餐飲", "汕頭火鍋"],
-      ["張瑪琍", "", "董事顧問", "分會董事顧問"],
-      ["胡佳瑩", "", "分會大使、主持樂團", "分會大使，主持樂團"]
-    ];
+    // 示範用空白名單：正式名單請由主辦後台「載入名單並打開媒合台」帶入資料庫，勿在此硬編碼真實個資。
+    const CHAPTER = [];
 
     let hostPanel = "setup";
     let showRound = 0;
@@ -1607,7 +1579,7 @@
         try { svg = qrSvg(url); } catch (error) { svg = ""; }
         qr = `<section class="panel phone-card"><p class="kicker">給主持掃</p><h2>${esc(me.name)}</h2><p class="meta">${esc(roleLine(me))}</p>${svg ? `<div class="qr">${svg}</div>` : ""}<p>請主持用相機掃描。掃完你就在這場名單裡。</p><p class="url">${esc(url)}</p><button class="secondary" type="button" data-action="copy" data-id="me">複製連結</button></section>`;
       }
-      const form = `<section class="panel"><h2>${saved ? "修改資料" : "登錄資料"}</h2><form data-action="save-member">${field("name", "姓名", me.name, { required: true, max: 20, placeholder: "林歡偉" })}${chapterField(me.chapter)}${roleField(me.role)}${field("company", "公司", me.company, { max: 40, placeholder: "公司名稱" })}${field("industry", "行業別", me.industry, { max: 20, placeholder: "例如：居家室內設計" })}${chainField(me.chain)}${field("have", "我有的資源", me.have, { area: true, placeholder: "例如：居家空間設計、能介紹要裝修的屋主" })}${field("want", "想要的資源", me.want, { area: true, placeholder: "例如：想認識能介紹企業貸款、或有商業空間案子的人" })}<p class="hint">兩欄資源都填，分組才會把「想要的」對上別人「有的」。每欄最多 120 字。</p><button class="primary" type="submit">${saved ? "更新資料碼" : "完成，產生資料碼"}</button></form></section>`;
+      const form = `<section class="panel"><h2>${saved ? "修改資料" : "登錄資料"}</h2><form data-action="save-member">${field("name", "姓名", me.name, { required: true, max: 20, placeholder: "示範姓名" })}${chapterField(me.chapter)}${roleField(me.role)}${field("company", "公司", me.company, { max: 40, placeholder: "公司名稱" })}${field("industry", "行業別", me.industry, { max: 20, placeholder: "例如：居家室內設計" })}${chainField(me.chain)}${field("have", "我有的資源", me.have, { area: true, placeholder: "例如：居家空間設計、能介紹要裝修的屋主" })}${field("want", "想要的資源", me.want, { area: true, placeholder: "例如：想認識能介紹企業貸款、或有商業空間案子的人" })}<p class="hint">兩欄資源都填，分組才會把「想要的」對上別人「有的」。每欄最多 120 字。</p><button class="primary" type="submit">${saved ? "更新資料碼" : "完成，產生資料碼"}</button></form></section>`;
       paint(`${statusHtml()}<p><button class="text-btn" type="button" data-action="go" data-hash="">回到上一頁</button></p>${saved ? qr + form : form}`, "請把資料碼給主持，不要用自己的相機掃自己的碼。", "填完後把這張碼給主持掃。");
     }
 
@@ -1694,10 +1666,10 @@
           : `<p class="meta">${esc(roleLine(person) || "未填公司與行業")}</p><p class="hint">有的：${esc(person.have || "未填")}</p><p class="hint">想要：${esc(person.want || "未填")}</p><div class="row-actions"><button class="text-btn" type="button" data-action="edit" data-id="${esc(person.id)}">編輯</button><button class="danger" type="button" data-action="remove" data-id="${esc(person.id)}" ${pendingRemove === person.id ? 'aria-pressed="true"' : ""}>${pendingRemove === person.id ? "確定移除" : "移除"}</button></div>`;
         return `<article class="person"><div class="person-top"><h3>${esc(person.name)}${person.role ? `<span class="tag is-role">${esc(person.role)}</span>` : ""}${person.chapter ? "" : '<span class="tag">未選分會</span>'}${person.chain ? "" : '<span class="tag">未選產業鏈</span>'}${person.want ? "" : '<span class="tag">未填想要</span>'}</h3></div>${body}</article>`;
       }).join("");
-      const chapter = showChapter ? `<div class="stack"><label class="field">搜尋分會名單<input id="chapter-filter" placeholder="姓名、公司或行業"></label><form data-action="add-chapter">${CHAPTER.map(function (row, index) {
+      const chapter = showChapter ? `<div class="stack"><label class="field">搜尋分會名單<input id="chapter-filter" placeholder="姓名、公司或行業"></label>${CHAPTER.length ? `<form data-action="add-chapter">${CHAPTER.map(function (row, index) {
         const here = roster.some(function (person) { return person.name === row[0]; });
         return `<label class="check${here ? " is-in" : ""}" data-chapter="${esc(row.join(" "))}"><input type="checkbox" name="m" value="${index}" ${here ? "disabled" : ""}><span><strong>${esc(row[0])}</strong>${here ? " 已在名單" : ""}<span class="meta">${esc(row[2])}${row[1] ? " · " + esc(row[1]) : ""}</span></span></label>`;
-      }).join("")}<div class="actions"><button class="secondary" type="button" data-action="check-chapter">全選尚未加入的人</button><button class="primary" type="submit">加入勾選的人</button></div></form></div>` : "";
+      }).join("")}<div class="actions"><button class="secondary" type="button" data-action="check-chapter">全選尚未加入的人</button><button class="primary" type="submit">加入勾選的人</button></div></form>` : `<p class="hint">此頁不內建分會名單。請回主辦後台「載入名單並打開媒合台」，或用手動加入／資料碼。</p>`}</div>` : "";
       const manual = showManual ? `<form data-action="add-manual">${field("name", "姓名", "", { required: true, max: 20 })}${chapterField("")}${roleField("")}${field("company", "公司", "", { max: 40 })}${field("industry", "行業別", "", { max: 20 })}${chainField("")}${field("have", "我有的資源", "", { area: true })}${field("want", "想要的資源", "", { area: true })}<button class="primary" type="submit">加入名單</button></form>` : "";
       const paste = showPaste ? `<form data-action="paste-code"><label class="field">資料碼或回饋碼<input name="code" placeholder="貼上會員資料碼或引薦回饋碼"></label><button class="primary" type="submit">收下</button></form>` : "";
       return `<section class="panel"><p class="kicker">出席名單</p><h2>${roster.length} 人</h2><div class="actions"><button class="secondary" type="button" data-action="toggle" data-flag="showPaste" aria-pressed="${showPaste}">貼上資料碼</button><button class="secondary" type="button" data-action="toggle" data-flag="showManual" aria-pressed="${showManual}">手動加一位</button><button class="secondary" type="button" data-action="toggle" data-flag="showChapter" aria-pressed="${showChapter}">從分會名單勾選</button></div>${paste}${manual}${chapter}<div class="roster">${people || `<p class="hint">還沒有人。請會員打開「登錄我的資料」，再把資料碼給你掃。</p>`}</div>${roster.length ? `<button class="danger" type="button" data-action="clear" ${pendingClear ? 'aria-pressed="true"' : ""}>${pendingClear ? "確定清空名單" : "清空名單"}</button>` : ""}</section>`;

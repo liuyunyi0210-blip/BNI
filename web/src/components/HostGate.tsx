@@ -122,7 +122,7 @@ export function HostGate({ children }: { children: ReactNode }) {
         <>
           <p>
             尚未設定主辦密碼時，請把 App 改成 <strong>Private</strong>／<strong>Team</strong>，用主辦 Cursor
-            帳號開啟；或在 Secrets 新增 HOST_PIN 後即可在此輸入密碼登入。
+            帳號開啟；或在 Secrets 新增至少 10 字元的 HOST_PIN 後即可在此輸入密碼登入。
           </p>
           <div className="actions" style={{ marginTop: 14 }}>
             <button className="primary" type="button" onClick={() => window.location.reload()}>
