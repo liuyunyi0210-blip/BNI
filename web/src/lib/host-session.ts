@@ -1,14 +1,26 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const HOST_COOKIE = "bni_host";
-const TTL_MS = 12 * 60 * 60 * 1000;
+const TTL_MS = 4 * 60 * 60 * 1000;
+/** 主辦密碼至少 10 字，避免短 PIN 被暴力猜測。 */
+export const HOST_PIN_MIN_LENGTH = 10;
 
 function pinSecret(): string {
   return process.env.HOST_PIN?.trim() || "";
 }
 
 export function hostPinConfigured(): boolean {
-  return pinSecret().length >= 4;
+  const secret = pinSecret();
+  return secret.length >= HOST_PIN_MIN_LENGTH;
+}
+
+export function hostPinConfigError(): string | null {
+  const secret = pinSecret();
+  if (!secret) return "尚未設定主辦密碼（HOST_PIN）";
+  if (secret.length < HOST_PIN_MIN_LENGTH) {
+    return `主辦密碼至少 ${HOST_PIN_MIN_LENGTH} 字元，請在 Secrets 更新 HOST_PIN`;
+  }
+  return null;
 }
 
 function sign(payload: string, secret: string): string {
@@ -17,7 +29,7 @@ function sign(payload: string, secret: string): string {
 
 export function mintHostSession(now = Date.now()): string | null {
   const secret = pinSecret();
-  if (secret.length < 4) return null;
+  if (secret.length < HOST_PIN_MIN_LENGTH) return null;
   const exp = String(now + TTL_MS);
   const payload = `v1.${exp}`;
   return `${payload}.${sign(payload, secret)}`;
@@ -25,7 +37,7 @@ export function mintHostSession(now = Date.now()): string | null {
 
 export function verifyHostSession(token: string | undefined | null): boolean {
   const secret = pinSecret();
-  if (!token || secret.length < 4) return false;
+  if (!token || secret.length < HOST_PIN_MIN_LENGTH) return false;
   const parts = token.split(".");
   if (parts.length !== 3) return false;
   const [ver, exp, sig] = parts;
@@ -59,7 +71,7 @@ export function requestHasHostSession(request: Request): boolean {
 
 export function verifyHostPin(pin: string): boolean {
   const secret = pinSecret();
-  if (secret.length < 4) return false;
+  if (secret.length < HOST_PIN_MIN_LENGTH) return false;
   const a = Buffer.from(String(pin || ""));
   const b = Buffer.from(secret);
   if (a.length !== b.length) return false;
