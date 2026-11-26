@@ -1,3 +1,4 @@
+import { HostGate } from "../../../components/HostGate";
 import { ImportPanel } from "../../../components/ImportPanel";
 import { SiteNav } from "../../../components/SiteNav";
 
@@ -8,11 +9,13 @@ export default function ImportPage() {
         <div>
           <p className="mark">BNI</p>
           <h1>匯入名單</h1>
-          <p className="sub">下載範本或大芯現有名單，補資料後上傳。</p>
+          <p className="sub">僅主辦可匯入。請先點右上「主辦登入」。</p>
         </div>
         <SiteNav current="import" />
       </header>
-      <ImportPanel />
+      <HostGate>
+        <ImportPanel />
+      </HostGate>
     </main>
   );
 }

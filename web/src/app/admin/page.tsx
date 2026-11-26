@@ -1,4 +1,5 @@
 import { AdminMembers } from "../../components/AdminMembers";
+import { HostGate } from "../../components/HostGate";
 import { SiteNav } from "../../components/SiteNav";
 
 export default function AdminPage() {
@@ -8,11 +9,13 @@ export default function AdminPage() {
         <div>
           <p className="mark">BNI</p>
           <h1>後台管理</h1>
-          <p className="sub">新增、編輯、停用會員，或匯出 CSV。</p>
+          <p className="sub">僅主辦可進入。請先點右上「主辦登入」。</p>
         </div>
         <SiteNav current="admin" />
       </header>
-      <AdminMembers />
+      <HostGate>
+        <AdminMembers />
+      </HostGate>
     </main>
   );
 }

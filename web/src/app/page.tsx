@@ -8,7 +8,7 @@ export default function HomePage() {
         <div>
           <p className="mark">BNI</p>
           <h1>會員名單</h1>
-          <p className="sub">訪客可搜尋公開資源資料；只有主辦登入後才能進後台維護。</p>
+          <p className="sub">公開名單免登入可查。主辦請點右上「主辦登入」進入後台（App 需設為 Private 或 Team）。</p>
         </div>
         <SiteNav current="home" />
       </header>
