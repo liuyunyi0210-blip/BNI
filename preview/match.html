@@ -28,7 +28,7 @@
     header, main, footer {
       max-width: 980px;
       margin: 0 auto;
-      padding-left: 20px;就是就是現在
+      padding-left: 20px;
       padding-right: 20px;
     }
     header { padding-top: 28px; }
@@ -224,6 +224,204 @@
     .rank-list li:last-child { border-bottom: 0; }
     .rank-list .place { color: var(--muted); min-width: 2.5em; }
     .rank-list .score { font-weight: 650; color: var(--accent); }
+    .award-stage {
+      position: relative;
+      min-height: calc(100vh - 48px);
+      display: grid;
+      place-items: center;
+      padding: 24px 12px 96px;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .award-stage::before {
+      content: "";
+      position: absolute;
+      inset: -10% -5%;
+      z-index: -2;
+      background:
+        radial-gradient(ellipse 70% 55% at 50% 18%, rgba(122, 46, 46, 0.16), transparent 62%),
+        radial-gradient(ellipse 50% 40% at 15% 85%, rgba(196, 106, 47, 0.12), transparent 70%),
+        linear-gradient(180deg, #ebe4d8 0%, var(--bg) 48%, #e7dfd2 100%);
+      animation: award-bg 7s ease-in-out infinite alternate;
+    }
+    .award-confetti {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+    }
+    .award-confetti i {
+      position: absolute;
+      top: -12px;
+      width: 8px;
+      height: 14px;
+      border-radius: 2px;
+      opacity: 0;
+      animation: award-fall 2.8s ease-in forwards;
+      animation-delay: var(--delay, 0s);
+      background: var(--bit, var(--accent));
+    }
+    .award-card {
+      width: min(720px, 100%);
+      text-align: center;
+      padding: 28px 22px 24px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--paper) 92%, #fff);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+    .award-card .kicker {
+      opacity: 0;
+      transform: translateY(10px);
+      animation: award-rise 0.7s ease forwards;
+    }
+    .award-title {
+      margin: 4px 0 6px;
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: award-rise 0.75s ease 0.25s forwards;
+    }
+    .award-sub {
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 15px;
+      opacity: 0;
+      animation: award-rise 0.7s ease 0.45s forwards;
+    }
+    .award-podium {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      align-items: end;
+      margin: 0 auto 18px;
+      max-width: 560px;
+    }
+    @media (min-width: 700px) {
+      .award-podium {
+        grid-template-columns: 1fr 1.2fr 1fr;
+        gap: 14px;
+      }
+      .award-podium .place-1 { order: 2; }
+      .award-podium .place-2 { order: 1; }
+      .award-podium .place-3 { order: 3; }
+    }
+    .award-place {
+      padding: 16px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      opacity: 0;
+      transform: translateY(28px) scale(0.96);
+    }
+    .award-place.place-3 { animation: award-pop 0.7s cubic-bezier(.2,.8,.2,1) 1.0s forwards; }
+    .award-place.place-2 { animation: award-pop 0.7s cubic-bezier(.2,.8,.2,1) 1.7s forwards; }
+    .award-place.place-1 {
+      padding: 22px 14px 18px;
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+      background: linear-gradient(180deg, #fff8f2 0%, #fff 70%);
+      animation: award-pop 0.85s cubic-bezier(.2,.8,.2,1) 2.5s forwards;
+    }
+    .award-place .medal {
+      display: inline-block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+    }
+    .award-place.place-1 .medal { font-size: 13px; letter-spacing: 0.18em; }
+    .award-place .name {
+      margin: 0;
+      font-size: clamp(22px, 3.5vw, 34px);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .award-place.place-1 .name {
+      font-size: clamp(30px, 5vw, 48px);
+      color: var(--accent);
+    }
+    .award-place .meta-line {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .award-place .count {
+      margin: 10px 0 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .award-place.place-1 .count { font-size: 22px; }
+    .award-side {
+      display: grid;
+      gap: 10px;
+      margin: 8px auto 0;
+      max-width: 560px;
+      opacity: 0;
+      animation: award-rise 0.7s ease 3.3s forwards;
+    }
+    @media (min-width: 700px) {
+      .award-side { grid-template-columns: 1fr 1fr; }
+    }
+    .award-side .chip-card {
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      text-align: left;
+    }
+    .award-side .chip-card strong { display: block; font-size: 16px; }
+    .award-side .chip-card span { color: var(--muted); font-size: 13px; }
+    .award-empty {
+      margin: 24px 0;
+      color: var(--muted);
+      opacity: 0;
+      animation: award-rise 0.6s ease 0.3s forwards;
+    }
+    .award-controls {
+      position: sticky;
+      bottom: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      padding: 14px 0 8px;
+      background: color-mix(in srgb, var(--bg) 90%, transparent);
+    }
+    @keyframes award-rise {
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes award-pop {
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes award-bg {
+      from { transform: scale(1); }
+      to { transform: scale(1.04); }
+    }
+    @keyframes award-fall {
+      0% { opacity: 0; transform: translate3d(0, -20px, 0) rotate(0deg); }
+      12% { opacity: 0.9; }
+      100% { opacity: 0; transform: translate3d(var(--drift, 20px), 105vh, 0) rotate(220deg); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .award-stage::before,
+      .award-confetti i,
+      .award-card .kicker,
+      .award-title,
+      .award-sub,
+      .award-place,
+      .award-side,
+      .award-empty {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    }
+    body.awarding header { display: none; }
+    body.awarding main, body.awarding footer { max-width: 1100px; }
     .chains { border: 0; padding: 0; min-width: 0; }
     .chains legend { padding: 0; margin-bottom: 6px; }
     .chip-grid { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -1383,7 +1581,7 @@
     }
 
     function renderHome() {
-      document.body.classList.remove("projecting", "focus-result");
+      document.body.classList.remove("projecting", "awarding", "focus-result");
       const me = loadMe();
       const card = loadJson(STORE.card, null);
       const mine = me
@@ -1393,7 +1591,7 @@
     }
 
     function renderMember() {
-      document.body.classList.remove("projecting", "focus-result");
+      document.body.classList.remove("projecting", "awarding", "focus-result");
       const me = loadMe() || { name: "", company: "", industry: "", chain: "", chapter: "", have: "", want: "" };
       const saved = Boolean(loadMe());
       let qr = "";
@@ -1409,7 +1607,7 @@
     }
 
     function renderIngest(payload) {
-      document.body.classList.remove("projecting", "focus-result");
+      document.body.classList.remove("projecting", "awarding", "focus-result");
       let profile;
       try { profile = Match.decodeProfile(decodeURIComponent(payload)); }
       catch (error) {
@@ -1448,6 +1646,7 @@
       const stale = Boolean(plan && plan.fingerprint !== fingerprint(roster));
       if (!plan && hostPanel !== "setup") hostPanel = "setup";
       document.body.classList.toggle("projecting", hostPanel === "project");
+      document.body.classList.toggle("awarding", hostPanel === "award");
       document.body.classList.toggle("focus-result", hostPanel === "preview");
       if (hostPanel === "preview") {
         const person = roster.find(function (item) { return item.id === previewId; });
@@ -1463,6 +1662,10 @@
       }
       if (hostPanel === "project" && plan) {
         paint(projectHtml(plan, roster, stale), "組號就是桌號。宣布下一輪時，按下面的輪次。", "投影這一輪的組別。");
+        return;
+      }
+      if (hostPanel === "award") {
+        paint(awardHtml(plan, roster), "可再播一次，或回到人脈統計。", "人脈王頒獎。");
         return;
       }
       if (hostPanel === "stats") {
@@ -1562,7 +1765,64 @@
         return `<option value="${esc(name)}">${esc(name)}</option>`;
       }).join("");
       const manual = names.length >= 2 ? `<form data-action="add-feedback"><h3>手動補一筆</h3><label class="field">輪次<select name="round">${Array.from({ length: Math.max(1, roundCount) }, function (_, index) { return `<option value="${index + 1}">第 ${index + 1} 輪</option>`; }).join("")}</select></label><label class="field">提供者<select name="giver" required><option value="">請選擇</option>${nameOptions}</select></label><label class="field">對象<select name="receiver" required><option value="">請選擇</option>${nameOptions}</select></label><div class="feedback-flags"><label><input type="checkbox" name="network" value="1" checked>人脈引薦</label><label><input type="checkbox" name="business" value="1">商機引薦</label></div><button class="primary" type="submit">加入紀錄</button></form>` : `<p class="hint">名單至少兩人，才能手動補引薦。</p>`;
-      return `<section class="panel"><p class="kicker">現場統計</p><h2>人脈王</h2><p>${king ? `${esc(king.name)} 目前 ${king.count} 筆引薦（人脈＋商機）。` : "還沒有引薦紀錄。請會員在組別頁勾選後產生回饋碼給你掃。"}</p><p class="hint">已收回饋 ${store.reporters.length}${roster.length ? " / " + roster.length : ""} 人 · 引薦紀錄 ${edges.length} 筆</p><label class="field">統計範圍<select id="stats-round">${roundOptions.join("")}</select></label><div class="actions"><button class="secondary" type="button" data-action="panel" data-panel="board">回到分組表</button><button class="text-btn" type="button" data-action="clear-feedback">清空引薦統計</button></div></section><div class="split"><section class="panel"><h2>人脈王榜</h2><p class="hint">人脈引薦提供次數</p>${rankListHtml(network, "尚無人脈引薦")}</section><section class="panel"><h2>商機王榜</h2><p class="hint">商機引薦提供次數</p>${rankListHtml(business, "尚無商機引薦")}</section><section class="panel"><h2>總引薦榜</h2><p class="hint">人脈＋商機合計</p>${rankListHtml(total, "尚無紀錄")}</section><section class="panel">${manual}<p class="hint">同一輪、同一對人、同一類型只會算一次，雙方都勾也不會重複。</p></section></div>`;
+      const awardBtn = king
+        ? `<button class="primary" type="button" data-action="panel" data-panel="award">人脈王頒獎</button>`
+        : `<button class="primary" type="button" disabled>人脈王頒獎</button>`;
+      return `<section class="panel"><p class="kicker">現場統計</p><h2>人脈王</h2><p>${king ? `${esc(king.name)} 目前 ${king.count} 筆引薦（人脈＋商機）。` : "還沒有引薦紀錄。請會員在組別頁勾選後產生回饋碼給你掃。"}</p><p class="hint">已收回饋 ${store.reporters.length}${roster.length ? " / " + roster.length : ""} 人 · 引薦紀錄 ${edges.length} 筆</p><label class="field">統計範圍<select id="stats-round">${roundOptions.join("")}</select></label><div class="actions">${awardBtn}<button class="secondary" type="button" data-action="panel" data-panel="board">回到分組表</button><button class="text-btn" type="button" data-action="clear-feedback">清空引薦統計</button></div></section><div class="split"><section class="panel"><h2>人脈王榜</h2><p class="hint">人脈引薦提供次數</p>${rankListHtml(network, "尚無人脈引薦")}</section><section class="panel"><h2>商機王榜</h2><p class="hint">商機引薦提供次數</p>${rankListHtml(business, "尚無商機引薦")}</section><section class="panel"><h2>總引薦榜</h2><p class="hint">人脈＋商機合計</p>${rankListHtml(total, "尚無紀錄")}</section><section class="panel">${manual}<p class="hint">同一輪、同一對人、同一類型只會算一次，雙方都勾也不會重複。</p></section></div>`;
+    }
+
+    function personLookup(roster) {
+      const map = new Map();
+      (roster || []).forEach(function (person) { map.set(person.name, person); });
+      return map;
+    }
+
+    function awardMeta(person) {
+      if (!person) return "";
+      return [knownChapter(person.chapter), person.industry, person.company].filter(Boolean).join(" · ");
+    }
+
+    function awardPlaceHtml(row, place, byName) {
+      if (!row) return `<article class="award-place place-${place}"><span class="medal">第 ${place} 名</span><p class="name">從缺</p><p class="meta-line">本場尚無紀錄</p></article>`;
+      const person = byName.get(row.name);
+      const meta = awardMeta(person);
+      return `<article class="award-place place-${place}"><span class="medal">第 ${place} 名</span><p class="name">${esc(row.name)}</p>${meta ? `<p class="meta-line">${esc(meta)}</p>` : ""}<p class="count">${row.count} 筆引薦</p></article>`;
+    }
+
+    function awardConfettiHtml() {
+      const colors = ["#7a2e2e", "#c46a2f", "#2c5f8a", "#2f7d55", "#b08d57", "#8c3d4a"];
+      let html = "";
+      for (let i = 0; i < 28; i += 1) {
+        const left = 4 + (i * 37) % 92;
+        const delay = (0.8 + (i % 9) * 0.22 + (i % 5) * 0.07).toFixed(2);
+        const drift = ((i % 2 ? 1 : -1) * (12 + (i % 7) * 8)) + "px";
+        const bit = colors[i % colors.length];
+        html += `<i style="left:${left}%;--delay:${delay}s;--drift:${drift};--bit:${bit}"></i>`;
+      }
+      return `<div class="award-confetti" aria-hidden="true">${html}</div>`;
+    }
+
+    function awardHtml(plan, roster) {
+      const store = loadHostFeedback();
+      const roundCount = plan ? plan.roundGroups.length : 0;
+      if (statsRound !== "all") {
+        const n = Number(statsRound);
+        if (!Number.isInteger(n) || n < 1 || n > Math.max(1, roundCount)) statsRound = "all";
+      }
+      const edges = store.edges.filter(function (edge) {
+        return statsRound === "all" || Number(edge.round) === Number(statsRound);
+      });
+      const total = Match.rankReferrals(edges, "");
+      const network = Match.rankReferrals(edges, "network");
+      const business = Match.rankReferrals(edges, "business");
+      const byName = personLookup(roster);
+      const scope = statsRound === "all" ? "全部輪次" : `第 ${statsRound} 輪`;
+      const controls = `<div class="award-controls"><button class="primary" type="button" data-action="replay-award">再播一次</button><button class="secondary" type="button" data-action="panel" data-panel="stats">回到人脈統計</button><button class="text-btn" type="button" data-action="panel" data-panel="board">回到分組表</button></div>`;
+      if (!total.length) {
+        return `<section class="award-stage"><div class="award-card"><p class="kicker">現場頒獎</p><h2 class="award-title">人脈王</h2><p class="award-empty">還沒有引薦紀錄，先收回饋碼再頒獎。</p></div>${controls}</section>`;
+      }
+      const side = `<div class="award-side"><div class="chip-card"><span>人脈引薦王</span><strong>${network[0] ? esc(network[0].name) : "從缺"}</strong><span>${network[0] ? network[0].count + " 筆人脈引薦" : "尚無紀錄"}</span></div><div class="chip-card"><span>商機引薦王</span><strong>${business[0] ? esc(business[0].name) : "從缺"}</strong><span>${business[0] ? business[0].count + " 筆商機引薦" : "尚無紀錄"}</span></div></div>`;
+      return `<section class="award-stage">${awardConfettiHtml()}<div class="award-card"><p class="kicker">現場頒獎 · ${esc(scope)}</p><h2 class="award-title">本場人脈王</h2><p class="award-sub">依人脈＋商機引薦合計，先揭曉第三名、第二名，最後是人脈王。</p><div class="award-podium">${awardPlaceHtml(total[2], 3, byName)}${awardPlaceHtml(total[1], 2, byName)}${awardPlaceHtml(total[0], 1, byName)}</div>${side}</div>${controls}</section>`;
     }
 
     function summaryText(plan) {
@@ -1612,7 +1872,7 @@
       }
       if (!preview) localStorage.setItem(STORE.card, JSON.stringify(card));
       document.body.classList.add("focus-result");
-      document.body.classList.remove("projecting");
+      document.body.classList.remove("projecting", "awarding");
       paint(personalHtml(card, false), "組別存在這支手機。主持宣布下一輪時，點對應的輪次。", `${card.name} 的組別`);
     }
 
@@ -1693,7 +1953,7 @@
     }
 
     function renderFeedbackIngest(payload) {
-      document.body.classList.remove("projecting", "focus-result");
+      document.body.classList.remove("projecting", "awarding", "focus-result");
       let report;
       try { report = Match.decodeFeedback(decodeURIComponent(payload)); }
       catch (error) {
@@ -1829,6 +2089,17 @@
         hostPanel = btn.dataset.panel || "setup";
         pendingMatch = false;
         render();
+        return;
+      }
+      if (action === "replay-award") {
+        hostPanel = "award";
+        const stage = document.querySelector(".award-stage");
+        if (stage) {
+          const clone = stage.cloneNode(true);
+          stage.parentNode.replaceChild(clone, stage);
+        } else {
+          render();
+        }
         return;
       }
       if (action === "preview") {
