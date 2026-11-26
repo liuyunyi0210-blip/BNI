@@ -21,7 +21,7 @@ export function HostSubmissions() {
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
-    const res = await fetch("/api/submissions");
+    const res = await fetch("/api/submissions", { credentials: "same-origin" });
     if (!res.ok) throw new Error(res.status === 401 || res.status === 403 ? "請先主辦登入" : "讀取失敗");
     const data = await res.json();
     setRows(data.submissions || []);
@@ -36,6 +36,7 @@ export function HostSubmissions() {
     setStatus("");
     const res = await fetch(`/api/submissions/${id}`, {
       method: "POST",
+      credentials: "same-origin",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ action }),
     });

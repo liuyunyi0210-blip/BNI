@@ -46,7 +46,7 @@ export function AdminMembers() {
     const params = new URLSearchParams();
     if (q.trim()) params.set("q", q.trim());
     params.set("admin", "1");
-    const res = await fetch(`/api/members?${params.toString()}`);
+    const res = await fetch(`/api/members?${params.toString()}`, { credentials: "same-origin" });
     if (!res.ok) {
       throw new Error(
         res.status === 401 ? "請先以主辦帳號登入" : res.status === 403 ? "只有主辦可以進入後台" : "讀取失敗",
@@ -66,6 +66,7 @@ export function AdminMembers() {
     setStatus("");
     const res = await fetch(editId ? `/api/members/${editId}` : "/api/members", {
       method: editId ? "PATCH" : "POST",
+      credentials: "same-origin",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(form),
     });
@@ -99,7 +100,7 @@ export function AdminMembers() {
 
   async function removeMember(member: Member) {
     if (!window.confirm(`確定停用 ${member.name}？`)) return;
-    const res = await fetch(`/api/members/${member.id}`, { method: "DELETE" });
+    const res = await fetch(`/api/members/${member.id}`, { method: "DELETE", credentials: "same-origin" });
     if (!res.ok) {
       setError("停用失敗");
       return;
@@ -219,9 +220,26 @@ export function AdminMembers() {
                 取消編輯
               </button>
             ) : null}
-            <a className="secondary" href="/api/members/export" style={{ textDecoration: "none" }}>
+            <button
+              className="secondary"
+              type="button"
+              onClick={async () => {
+                const res = await fetch("/api/members/export", { credentials: "same-origin" });
+                if (!res.ok) {
+                  setError("匯出失敗，請先主辦登入");
+                  return;
+                }
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "bni-members.csv";
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            >
               匯出 CSV
-            </a>
+            </button>
           </div>
         </form>
       </section>

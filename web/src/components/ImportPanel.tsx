@@ -22,7 +22,7 @@ export function ImportPanel() {
     body.set("file", file);
     body.set("mode", mode);
     try {
-      const res = await fetch("/api/members/import", { method: "POST", body });
+      const res = await fetch("/api/members/import", { method: "POST", body, credentials: "same-origin" });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || "匯入失敗");

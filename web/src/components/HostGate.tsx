@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ReactNode, useEffect, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useState } from "react";
 
 type HostStatus = {
   host: boolean;
@@ -11,24 +11,60 @@ type HostStatus = {
   emailVerified?: boolean;
   visibility?: string;
   needsCursorLogin?: boolean;
+  canUsePin?: boolean;
+  pinConfigured?: boolean;
+  via?: string;
   reason?: string;
 };
 
 export function HostGate({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<HostStatus | null>(null);
   const [error, setError] = useState("");
+  const [pin, setPin] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function refresh() {
+    const res = await fetch("/api/host", { credentials: "same-origin" });
+    if (!res.ok) throw new Error("無法確認登入狀態");
+    const data = (await res.json()) as HostStatus;
+    setStatus(data);
+  }
 
   useEffect(() => {
-    fetch("/api/host")
-      .then(async (res) => {
-        if (!res.ok) throw new Error("無法確認登入狀態");
-        return res.json();
-      })
-      .then((data: HostStatus) => setStatus(data))
-      .catch((err: Error) => setError(err.message || "無法確認登入狀態"));
+    refresh().catch((err: Error) => setError(err.message || "無法確認登入狀態"));
   }, []);
 
-  if (error) {
+  async function onPinLogin(event: FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      const res = await fetch("/api/host/login", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ pin }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error || "登入失敗");
+        return;
+      }
+      setPin("");
+      await refresh();
+    } catch {
+      setError("登入時發生錯誤");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function logout() {
+    await fetch("/api/host/login", { method: "DELETE", credentials: "same-origin" });
+    await refresh();
+  }
+
+  if (error && !status) {
     return <p className="status error">{error}</p>;
   }
 
@@ -40,7 +76,17 @@ export function HostGate({ children }: { children: ReactNode }) {
     return (
       <div className="grid">
         <p className="callout">
-          已以主辦身分登入{status.name || status.email ? `（${status.name || status.email}）` : ""}。
+          已以主辦身分登入
+          {status.via === "pin" ? "（主辦密碼）" : status.name || status.email ? `（${status.name || status.email}）` : ""}
+          。
+          {status.via === "pin" ? (
+            <>
+              {" "}
+              <button className="text-btn" type="button" onClick={logout}>
+                登出
+              </button>
+            </>
+          ) : null}
         </p>
         {children}
       </div>
@@ -50,34 +96,48 @@ export function HostGate({ children }: { children: ReactNode }) {
   return (
     <section className="panel">
       <p className="kicker">主辦登入</p>
-      <h2>還沒有主辦身分</h2>
-      {!status.signedIn ? (
-        <>
-          <p>
-            這個 App 目前若是 <strong>Public</strong>，訪客不會經過 Cursor 登入，後台也就認不出主辦。
-          </p>
-          <p className="hint">
-            請到 Cursor 的 Publish Settings，把誰可以開啟改成 <strong>Private</strong>（只有你）或{" "}
-            <strong>Team</strong>（團隊），再用主辦 Cursor 帳號打開「主辦入口」。平台會先要求登入，之後才能用後台與媒合設定。
-          </p>
-        </>
+      <h2>請先登入主辦</h2>
+      {error ? <p className="status error">{error}</p> : null}
+
+      {status.canUsePin || status.pinConfigured ? (
+        <form onSubmit={onPinLogin} style={{ marginTop: 12 }}>
+          <label className="field">
+            主辦密碼
+            <input
+              type="password"
+              autoComplete="current-password"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              placeholder="輸入主辦密碼"
+              required
+            />
+          </label>
+          <div className="actions">
+            <button className="primary" type="submit" disabled={busy}>
+              {busy ? "登入中…" : "主辦登入"}
+            </button>
+          </div>
+        </form>
       ) : (
         <>
           <p>
-            已登入{status.email ? `（${status.email}）` : ""}，但不是主辦白名單或 team admin。
+            尚未設定主辦密碼時，請把 App 改成 <strong>Private</strong>／<strong>Team</strong>，用主辦 Cursor
+            帳號開啟；或在 Secrets 新增 HOST_PIN 後即可在此輸入密碼登入。
           </p>
-          <p className="hint">
-            請確認密鑰 HOST_EMAILS 含有這個信箱；若是 Team App，需為 team admin。
-            {status.emailVerified === false ? " 另外此信箱尚未通過驗證。" : ""}
-          </p>
+          <div className="actions" style={{ marginTop: 14 }}>
+            <button className="primary" type="button" onClick={() => window.location.reload()}>
+              重新整理
+            </button>
+          </div>
         </>
       )}
-      <div className="actions" style={{ marginTop: 14 }}>
-        <button className="primary" type="button" onClick={() => window.location.reload()}>
-          我已改設定／已登入，重新整理
-        </button>
+
+      <p className="hint" style={{ marginTop: 16 }}>
+        訪客前台不必登入；只有後台與媒合設定需要主辦身分。
+      </p>
+      <div className="actions">
         <Link className="secondary" href="/" style={{ textDecoration: "none" }}>
-          回前台名單
+          回訪客前台
         </Link>
       </div>
     </section>
