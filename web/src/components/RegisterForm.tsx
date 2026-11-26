@@ -2,6 +2,8 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { CHAPTERS } from "../lib/constants";
+import { packWant } from "../lib/want";
+import { ChainSelect } from "./ChainSelect";
 import { RoleSelect } from "./RoleSelect";
 
 const EDIT_TOKEN_KEY = "bni-submission-edit-token-v1";
@@ -15,7 +17,8 @@ const empty = {
   industry: "",
   chain: "",
   have: "",
-  want: "",
+  wantNetwork: "",
+  wantClients: "",
 };
 
 export function RegisterForm() {
@@ -47,12 +50,28 @@ export function RegisterForm() {
     setBusy(true);
     setError("");
     setStatus("");
+    const want = packWant(form.wantNetwork, form.wantClients);
+    if (!want) {
+      setError("請至少填「業務人脈」或「目標客戶」其中一項");
+      setBusy(false);
+      return;
+    }
     try {
       const res = await fetch("/api/members/self", {
         method: "POST",
         credentials: "same-origin",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ...form, editToken: editToken || undefined }),
+        body: JSON.stringify({
+          name: form.name,
+          chapter: form.chapter,
+          role: form.role,
+          company: form.company,
+          industry: form.industry,
+          chain: form.chain,
+          have: form.have,
+          want,
+          editToken: editToken || undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -109,34 +128,41 @@ export function RegisterForm() {
           公司
           <input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
         </label>
-        <label className="field">
+        <label className="field" style={{ gridColumn: "1 / -1" }}>
           行業別
           <input value={form.industry} onChange={(e) => setForm({ ...form, industry: e.target.value })} />
         </label>
-        <label className="field">
-          產業鏈
-          <input
-            value={form.chain}
-            onChange={(e) => setForm({ ...form, chain: e.target.value })}
-            placeholder="可多個，用、分隔"
-          />
-        </label>
-        <label className="field">
+        <ChainSelect value={form.chain} onChange={(chain) => setForm({ ...form, chain })} />
+        <label className="field" style={{ gridColumn: "1 / -1" }}>
           我有的資源*
           <textarea
             required
             value={form.have}
             onChange={(e) => setForm({ ...form, have: e.target.value })}
+            placeholder="例如：能介紹裝修案源、企業系統導入經驗"
           />
         </label>
-        <label className="field">
-          想要的資源*
-          <textarea
-            required
-            value={form.want}
-            onChange={(e) => setForm({ ...form, want: e.target.value })}
-          />
-        </label>
+        <div className="want-pair">
+          <label className="field">
+            想要的資源 · 業務人脈
+            <textarea
+              value={form.wantNetwork}
+              onChange={(e) => setForm({ ...form, wantNetwork: e.target.value })}
+              placeholder="想認識哪些同行／合作夥伴"
+            />
+          </label>
+          <label className="field">
+            想要的資源 · 目標客戶
+            <textarea
+              value={form.wantClients}
+              onChange={(e) => setForm({ ...form, wantClients: e.target.value })}
+              placeholder="想接觸哪類客戶或案源"
+            />
+          </label>
+        </div>
+        <p className="hint" style={{ gridColumn: "1 / -1", marginTop: -4 }}>
+          「業務人脈」與「目標客戶」至少填一項。
+        </p>
         <div className="actions" style={{ gridColumn: "1 / -1" }}>
           <button className="primary" type="submit" disabled={busy}>
             {busy ? "送出中…" : "送出媒合資料"}
