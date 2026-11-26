@@ -48,14 +48,11 @@ export function ImportPanel() {
         <p className="kicker">匯入</p>
         <h2>用 CSV 匯入會員</h2>
         <p className="hint">
-          建議先下載範本或大芯現有名單，用 Excel／Google 試算表補「產業鏈」「想要的資源」後再上傳。
+          請下載空白範本，用 Excel／Google 試算表填入會員資料（產業鏈、想要的資源等）後上傳。真實名單請自行保管，不要放進公開網站目錄。
         </p>
         <div className="actions" style={{ margin: "12px 0" }}>
-          <a className="secondary" href="/samples/members-template.csv">
+          <a className="primary" href="/samples/members-template.csv" style={{ textDecoration: "none" }}>
             下載空白範本
-          </a>
-          <a className="primary" href="/samples/members-daxin.csv" style={{ textDecoration: "none" }}>
-            下載大芯現有 28 人名單
           </a>
         </div>
         <p className="meta">

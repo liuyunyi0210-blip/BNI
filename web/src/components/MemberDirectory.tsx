@@ -31,7 +31,7 @@ export function MemberDirectory() {
     setLoading(true);
     fetch(`/api/members?${params.toString()}`, { signal: controller.signal })
       .then(async (res) => {
-        if (!res.ok) throw new Error(res.status === 401 ? "請先登入後再查看名單" : "讀取失敗");
+        if (!res.ok) throw new Error("讀取失敗");
         return res.json();
       })
       .then((data) => {

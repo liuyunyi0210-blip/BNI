@@ -1,17 +1,27 @@
-import { requireAdmin, requireViewer } from "../../../lib/auth";
-import { createMember, listMembers } from "../../../lib/members";
+import { requireAdmin } from "../../../lib/auth";
+import { createMember, listMembers, listPublicMembers } from "../../../lib/members";
 
 export const dynamic = "force-dynamic";
 
+/** 公開名單：免登入，只回傳前台需要的欄位。 */
 export async function GET(request: Request) {
-  const identity = await requireViewer(request);
-  if (identity instanceof Response) return identity;
-
   const url = new URL(request.url);
   const q = url.searchParams.get("q") || undefined;
   const chapter = url.searchParams.get("chapter") || undefined;
-  const includeInactive = url.searchParams.get("all") === "1";
-  const rows = await listMembers({ q, chapter, includeInactive });
+  const adminView = url.searchParams.get("admin") === "1";
+
+  if (adminView) {
+    const identity = await requireAdmin(request);
+    if (identity instanceof Response) return identity;
+    const includeInactive = url.searchParams.get("all") === "1";
+    const rows = await listMembers({ q, chapter, includeInactive });
+    return Response.json(
+      { members: rows, sample: !process.env.DATABASE_URL },
+      { headers: { "cache-control": "private, no-store" } },
+    );
+  }
+
+  const rows = await listPublicMembers({ q, chapter });
   return Response.json(
     { members: rows, sample: !process.env.DATABASE_URL },
     { headers: { "cache-control": "private, no-store" } },

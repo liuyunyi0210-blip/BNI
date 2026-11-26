@@ -65,11 +65,16 @@ export function normalizeMember(input: MemberInput): MemberInput | { error: stri
   };
 }
 
-export async function listMembers(opts: {
+export type PublicMember = Pick<
+  Member,
+  "id" | "name" | "chapter" | "role" | "company" | "industry" | "chain" | "have" | "want"
+>;
+
+function memberWhere(opts: {
   q?: string;
   chapter?: string;
   includeInactive?: boolean;
-} = {}): Promise<Member[]> {
+}): { where: string[]; params: unknown[] } {
   const params: unknown[] = [];
   const where: string[] = [];
   if (!opts.includeInactive) where.push("active = true");
@@ -84,8 +89,29 @@ export async function listMembers(opts: {
       `(name ilike $${i} or company ilike $${i} or industry ilike $${i} or have ilike $${i} or want ilike $${i} or role ilike $${i})`,
     );
   }
+  return { where, params };
+}
+
+export async function listMembers(opts: {
+  q?: string;
+  chapter?: string;
+  includeInactive?: boolean;
+} = {}): Promise<Member[]> {
+  const { where, params } = memberWhere(opts);
   const sqlText = `select * from members${where.length ? ` where ${where.join(" and ")}` : ""} order by chapter, name`;
   return sql<Member>(sqlText, params);
+}
+
+/** 前台公開欄位：不含電話、信箱、備註。 */
+export async function listPublicMembers(opts: {
+  q?: string;
+  chapter?: string;
+} = {}): Promise<PublicMember[]> {
+  const { where, params } = memberWhere({ ...opts, includeInactive: false });
+  const sqlText = `select id, name, chapter, role, company, industry, chain, have, want
+    from members${where.length ? ` where ${where.join(" and ")}` : ""}
+    order by chapter, name`;
+  return sql<PublicMember>(sqlText, params);
 }
 
 export async function getMember(id: number): Promise<Member | null> {

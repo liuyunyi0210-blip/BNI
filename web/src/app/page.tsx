@@ -8,17 +8,17 @@ export default function HomePage() {
         <div>
           <p className="mark">BNI</p>
           <h1>會員名單</h1>
-          <p className="sub">前台可搜尋分會會員與資源；後台可維護與匯入。</p>
+          <p className="sub">訪客可搜尋公開資源資料；只有主辦登入後才能進後台維護。</p>
         </div>
         <SiteNav current="home" />
       </header>
       <MemberDirectory />
       <p className="hint" style={{ marginTop: 18 }}>
-        現場媒合投影與回饋碼仍可用現有頁面：
+        自己的組別與媒合結果，請用現場結果碼／回饋碼打開（不必登入）：
         <a href="https://liuyunyi0210-blip.github.io/BNI/match.html" target="_blank" rel="noreferrer">
-          match.html
+          現場媒合
         </a>
-        。之後可把名單從資料庫一鍵帶入媒合。
+        。
       </p>
     </main>
   );

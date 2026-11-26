@@ -44,8 +44,13 @@ export function AdminMembers() {
   const load = useCallback(async () => {
     const params = new URLSearchParams();
     if (q.trim()) params.set("q", q.trim());
+    params.set("admin", "1");
     const res = await fetch(`/api/members?${params.toString()}`);
-    if (!res.ok) throw new Error(res.status === 401 ? "請先登入" : "讀取失敗");
+    if (!res.ok) {
+      throw new Error(
+        res.status === 401 ? "請先以主辦帳號登入" : res.status === 403 ? "只有主辦可以進入後台" : "讀取失敗",
+      );
+    }
     const data = await res.json();
     setMembers(data.members || []);
   }, [q]);
