@@ -31,6 +31,8 @@ export function RegisterForm() {
   const [formStartedAt] = useState(() => Date.now());
 
   useEffect(() => {
+    // 先向伺服器領取簽章限速 cookie（不依賴可偽造的 IP 標頭）
+    fetch("/api/host", { credentials: "same-origin" }).catch(() => {});
     try {
       const token = localStorage.getItem(EDIT_TOKEN_KEY) || "";
       if (token) setEditToken(token);

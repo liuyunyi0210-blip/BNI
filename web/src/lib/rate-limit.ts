@@ -1,4 +1,9 @@
-/** 簡單記憶體速率限制（單實例）。限速鍵只依邊緣可見 IP，不接受客戶端 cookie 輪換重置。 */
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+
+/**
+ * 記憶體速率限制：不使用任何客戶端 IP／轉發標頭（皆可偽造）。
+ * 身分改為伺服器簽章的 HttpOnly cookie；並另設全域桶防止清 cookie 重來。
+ */
 
 type Bucket = {
   count: number;
@@ -11,6 +16,8 @@ type Bucket = {
 const buckets = new Map<string, Bucket>();
 const MAX_BUCKETS = 4000;
 const BUCKET_TTL_MS = 2 * 60 * 60 * 1000;
+
+export const RATE_COOKIE = "bni_rl";
 
 function sweep(now: number) {
   if (buckets.size < MAX_BUCKETS / 2) return;
@@ -40,46 +47,88 @@ function bucket(key: string): Bucket {
   return b;
 }
 
-function looksLikeIp(value: string): boolean {
-  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(value)) return true;
-  if (value.includes(":") && /^[0-9a-fA-F:.]+$/.test(value)) return true;
-  return false;
+function rateSecret(): string {
+  const pin = process.env.HOST_PIN?.trim() || "";
+  if (pin.length >= 10) return `bni-rate:${pin}`;
+  // 本機／尚未設 PIN：固定開發密鑰（正式環境應已設 HOST_PIN）
+  return "bni-rate:local-dev-only";
 }
 
-/**
- * 限速用 IP：不信任客戶端可偽造的 X-Forwarded-For 首項。
- * 優先平台標頭；否則取 XFF 最右側（最接近邊緣代理）。
- */
-export function clientIp(request: Request): string {
-  const platformHeaders = [
-    "cf-connecting-ip",
-    "true-client-ip",
-    "x-vercel-forwarded-for",
+function sign(payload: string): string {
+  return createHmac("sha256", rateSecret()).update(payload).digest("base64url");
+}
+
+function readCookie(request: Request, name: string): string | null {
+  const raw = request.headers.get("cookie") || "";
+  for (const part of raw.split(";")) {
+    const [k, ...rest] = part.trim().split("=");
+    if (k === name) return decodeURIComponent(rest.join("=") || "");
+  }
+  return null;
+}
+
+/** 驗證伺服器簽章的限速 cookie；偽造／亂填一律無效。 */
+export function verifyRateCookie(token: string | null | undefined): string | null {
+  if (!token) return null;
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+  const [ver, id, sig] = parts;
+  if (ver !== "v1" || !/^[a-zA-Z0-9_-]{16,64}$/.test(id)) return null;
+  const expected = sign(`v1.${id}`);
+  try {
+    const a = Buffer.from(sig);
+    const b = Buffer.from(expected);
+    if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
+    return id;
+  } catch {
+    return null;
+  }
+}
+
+export function mintRateCookie(): string {
+  const id = randomBytes(18).toString("base64url");
+  return `v1.${id}.${sign(`v1.${id}`)}`;
+}
+
+export function rateCookieHeader(token: string): string {
+  const secure = process.env.NODE_ENV === "production" || Boolean(process.env.CURSOR_APP_ID);
+  const parts = [
+    `${RATE_COOKIE}=${encodeURIComponent(token)}`,
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
+    `Max-Age=${60 * 60 * 24 * 30}`,
   ];
-  for (const name of platformHeaders) {
-    const raw = request.headers.get(name)?.split(",")[0]?.trim();
-    if (raw && looksLikeIp(raw)) return raw.slice(0, 80);
-  }
-
-  const real = request.headers.get("x-real-ip")?.trim();
-  if (real && looksLikeIp(real)) return real.slice(0, 80);
-
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) {
-    const parts = forwarded
-      .split(",")
-      .map((part) => part.trim())
-      .filter(Boolean);
-    const rightmost = parts[parts.length - 1];
-    if (rightmost && looksLikeIp(rightmost)) return rightmost.slice(0, 80);
-  }
-
-  return "unknown";
+  if (secure) parts.push("Secure");
+  return parts.join("; ");
 }
 
-/** 限速鍵：只依 IP（不含可輪換的 cookie）。 */
-export function clientLimitKey(request: Request, scope: string): string {
-  return `${scope}:${clientIp(request)}`;
+export type RateIdentity = {
+  id: string;
+  /** 若剛簽發新 cookie，回傳完整 token 以便 Set-Cookie */
+  setCookie?: string;
+};
+
+/** 取得（或簽發）伺服器簽章身分；不讀取任何 IP／轉發標頭。 */
+export function rateIdentity(request: Request): RateIdentity {
+  const existing = verifyRateCookie(readCookie(request, RATE_COOKIE));
+  if (existing) return { id: existing };
+  const token = mintRateCookie();
+  const id = verifyRateCookie(token)!;
+  return { id, setCookie: token };
+}
+
+export function appendRateCookie(headers: Headers, identity: RateIdentity) {
+  if (identity.setCookie) headers.append("set-cookie", rateCookieHeader(identity.setCookie));
+}
+
+/** 限速鍵：僅用伺服器簽章身分（可加 scope）。 */
+export function clientLimitKey(identityId: string, scope: string): string {
+  return `${scope}:${identityId}`;
+}
+
+export function globalLimitKey(scope: string): string {
+  return `${scope}:__global__`;
 }
 
 export function rateLimitExceeded(
@@ -97,6 +146,23 @@ export function rateLimitExceeded(
   return false;
 }
 
+/** 同時檢查個人桶與全域桶；任一超過即拒絕。 */
+export function rateLimitExceededPair(
+  identityId: string,
+  scope: string,
+  opts: { windowMs: number; max: number; globalMax: number },
+): boolean {
+  const personal = rateLimitExceeded(clientLimitKey(identityId, scope), {
+    windowMs: opts.windowMs,
+    max: opts.max,
+  });
+  const global = rateLimitExceeded(globalLimitKey(scope), {
+    windowMs: opts.windowMs,
+    max: opts.globalMax,
+  });
+  return personal || global;
+}
+
 export function isLocked(key: string): boolean {
   return bucket(key).lockedUntil > Date.now();
 }
@@ -105,7 +171,6 @@ export function lockRemainingMs(key: string): number {
   return Math.max(0, bucket(key).lockedUntil - Date.now());
 }
 
-/** 失敗累計；達標後鎖定。成功請呼叫 clearFailures。 */
 export function recordAuthFailure(
   key: string,
   opts: { maxFails: number; lockMs: number },
