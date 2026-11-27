@@ -20,7 +20,7 @@ export type Submission = {
   reviewed_at: string | null;
 };
 
-export const PENDING_CAP = 80;
+export const PENDING_CAP = 40;
 
 function newEditToken(): string {
   return randomBytes(24).toString("hex");
