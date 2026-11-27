@@ -5,7 +5,7 @@ export function PublicNav({ current }: { current: "home" | "register" | "match" 
     <div className="actions" style={{ gap: 10 }}>
       <nav className="nav" aria-label="訪客選單">
         <Link href="/" aria-current={current === "home" ? "page" : undefined}>
-          公開名單
+          訪客首頁
         </Link>
         <Link href="/register" aria-current={current === "register" ? "page" : undefined}>
           登錄媒合資料

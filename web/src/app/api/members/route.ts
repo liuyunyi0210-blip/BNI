@@ -1,60 +1,24 @@
-import { randomBytes } from "node:crypto";
 import { requireAdmin } from "../../../lib/auth";
-import { createMember, listMembers, listPublicMembers } from "../../../lib/members";
-import {
-  clientLimitKey,
-  rateCookieHeader,
-  rateLimitExceeded,
-  readRateCookie,
-} from "../../../lib/rate-limit";
+import { createMember, listMembers } from "../../../lib/members";
 
 export const dynamic = "force-dynamic";
 
-function publicHeaders(request: Request) {
-  const headers = new Headers({ "cache-control": "private, no-store" });
-  if (!readRateCookie(request)) {
-    headers.append("set-cookie", rateCookieHeader(randomBytes(18).toString("base64url")));
-  }
-  return headers;
-}
-
-/** 公開名單：免登入，需指定分會；只回傳前台需要的欄位。 */
+/**
+ * 名單僅主辦可讀：避免 Public App 整冊會員資料被匿名下載。
+ * 訪客請走登錄申請與現場媒合頁，不開放公開名冊 API。
+ */
 export async function GET(request: Request) {
+  const identity = await requireAdmin(request);
+  if (identity instanceof Response) return identity;
+
   const url = new URL(request.url);
   const q = url.searchParams.get("q") || undefined;
   const chapter = url.searchParams.get("chapter") || undefined;
-  const adminView = url.searchParams.get("admin") === "1";
-
-  if (adminView) {
-    const identity = await requireAdmin(request);
-    if (identity instanceof Response) return identity;
-    const includeInactive = url.searchParams.get("all") === "1";
-    const rows = await listMembers({ q, chapter, includeInactive });
-    return Response.json(
-      { members: rows, sample: !process.env.DATABASE_URL },
-      { headers: { "cache-control": "private, no-store" } },
-    );
-  }
-
-  const limitKey = clientLimitKey(request, "public-members");
-  if (rateLimitExceeded(limitKey, { windowMs: 60 * 1000, max: 60 })) {
-    return Response.json(
-      { error: "請求過於頻繁，請稍後再試" },
-      { status: 429, headers: publicHeaders(request) },
-    );
-  }
-
-  if (!chapter) {
-    return Response.json(
-      { members: [], needChapter: true, sample: !process.env.DATABASE_URL },
-      { headers: publicHeaders(request) },
-    );
-  }
-
-  const rows = await listPublicMembers({ q, chapter, limit: 80 });
+  const includeInactive = url.searchParams.get("all") === "1";
+  const rows = await listMembers({ q, chapter, includeInactive });
   return Response.json(
     { members: rows, sample: !process.env.DATABASE_URL },
-    { headers: publicHeaders(request) },
+    { headers: { "cache-control": "private, no-store" } },
   );
 }
 

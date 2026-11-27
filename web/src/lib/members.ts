@@ -65,11 +65,6 @@ export function normalizeMember(input: MemberInput): MemberInput | { error: stri
   };
 }
 
-export type PublicMember = Pick<
-  Member,
-  "id" | "name" | "chapter" | "role" | "company" | "industry" | "chain" | "have" | "want"
->;
-
 function memberWhere(opts: {
   q?: string;
   chapter?: string;
@@ -100,28 +95,6 @@ export async function listMembers(opts: {
   const { where, params } = memberWhere(opts);
   const sqlText = `select * from members${where.length ? ` where ${where.join(" and ")}` : ""} order by chapter, name`;
   return sql<Member>(sqlText, params);
-}
-
-/** 前台公開欄位：不含電話、信箱、備註；需指定分會並限制筆數。 */
-export async function listPublicMembers(opts: {
-  q?: string;
-  chapter: string;
-  limit?: number;
-} ): Promise<PublicMember[]> {
-  const chapter = String(opts.chapter || "").trim();
-  if (!chapter) return [];
-  const limit = Math.min(Math.max(Number(opts.limit) || 80, 1), 80);
-  const { where, params } = memberWhere({
-    q: opts.q,
-    chapter,
-    includeInactive: false,
-  });
-  params.push(limit);
-  const sqlText = `select id, name, chapter, role, company, industry, chain, have, want
-    from members${where.length ? ` where ${where.join(" and ")}` : ""}
-    order by name
-    limit $${params.length}`;
-  return sql<PublicMember>(sqlText, params);
 }
 
 export async function getMember(id: number): Promise<Member | null> {

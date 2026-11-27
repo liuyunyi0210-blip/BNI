@@ -1,4 +1,4 @@
-/** 簡單記憶體速率限制（單實例）；適合登入與訪客送出防護。 */
+/** 簡單記憶體速率限制（單實例）。限速鍵只依邊緣可見 IP，不接受客戶端 cookie 輪換重置。 */
 
 type Bucket = {
   count: number;
@@ -9,7 +9,7 @@ type Bucket = {
 };
 
 const buckets = new Map<string, Bucket>();
-const MAX_BUCKETS = 5000;
+const MAX_BUCKETS = 4000;
 const BUCKET_TTL_MS = 2 * 60 * 60 * 1000;
 
 function sweep(now: number) {
@@ -47,15 +47,14 @@ function looksLikeIp(value: string): boolean {
 }
 
 /**
- * 限速用客戶端識別：不信任客戶端可偽造的「第一個」X-Forwarded-For。
- * 優先平台常見標頭；否則取 XFF 最右側（最接近邊緣代理）；再不行用匿名 cookie。
+ * 限速用 IP：不信任客戶端可偽造的 X-Forwarded-For 首項。
+ * 優先平台標頭；否則取 XFF 最右側（最接近邊緣代理）。
  */
 export function clientIp(request: Request): string {
   const platformHeaders = [
     "cf-connecting-ip",
     "true-client-ip",
     "x-vercel-forwarded-for",
-    "x-forwarded-for-client",
   ];
   for (const name of platformHeaders) {
     const raw = request.headers.get(name)?.split(",")[0]?.trim();
@@ -78,38 +77,9 @@ export function clientIp(request: Request): string {
   return "unknown";
 }
 
-export const RATE_COOKIE = "bni_rl";
-
-export function readRateCookie(request: Request): string | null {
-  const raw = request.headers.get("cookie") || "";
-  for (const part of raw.split(";")) {
-    const [k, ...rest] = part.trim().split("=");
-    if (k === RATE_COOKIE) {
-      const value = decodeURIComponent(rest.join("=") || "").trim();
-      if (/^[a-zA-Z0-9_-]{16,64}$/.test(value)) return value;
-    }
-  }
-  return null;
-}
-
-export function rateCookieHeader(token: string): string {
-  const secure = process.env.NODE_ENV === "production" || Boolean(process.env.CURSOR_APP_ID);
-  const parts = [
-    `${RATE_COOKIE}=${encodeURIComponent(token)}`,
-    "Path=/",
-    "HttpOnly",
-    "SameSite=Lax",
-    `Max-Age=${60 * 60 * 24 * 30}`,
-  ];
-  if (secure) parts.push("Secure");
-  return parts.join("; ");
-}
-
-/** 限速鍵：匿名 cookie + IP，避免單靠可偽造 IP。 */
+/** 限速鍵：只依 IP（不含可輪換的 cookie）。 */
 export function clientLimitKey(request: Request, scope: string): string {
-  const ip = clientIp(request);
-  const cookie = readRateCookie(request) || "nocookie";
-  return `${scope}:${cookie}:${ip}`;
+  return `${scope}:${clientIp(request)}`;
 }
 
 export function rateLimitExceeded(
