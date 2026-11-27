@@ -20,7 +20,10 @@ export type Submission = {
   reviewed_at: string | null;
 };
 
-export const PENDING_CAP = 40;
+export const PENDING_CAP = 25;
+
+/** 對外統一錯誤，避免洩漏「是否已在正式名單／是否已有待審」。 */
+const SUBMIT_BLOCKED = "送出失敗，請洽主辦處理，或用原裝置繼續編輯。";
 
 function newEditToken(): string {
   return randomBytes(24).toString("hex");
@@ -70,9 +73,7 @@ export async function submitGuestProfile(
   }
 
   if (await hasActiveMember(normalized.name, normalized.chapter || "")) {
-    return {
-      error: "送出失敗，請洽主辦更新資料，或確認姓名／分會是否正確。",
-    };
+    return { error: SUBMIT_BLOCKED };
   }
 
   const providedToken = String(input.editToken || "").trim();
@@ -86,9 +87,7 @@ export async function submitGuestProfile(
     );
     if (owned[0]) {
       if (await hasActiveMember(normalized.name, normalized.chapter || "")) {
-        return {
-          error: "送出失敗，請洽主辦更新資料，或確認姓名／分會是否正確。",
-        };
+        return { error: SUBMIT_BLOCKED };
       }
       const conflict = await sql<Submission>(
         `select id from member_submissions
@@ -100,7 +99,7 @@ export async function submitGuestProfile(
         [owned[0].id, normalized.name, normalized.chapter || ""],
       );
       if (conflict[0]) {
-        return { error: "送出失敗，請洽主辦處理，或用原裝置繼續編輯。" };
+        return { error: SUBMIT_BLOCKED };
       }
 
       const rows = await sql<Submission>(
@@ -140,9 +139,7 @@ export async function submitGuestProfile(
   );
 
   if (existing[0]) {
-    return {
-      error: "送出失敗，請洽主辦處理，或用原裝置繼續編輯。",
-    };
+    return { error: SUBMIT_BLOCKED };
   }
 
   const editToken = newEditToken();
