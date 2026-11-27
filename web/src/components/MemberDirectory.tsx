@@ -19,7 +19,7 @@ type Member = {
 export function MemberDirectory() {
   const [members, setMembers] = useState<Member[]>([]);
   const [q, setQ] = useState("");
-  const [chapter, setChapter] = useState("");
+  const [chapter, setChapter] = useState("大芯");
   const [sample, setSample] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -30,9 +30,12 @@ export function MemberDirectory() {
     if (q.trim()) params.set("q", q.trim());
     if (chapter) params.set("chapter", chapter);
     setLoading(true);
-    fetch(`/api/members?${params.toString()}`, { signal: controller.signal })
+    fetch(`/api/members?${params.toString()}`, {
+      signal: controller.signal,
+      credentials: "same-origin",
+    })
       .then(async (res) => {
-        if (!res.ok) throw new Error("讀取失敗");
+        if (!res.ok) throw new Error(res.status === 429 ? "請求過於頻繁，請稍後再試" : "讀取失敗");
         return res.json();
       })
       .then((data) => {
@@ -68,8 +71,7 @@ export function MemberDirectory() {
           </label>
           <label className="field">
             分會
-            <select value={chapter} onChange={(e) => setChapter(e.target.value)}>
-              <option value="">全部分會</option>
+            <select value={chapter} onChange={(e) => setChapter(e.target.value)} required>
               {CHAPTERS.map((name) => (
                 <option key={name} value={name}>
                   {name}

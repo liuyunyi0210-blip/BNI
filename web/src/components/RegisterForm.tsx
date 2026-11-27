@@ -27,6 +27,8 @@ export function RegisterForm() {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
+  const [formStartedAt] = useState(() => Date.now());
 
   useEffect(() => {
     try {
@@ -71,6 +73,8 @@ export function RegisterForm() {
           have: form.have,
           want,
           editToken: editToken || undefined,
+          website: honeypot,
+          formStartedAt,
         }),
       });
       const data = await res.json();
@@ -106,6 +110,15 @@ export function RegisterForm() {
       {status ? <p className="status">{status}</p> : null}
       {error ? <p className="status error">{error}</p> : null}
       <form onSubmit={onSubmit} className="grid two">
+        <label className="hp" aria-hidden="true">
+          網站
+          <input
+            tabIndex={-1}
+            autoComplete="off"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+          />
+        </label>
         <label className="field">
           姓名*
           <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />

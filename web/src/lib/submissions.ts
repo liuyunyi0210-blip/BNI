@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { sql } from "./db";
-import { createMember, normalizeMember, type Member, type MemberInput } from "./members";
+import { createMember, normalizeMember, type MemberInput } from "./members";
 
 export type { MemberInput };
 
@@ -20,6 +20,8 @@ export type Submission = {
   reviewed_at: string | null;
 };
 
+export const PENDING_CAP = 80;
+
 function newEditToken(): string {
   return randomBytes(24).toString("hex");
 }
@@ -30,6 +32,16 @@ export async function listPendingSubmissions(): Promise<Submission[]> {
             '' as edit_token
      from member_submissions where status = 'pending' order by created_at desc limit 200`,
   );
+}
+
+async function hasActiveMember(name: string, chapter: string): Promise<boolean> {
+  const rows = await sql<{ id: number }>(
+    `select id from members
+     where active = true and lower(name) = lower($1) and lower(chapter) = lower($2)
+     limit 1`,
+    [name, chapter || ""],
+  );
+  return Boolean(rows[0]);
 }
 
 export async function submitGuestProfile(
@@ -53,8 +65,14 @@ export async function submitGuestProfile(
   const pendingCount = await sql<{ count: string }>(
     `select count(*)::text as count from member_submissions where status = 'pending'`,
   );
-  if (Number(pendingCount[0]?.count || 0) >= 200) {
+  if (Number(pendingCount[0]?.count || 0) >= PENDING_CAP) {
     return { error: "待審申請過多，請稍後再試或洽主辦" };
+  }
+
+  if (await hasActiveMember(normalized.name, normalized.chapter || "")) {
+    return {
+      error: "送出失敗，請洽主辦更新資料，或確認姓名／分會是否正確。",
+    };
   }
 
   const providedToken = String(input.editToken || "").trim();
@@ -67,6 +85,24 @@ export async function submitGuestProfile(
       [providedToken],
     );
     if (owned[0]) {
+      if (await hasActiveMember(normalized.name, normalized.chapter || "")) {
+        return {
+          error: "送出失敗，請洽主辦更新資料，或確認姓名／分會是否正確。",
+        };
+      }
+      const conflict = await sql<Submission>(
+        `select id from member_submissions
+         where status = 'pending'
+           and id <> $1
+           and lower(name) = lower($2)
+           and lower(chapter) = lower($3)
+         limit 1`,
+        [owned[0].id, normalized.name, normalized.chapter || ""],
+      );
+      if (conflict[0]) {
+        return { error: "送出失敗，請洽主辦處理，或用原裝置繼續編輯。" };
+      }
+
       const rows = await sql<Submission>(
         `update member_submissions set
           name = $2, chapter = $3, role = $4, company = $5, industry = $6,
@@ -97,7 +133,7 @@ export async function submitGuestProfile(
   }
 
   const existing = await sql<Submission>(
-    `select * from member_submissions
+    `select id from member_submissions
      where status = 'pending' and lower(name) = lower($1) and lower(chapter) = lower($2)
      limit 1`,
     [normalized.name, normalized.chapter || ""],
@@ -105,7 +141,7 @@ export async function submitGuestProfile(
 
   if (existing[0]) {
     return {
-      error: "此姓名與分會已有待審申請。請用原裝置繼續編輯，或洽主辦處理。",
+      error: "送出失敗，請洽主辦處理，或用原裝置繼續編輯。",
     };
   }
 
@@ -130,8 +166,8 @@ export async function submitGuestProfile(
   return { ok: true, submission: rows[0], replacedPending: false, editToken };
 }
 
-/** 核准時合併進正式名單：不覆寫既有電話／信箱／備註（訪客申請沒有這些欄位）。 */
-async function mergeApprovedSubmission(row: Submission): Promise<{ ok: true } | { error: string }> {
+/** 核准只新增會員；若正式名單已有同名則請主辦到後台手動處理，避免匿名申請覆寫。 */
+async function approveAsNewMember(row: Submission): Promise<{ ok: true } | { error: string }> {
   const normalized = normalizeMember({
     name: row.name,
     chapter: row.chapter,
@@ -144,40 +180,10 @@ async function mergeApprovedSubmission(row: Submission): Promise<{ ok: true } | 
   });
   if ("error" in normalized) return normalized;
 
-  const existing = await sql<Member>(
-    `select * from members
-     where active = true and lower(name) = lower($1) and lower(chapter) = lower($2)
-     limit 1`,
-    [normalized.name, normalized.chapter || ""],
-  );
-
-  if (existing[0]) {
-    const prev = existing[0];
-    const noteParts = [prev.notes, "由訪客申請核准"].filter(Boolean);
-    const notes = Array.from(new Set(noteParts)).join("；").slice(0, 240);
-    try {
-      await sql(
-        `update members set
-          role = $2, company = $3, industry = $4, chain = $5,
-          have = $6, want = $7, notes = $8, updated_at = now()
-         where id = $1`,
-        [
-          prev.id,
-          normalized.role || prev.role || "",
-          normalized.company || prev.company || "",
-          normalized.industry || prev.industry || "",
-          normalized.chain || prev.chain || "",
-          normalized.have || prev.have || "",
-          normalized.want || prev.want || "",
-          notes,
-        ],
-      );
-      return { ok: true };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      if (/unique|duplicate/i.test(message)) return { error: "同一分會已有同名會員" };
-      throw error;
-    }
+  if (await hasActiveMember(normalized.name, normalized.chapter || "")) {
+    return {
+      error: "正式名單已有同名會員，請至後台手動編輯，或拒絕此申請。",
+    };
   }
 
   const created = await createMember({
@@ -207,7 +213,7 @@ export async function reviewSubmission(
     return { ok: true };
   }
 
-  const result = await mergeApprovedSubmission(row);
+  const result = await approveAsNewMember(row);
   if ("error" in result) return result;
 
   await sql(

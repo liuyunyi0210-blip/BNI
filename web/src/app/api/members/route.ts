@@ -1,9 +1,24 @@
+import { randomBytes } from "node:crypto";
 import { requireAdmin } from "../../../lib/auth";
 import { createMember, listMembers, listPublicMembers } from "../../../lib/members";
+import {
+  clientLimitKey,
+  rateCookieHeader,
+  rateLimitExceeded,
+  readRateCookie,
+} from "../../../lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-/** 公開名單：免登入，只回傳前台需要的欄位。 */
+function publicHeaders(request: Request) {
+  const headers = new Headers({ "cache-control": "private, no-store" });
+  if (!readRateCookie(request)) {
+    headers.append("set-cookie", rateCookieHeader(randomBytes(18).toString("base64url")));
+  }
+  return headers;
+}
+
+/** 公開名單：免登入，需指定分會；只回傳前台需要的欄位。 */
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q") || undefined;
@@ -21,10 +36,25 @@ export async function GET(request: Request) {
     );
   }
 
-  const rows = await listPublicMembers({ q, chapter });
+  const limitKey = clientLimitKey(request, "public-members");
+  if (rateLimitExceeded(limitKey, { windowMs: 60 * 1000, max: 60 })) {
+    return Response.json(
+      { error: "請求過於頻繁，請稍後再試" },
+      { status: 429, headers: publicHeaders(request) },
+    );
+  }
+
+  if (!chapter) {
+    return Response.json(
+      { members: [], needChapter: true, sample: !process.env.DATABASE_URL },
+      { headers: publicHeaders(request) },
+    );
+  }
+
+  const rows = await listPublicMembers({ q, chapter, limit: 80 });
   return Response.json(
     { members: rows, sample: !process.env.DATABASE_URL },
-    { headers: { "cache-control": "private, no-store" } },
+    { headers: publicHeaders(request) },
   );
 }
 
