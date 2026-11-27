@@ -102,15 +102,25 @@ export async function listMembers(opts: {
   return sql<Member>(sqlText, params);
 }
 
-/** 前台公開欄位：不含電話、信箱、備註。 */
+/** 前台公開欄位：不含電話、信箱、備註；需指定分會並限制筆數。 */
 export async function listPublicMembers(opts: {
   q?: string;
-  chapter?: string;
-} = {}): Promise<PublicMember[]> {
-  const { where, params } = memberWhere({ ...opts, includeInactive: false });
+  chapter: string;
+  limit?: number;
+} ): Promise<PublicMember[]> {
+  const chapter = String(opts.chapter || "").trim();
+  if (!chapter) return [];
+  const limit = Math.min(Math.max(Number(opts.limit) || 80, 1), 80);
+  const { where, params } = memberWhere({
+    q: opts.q,
+    chapter,
+    includeInactive: false,
+  });
+  params.push(limit);
   const sqlText = `select id, name, chapter, role, company, industry, chain, have, want
     from members${where.length ? ` where ${where.join(" and ")}` : ""}
-    order by chapter, name`;
+    order by name
+    limit $${params.length}`;
   return sql<PublicMember>(sqlText, params);
 }
 
